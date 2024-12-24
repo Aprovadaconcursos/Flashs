@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Ícones FontAwesome -->
+</head>
+<body>
+    <div id="flashcard-container">
+        <h1>Flashcards</h1>
+        
+        <!-- Campo para upload de arquivo Word -->
+        <input type="file" id="file-upload" accept=".docx" />
+        <button onclick="handleFile()">Gerar Flashcards</button>
+        
+        <div id="flashcards" class="flashcards"></div>
+    </div>
+
+    <div id="audio-options">
+        <button onclick="changeSpeed(1)">Velocidade 1x</button>
+        <button onclick="changeSpeed(2.5)">Velocidade 2.5x</button>
+        <button onclick="changeSpeed(2.75)">Velocidade 2.75x</button>
+        <button onclick="changeSpeed(3)">Velocidade 3x</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
