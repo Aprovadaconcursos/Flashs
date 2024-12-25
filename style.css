@@ -62,13 +62,48 @@ button:hover {
 }
 
 .flashcard-content {
-    width: 95%;  /* O conteúdo agora ocupa 95% da largura */
-    margin-right: 10px;
+    width: 100%;  
+    padding: 20px;
+    background-color: #f0f0f0; 
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
 }
 
-.flashcard button {
+.flashcard-content p {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+}
+
+.flashcard-actions {
+    display: flex;
+    justify-content: center;  
+    align-items: center;
+    gap: 10px;  
+    margin-top: 10px;
+    flex-direction: column; /* Botões na vertical */
+}
+
+.flashcard-actions button {
     background-color: #FF6347;
-    margin: 5px 0;
+    padding: 8px 12px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px; 
+}
+
+.flashcard-actions button:hover {
+    background-color: #D94B36;
+}
+
+.flashcard-actions i {
+    font-size: 1.2em; 
 }
 
 #audio-options {
@@ -81,43 +116,20 @@ button:hover {
 }
 
 .flashcard img {
-    width: 100%;           /* Ajusta a imagem para 100% do tamanho disponível */
-    height: auto;          /* Mantém a proporção da imagem */
-    max-width: 400px;      /* Limita o tamanho máximo da imagem */
-    margin-top: 10px;      /* Espaçamento entre o texto e a imagem */
-    border-radius: 8px;    /* Bordas arredondadas para combinar com o design */
+    width: 100%;           
+    height: auto;          
+    max-width: 400px;      
+    margin-top: 10px;      
+    border-radius: 8px;    
 }
 
 button i {
-    font-size: 1.5em; /* Ícone maior */
+    font-size: 1.5em;
 }
 
-.button-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center; /* Alinha os botões ao centro */
-    width: 5%;  /* Agora a largura é de apenas 5% */
-    margin-right: 10px; /* Espaço entre os botões e o conteúdo */
-}
-
-.button-container button {
-    width: 100%;  /* Faz com que os botões ocupem toda a largura disponível da .button-container */
-    margin: 5px 0; /* Adiciona espaçamento entre os botões */
-}
-
-/* Estilos para o botão de exclusão */
-.flashcard-content button {
-    margin-top: 10px;
-    background-color: #FF6347; /* Cor do botão de delete */
-    color: white;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 5px 10px;
-}
-
-.flashcard-content button:hover {
-    background-color: #D94B36; /* Cor mais escura quando o botão de delete é hover */
+/* Estilo para as palavras sendo lidas */
+.highlight {
+    text-decoration: underline;
+    text-decoration-color: #D8B4DD;  /* Cor lilás para o traço */
+    text-decoration-thickness: 2px;  /* Espessura do traço */
 }
