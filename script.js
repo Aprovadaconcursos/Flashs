@@ -68,7 +68,7 @@ function createFlashcard(content) {
 
     const pauseButton = document.createElement('button');
     pauseButton.innerHTML = '<i class="fas fa-pause"></i>';
-    pauseButton.onclick = pauseReading;
+    pauseButton.onclick = () => pauseReading();
 
     const attachButton = document.createElement('button');
     attachButton.innerHTML = '<i class="fas fa-paperclip"></i>';
@@ -113,60 +113,47 @@ function addNewDeck(currentFlashcard) {
 function readAloud(flashcard) {
     const textElement = flashcard.querySelector('.flashcard-content p');
     if (textElement) {
-        const text = textElement.innerText.trim();
-        if (text.length > 0) {
+        const originalHTML = textElement.innerHTML; // Salva a formatação original
+        const words = textElement.innerText.split(" ");
+        let currentWordIndex = 0;
+
+        if (words.length > 0) {
             // Interrompe qualquer leitura anterior antes de iniciar uma nova
             if (currentUtterance) {
                 speechSynthesis.cancel();
             }
 
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = currentSpeed; // Aplica a velocidade selecionada
+            currentUtterance = new SpeechSynthesisUtterance(textElement.innerText);
+            currentUtterance.rate = currentSpeed; // Aplica a velocidade selecionada
 
-            utterance.onstart = () => {
-                currentUtterance = utterance; // Salva a leitura em andamento
-                console.log(`Iniciando leitura em ${currentSpeed}x`);
-
-                // Marca o parágrafo como "lendo" e ativa a linha lilás
-                textElement.classList.add('reading');
-                highlightCurrentWord(utterance, textElement);
+            currentUtterance.onboundary = (event) => {
+                if (event.name === "word" && currentWordIndex < words.length) {
+                    textElement.innerHTML = words
+                        .map((word, index) => {
+                            if (index === currentWordIndex) {
+                                return `<span class='highlight'>${word}</span>`;
+                            }
+                            return word;
+                        })
+                        .join(" ");
+                    currentWordIndex++;
+                }
             };
 
-            utterance.onend = () => {
-                // Remove a marcação de leitura e a linha lilás ao terminar
-                textElement.classList.remove('reading');
+            currentUtterance.onend = () => {
+                textElement.innerHTML = originalHTML; // Restaura a formatação original
+                currentUtterance = null; // Reseta o utterance
+                console.log("Leitura finalizada.");
             };
 
-            utterance.onerror = () => console.error("Erro durante a leitura.");
-            speechSynthesis.speak(utterance);
+            currentUtterance.onerror = () => console.error("Erro durante a leitura.");
+            speechSynthesis.speak(currentUtterance);
         } else {
             alert("Nenhum texto para ler neste deck.");
         }
     } else {
         alert("Erro: Não foi possível localizar o texto no deck.");
     }
-}
-
-// Função para destacar a palavra que está sendo lida
-function highlightCurrentWord(utterance, textElement) {
-    const words = textElement.innerText.split(" ");
-    let currentWordIndex = 0;
-
-    // Função para destacar as palavras enquanto elas são lidas
-    utterance.onboundary = function(event) {
-        if (event.name === 'word') {
-            // Remove o destaque anterior
-            textElement.innerHTML = textElement.innerText; 
-            const word = words[currentWordIndex];
-
-            // Destaca a palavra que está sendo lida
-            const highlightedText = textElement.innerText.replace(word, `<span class="highlight">${word}</span>`);
-            textElement.innerHTML = highlightedText;
-
-            // Aumenta o índice para a próxima palavra
-            currentWordIndex++;
-        }
-    };
 }
 
 // Função para mudar a velocidade da leitura
@@ -177,9 +164,12 @@ function changeSpeed(speed) {
 
 // Função para pausar a leitura
 function pauseReading() {
-    if (currentUtterance) {
-        speechSynthesis.pause();
+    if (currentUtterance && speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+        currentUtterance = null;
         console.log("Leitura pausada.");
+    } else {
+        console.log("Não há leitura em andamento para pausar.");
     }
 }
 
