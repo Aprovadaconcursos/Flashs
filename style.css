@@ -1,135 +1,89 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    padding: 20px;
-}
-
-#flashcard-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-    text-align: center;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  text-align: center;
+  padding: 20px;
+  background-color: #f5f5f5;
 }
 
 textarea {
-    width: 100%;
-    height: 150px;
-    margin-bottom: 20px;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+  font-size: 16px;
+  padding: 10px;
+  margin-top: 20px;
+  width: 60%;
+  border-radius: 5px;
+  border: 2px solid #4e8fe5;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 button {
-    padding: 10px;
-    margin: 5px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 10px 20px;
+  background-color: #ff9900;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
-    background-color: #0056b3;
+  background-color: #ff7700;
 }
 
-.flashcards {
-    margin-top: 20px;
+#mapaMental {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  flex-wrap: wrap;
 }
 
-.flashcard {
-    background-color: #e0e0e0;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+.nodo {
+  background-color: #ffcc00;
+  color: #333;
+  padding: 15px 25px;
+  border-radius: 15px;
+  margin: 20px;
+  position: relative;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 18px;
+  display: inline-block;
+  max-width: 300px;
+  transition: all 0.3s ease;
 }
 
-.flashcard-content {
-    width: 100%;  
-    padding: 20px;
-    background-color: #f0f0f0; 
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    text-align: center; 
+.subNodo {
+  background-color: #ff66b2;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  margin: 15px;
+  font-size: 16px;
+  transition: all 0.3s ease;
 }
 
-.flashcard-content p {
-    margin: 0;
-    padding: 0;
-    font-size: 18px;
+.nodo p, .subNodo p {
+  margin: 0;
+  text-align: center;
 }
 
-.flashcard-actions {
-    display: flex;
-    justify-content: center;  
-    align-items: center;
-    gap: 10px;  
-    margin-top: 10px;
-    flex-direction: column; /* Botões na vertical */
+.nodo:hover, .subNodo:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.3);
 }
 
-.flashcard-actions button {
-    background-color: #FF6347;
-    padding: 8px 12px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px; 
+.seta {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 20px;
+  height: 2px;
+  background-color: #ffcc00;
+  margin-left: 10px;
+  transform: rotate(45deg);
+  transition: all 0.3s ease;
 }
 
-.flashcard-actions button:hover {
-    background-color: #D94B36;
-}
-
-.flashcard-actions i {
-    font-size: 1.2em; 
-}
-
-#audio-options {
-    margin-top: 20px;
-    text-align: center;
-}
-
-#audio-options button {
-    margin: 0 5px;
-}
-
-.flashcard img {
-    width: 100%;           
-    height: auto;          
-    max-width: 400px;      
-    margin-top: 10px;      
-    border-radius: 8px;    
-}
-
-button i {
-    font-size: 1.5em;
-}
-
-/* Estilo para as palavras sendo lidas */
-.highlight {
-    text-decoration: underline;
-    text-decoration-color: #D8B4DD;  /* Cor lilás para o traço */
-    text-decoration-thickness: 2px;  /* Espessura do traço */
+.nodo:hover .seta, .subNodo:hover .seta {
+  background-color: #ff66b2;
 }
