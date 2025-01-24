@@ -1,374 +1,265 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards App</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Ícones FontAwesome -->
+    <title>Mapa Mental</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #fef4f4;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .node {
+            padding: 20px;
+            border: 3px dashed #ff4500;
+            border-radius: 15px;
+            background-color: #ffe4e1;
+            text-align: center;
+            min-width: 120px;
+            max-width: 200px;
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            color: #ff1493;
+            font-weight: bold;
+            position: absolute;
+            cursor: grab;
+            overflow: auto;
+        }
+
+        .node:active {
+            cursor: grabbing;
+        }
+
+        .node[contenteditable="true"] {
+            outline: none;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .node:hover .delete-btn {
+            display: block;
+        }
+
+        input[type="file"] {
+            margin-top: 20px;
+            padding: 5px;
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Estilo para a imagem ampliada */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 80%;
+            max-height: 80%;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <div id="flashcard-container">
-        <h1>Flashcards</h1>
-        
-        <!-- Campo para upload de arquivo Word -->
-        <input type="file" id="file-upload" accept=".docx" />
-        <button onclick="handleFile()">Gerar Flashcards</button>
-        
-        <div id="flashcards" class="flashcards"></div>
+    <h1 id="tituloMapaMental">Gerador de Mapa Mental</h1>
+    
+    <label for="inputText" id="labelInputTexto">Cole seu texto aqui:</label>
+    <textarea id="inputText" placeholder="Cole seu texto aqui..." aria-labelledby="labelInputTexto"></textarea>
+    
+    <button onclick="generateMindMap()" aria-label="Gerar Mapa Mental">Gerar Mapa Mental</button>
 
-        <!-- Botões para navegação entre os flashcards -->
-        <button id="prev-button" onclick="prevFlashcard()">Anterior</button>
-        <button id="next-button" onclick="nextFlashcard()">Próximo</button>
+    <div id="mapContainer" class="map-container" aria-live="polite"></div>
+
+    <!-- Modal para imagem ampliada -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
     </div>
 
-    <div id="audio-options">
-        <button onclick="changeSpeed(1)">Velocidade 1x</button>
-        <button onclick="changeSpeed(1.5)">Velocidade 1.5x</button> <!-- Adicionada a velocidade 1.5x -->
-        <button onclick="changeSpeed(1.75)">Velocidade 1.75x</button> <!-- Adicionada a velocidade 1.75x -->
-        <button onclick="changeSpeed(2)">Velocidade 2x</button> <!-- Agora a 2x vem após a 1.75x -->
-        <button onclick="changeSpeed(2.5)">Velocidade 2.5x</button>
-        <button onclick="changeSpeed(2.75)">Velocidade 2.75x</button>
-        <button onclick="changeSpeed(3)">Velocidade 3x</button>
-    </div>
+    <script>
+        function generateMindMap() {
+            document.getElementById('tituloMapaMental').style.display = 'none';
+            document.getElementById('labelInputTexto').style.display = 'none';
+            document.getElementById('inputText').style.display = 'none';
+            document.querySelector('button').style.display = 'none';
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
-    <script src="script.js"></script>
+            const inputText = document.getElementById('inputText').value;
+            const mapContainer = document.getElementById('mapContainer');
+
+            mapContainer.innerHTML = '';
+
+            const sentences = inputText.split(/\n+/);
+
+            const startX = 50;
+            const startY = 50;
+            const gapX = 250;
+            const gapY = 150;
+
+            let currentX = startX;
+            let currentY = startY;
+
+            sentences.forEach((sentence, index) => {
+                if (sentence.trim()) {
+                    const node = document.createElement('div');
+                    node.className = 'node';
+                    node.contentEditable = "true";
+                    node.textContent = sentence.trim();
+                    node.style.left = currentX + 'px';
+                    node.style.top = currentY + 'px';
+                    currentX += gapX;
+                    if (currentX + gapX > mapContainer.offsetWidth) {
+                        currentX = startX;
+                        currentY += gapY;
+                    }
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '×';
+                    deleteBtn.onclick = () => node.remove();
+                    node.appendChild(deleteBtn);
+
+                    node.onmousedown = function (event) {
+                        if (event.target.classList.contains('delete-btn')) return;
+
+                        const shiftX = event.clientX - node.getBoundingClientRect().left;
+                        const shiftY = event.clientY - node.getBoundingClientRect().top;
+
+                        function moveAt(pageX, pageY) {
+                            node.style.left = pageX - shiftX + 'px';
+                            node.style.top = pageY - shiftY + 'px';
+
+                            // Ajusta o tamanho do contêiner para caber o nodo
+                            const nodeRect = node.getBoundingClientRect();
+                            const containerRect = mapContainer.getBoundingClientRect();
+
+                            if (nodeRect.bottom > containerRect.bottom) {
+                                mapContainer.style.height = mapContainer.scrollHeight + 100 + 'px';
+                            }
+                            if (nodeRect.right > containerRect.right) {
+                                mapContainer.style.width = mapContainer.scrollWidth + 100 + 'px';
+                            }
+                        }
+
+                        function onMouseMove(event) {
+                            moveAt(event.pageX, event.pageY);
+                        }
+
+                        document.addEventListener('mousemove', onMouseMove);
+                        document.onmouseup = function () {
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.onmouseup = null;
+                        };
+                        moveAt(event.pageX, event.pageY);
+                    };
+
+                    node.ondragstart = function () {
+                        return false;
+                    };
+
+                    // Permitir colar imagem dentro do nodo
+                    node.addEventListener('paste', function (event) {
+                        const items = event.clipboardData.items;
+                        for (let i = 0; i < items.length; i++) {
+                            const item = items[i];
+                            if (item.type.indexOf('image') === 0) {
+                                const file = item.getAsFile();
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    const img = document.createElement('img');
+                                    img.src = e.target.result;
+                                    img.style.maxWidth = '100%';
+                                    img.style.maxHeight = '150px';
+                                    img.classList.add('clickable-img');
+                                    node.appendChild(img);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        }
+                    });
+
+                    mapContainer.appendChild(node);
+                }
+            });
+
+            // Centraliza o mapa mental na tela
+            const resizeObserver = new ResizeObserver(() => {
+                const containerRect = mapContainer.getBoundingClientRect();
+                const parentRect = mapContainer.parentElement.getBoundingClientRect();
+
+                mapContainer.style.marginLeft = (parentRect.width - containerRect.width) / 2 + 'px';
+                mapContainer.style.marginTop = (parentRect.height - containerRect.height) / 2 + 'px';
+            });
+
+            resizeObserver.observe(mapContainer);
+        }
+
+        // Função para abrir o modal com a imagem ampliada
+        function openModal(imageSrc) {
+            const modal = document.getElementById('myModal');
+            const modalImage = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImage.src = imageSrc;
+        }
+
+        // Função para fechar o modal
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+
+        // Torna as imagens clicáveis para abrir no modal
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('clickable-img')) {
+                openModal(event.target.src);
+            }
+        });
+    </script>
 </body>
 </html>
-
-<script>
-let currentSpeed = 1; // Velocidade padrão
-let currentUtterance = null; // Variável para armazenar a leitura em andamento
-
-// Função para lidar com o upload de arquivo Word
-function handleFile() {
-    const fileInput = document.getElementById('file-upload');
-    const file = fileInput.files[0];
-
-    if (!file) {
-        alert("Por favor, selecione um arquivo Word.");
-        return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function () {
-        const arrayBuffer = reader.result;
-
-        mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
-            .then(function (result) {
-                const htmlContent = result.value;
-                generateFlashcardsFromHtml(htmlContent);
-            })
-            .catch(function (err) {
-                console.error("Erro ao converter o documento Word:", err);
-            });
-    };
-
-    reader.readAsArrayBuffer(file);
-}
-
-// Função para gerar flashcards a partir do conteúdo HTML
-function generateFlashcardsFromHtml(htmlContent) {
-    const flashcardsContainer = document.getElementById('flashcards');
-    flashcardsContainer.innerHTML = ''; // Limpa qualquer conteúdo anterior
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, 'text/html');
-    const paragraphs = doc.body.querySelectorAll('p');
-
-    paragraphs.forEach((para) => {
-        const flashcard = createFlashcard(para.innerHTML);
-        flashcardsContainer.appendChild(flashcard);
-    });
-}
-
-// Função para criar flashcards (deck)
-function createFlashcard(content) {
-    const flashcard = document.createElement('div');
-    flashcard.classList.add('flashcard');
-
-    const flashcardContent = document.createElement('div');
-    flashcardContent.classList.add('flashcard-content');
-
-    const flashcardText = document.createElement('p');
-    flashcardText.contentEditable = true;
-    flashcardText.innerHTML = content;
-
-    flashcardContent.appendChild(flashcardText);
-
-    const buttonContainer = document.createElement('div');
-    buttonContainer.classList.add('flashcard-actions');
-
-    // Criando os ícones e atribuindo ações
-    const audioButton = document.createElement('button');
-    audioButton.innerHTML = '<i class="fas fa-volume-up"></i>';
-    audioButton.onclick = () => readAloud(flashcard);
-
-    const pauseButton = document.createElement('button');
-    pauseButton.innerHTML = '<i class="fas fa-pause"></i>';
-    pauseButton.onclick = pauseReading;
-
-    const attachButton = document.createElement('button');
-    attachButton.innerHTML = '<i class="fas fa-paperclip"></i>';
-    attachButton.onclick = () => attachImage(flashcard);
-
-    const deleteDeckButton = document.createElement('button');
-    deleteDeckButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    deleteDeckButton.onclick = () => deleteDeck(flashcard);
-
-    const saveButton = document.createElement('button');
-    saveButton.innerHTML = '<i class="fas fa-save"></i>';
-    saveButton.onclick = () => saveFlashcard(flashcard);
-
-    const addButton = document.createElement('button');
-    addButton.innerHTML = '<i class="fas fa-plus"></i>';
-    addButton.onclick = () => addNewDeck(flashcard);
-
-    // Adicionando todos os botões ao container
-    buttonContainer.appendChild(audioButton);
-    buttonContainer.appendChild(pauseButton);
-    buttonContainer.appendChild(attachButton);
-    buttonContainer.appendChild(deleteDeckButton);
-    buttonContainer.appendChild(saveButton);
-    buttonContainer.appendChild(addButton); // Adicionando o botão de adicionar novo deck
-
-    flashcard.appendChild(flashcardContent);
-    flashcard.appendChild(buttonContainer);
-
-    return flashcard;
-}
-
-// Função para adicionar um novo deck após o atual
-function addNewDeck(currentFlashcard) {
-    const flashcardsContainer = document.getElementById('flashcards');
-    const newFlashcard = createFlashcard("Novo conteúdo do deck");
-
-    // Insere o novo flashcard abaixo do atual
-    flashcardsContainer.insertBefore(newFlashcard, currentFlashcard.nextSibling);
-}
-
-// Função para ler o texto do flashcard em voz alta com a velocidade atual
-function readAloud(flashcard) {
-    const textElement = flashcard.querySelector('.flashcard-content p');
-    if (textElement) {
-        const text = textElement.innerText.trim();
-        if (text.length > 0) {
-            // Interrompe qualquer leitura anterior antes de iniciar uma nova
-            if (currentUtterance) {
-                speechSynthesis.cancel();
-            }
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = currentSpeed; // Aplica a velocidade selecionada
-
-            utterance.onstart = () => {
-                currentUtterance = utterance; // Salva a leitura em andamento
-                console.log(`Iniciando leitura em ${currentSpeed}x`);
-
-                // Marca o parágrafo como "lendo" e ativa a linha lilás
-                textElement.classList.add('reading');
-                highlightCurrentWord(utterance, textElement);
-            };
-
-            utterance.onend = () => {
-                // Remove a marcação de leitura e a linha lilás ao terminar
-                textElement.classList.remove('reading');
-            };
-
-            utterance.onerror = () => console.error("Erro durante a leitura.");
-            speechSynthesis.speak(utterance);
-        } else {
-            alert("Nenhum texto para ler neste deck.");
-        }
-    } else {
-        alert("Erro: Não foi possível localizar o texto no deck.");
-    }
-}
-
-// Função para destacar a palavra que está sendo lida
-function highlightCurrentWord(utterance, textElement) {
-    const words = textElement.innerText.split(" ");
-    let currentWordIndex = 0;
-
-    // Função para destacar as palavras enquanto elas são lidas
-    utterance.onboundary = function(event) {
-        if (event.name === 'word') {
-            // Remove o destaque anterior
-            textElement.innerHTML = textElement.innerText; 
-            const word = words[currentWordIndex];
-
-            // Destaca a palavra que está sendo lida
-            const highlightedText = textElement.innerText.replace(word, `<span class="highlight">${word}</span>`);
-            textElement.innerHTML = highlightedText;
-
-            // Aumenta o índice para a próxima palavra
-            currentWordIndex++;
-        }
-    };
-}
-
-// Função para mudar a velocidade da leitura
-function changeSpeed(speed) {
-    currentSpeed = speed;
-    console.log(`Velocidade alterada para: ${speed}x`);
-}
-
-// Função para pausar a leitura
-function pauseReading() {
-    if (currentUtterance) {
-        speechSynthesis.pause();
-        console.log("Leitura pausada.");
-    }
-}
-
-// Função para anexar uma imagem ao flashcard
-function attachImage(flashcard) {
-    alert("Anexando uma imagem...");
-    // Lógica para anexar uma imagem pode ser implementada aqui
-}
-
-// Função para excluir um deck de flashcards
-function deleteDeck(flashcard) {
-    flashcard.remove();
-}
-</script>
-
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    padding: 20px;
-}
-
-#flashcard-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-    text-align: center;
-}
-
-textarea {
-    width: 100%;
-    height: 150px;
-    margin-bottom: 20px;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-button {
-    padding: 10px;
-    margin: 5px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.flashcards {
-    margin-top: 20px;
-}
-
-.flashcard {
-    background-color: #e0e0e0;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.flashcard-content {
-    width: 100%;  
-    padding: 20px;
-    background-color: #f0f0f0; 
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    text-align: center; 
-}
-
-.flashcard-content p {
-    margin: 0;
-    padding: 0;
-    font-size: 18px;
-}
-
-.flashcard-actions {
-    display: flex;
-    justify-content: center;  
-    align-items: center;
-    gap: 10px;  
-    margin-top: 10px;
-    flex-direction: column; /* Botões na vertical */
-}
-
-.flashcard-actions button {
-    background-color: #FF6347;
-    padding: 8px 12px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px; 
-}
-
-.flashcard-actions button:hover {
-    background-color: #D94B36;
-}
-
-.flashcard-actions i {
-    font-size: 1.2em; 
-}
-
-#audio-options {
-    margin-top: 20px;
-    text-align: center;
-}
-
-#audio-options button {
-    margin: 0 5px;
-}
-
-.flashcard img {
-    width: 100%;           
-    height: auto;          
-    max-width: 600px;      /* Aumentando o tamanho da imagem */
-    margin-top: 10px;      
-    border-radius: 8px;    
-}
-
-button i {
-    font-size: 1.5em;
-}
-
-/* Estilo para as palavras sendo lidas */
-.highlight {
-    text-decoration: underline;
-    text-decoration-color: #D8B4DD;  /* Cor lilás para o traço */
-    text-decoration-thickness: 2px;  /* Espessura do traço */
-}
-</style>
