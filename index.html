@@ -1,265 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Mental</title>
+    <title>Texto em Retângulos</title>
     <style>
         body {
-            font-family: 'Comic Sans MS', sans-serif;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+            flex-direction: column;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            width: auto;
+        }
+        .box {
+            display: block;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f0f0f0;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+        .concept-box {
+            background-color: #ffd700; /* Dourado para destacar o conceito */
+            font-weight: bold;
+        }
+        .highlight-box {
+            background-color: #ffa07a; /* Laranja suave para marcar frases com marcador */
+            font-weight: bold;
+        }
+        .bullet-box {
+            background-color: #add8e6; /* Azul claro para frases com marcador de bolinha preta */
+            font-weight: bold;
+        }
+        .input-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0;
-            padding: 20px;
-            background-color: #fef4f4;
+            gap: 10px;
+            width: 50%;
         }
-
-        .map-container {
-            position: relative;
+        textarea {
             width: 100%;
-            height: 100vh;
-            overflow: auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            height: 100px;
+            resize: none;
         }
-
-        .node {
-            padding: 20px;
-            border: 3px dashed #ff4500;
-            border-radius: 15px;
-            background-color: #ffe4e1;
-            text-align: center;
-            min-width: 120px;
-            max-width: 200px;
-            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-            color: #ff1493;
-            font-weight: bold;
-            position: absolute;
-            cursor: grab;
-            overflow: auto;
-        }
-
-        .node:active {
-            cursor: grabbing;
-        }
-
-        .node[contenteditable="true"] {
-            outline: none;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: red;
-            color: white;
+        button {
+            padding: 10px 15px;
             border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            display: none;
-        }
-
-        .node:hover .delete-btn {
-            display: block;
-        }
-
-        input[type="file"] {
-            margin-top: 20px;
-            padding: 5px;
-            background-color: #ff9900;
+            background-color: #007BFF;
             color: white;
-            border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-
-        /* Estilo para a imagem ampliada */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            max-width: 80%;
-            max-height: 80%;
-        }
-
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1 id="tituloMapaMental">Gerador de Mapa Mental</h1>
-    
-    <label for="inputText" id="labelInputTexto">Cole seu texto aqui:</label>
-    <textarea id="inputText" placeholder="Cole seu texto aqui..." aria-labelledby="labelInputTexto"></textarea>
-    
-    <button onclick="generateMindMap()" aria-label="Gerar Mapa Mental">Gerar Mapa Mental</button>
-
-    <div id="mapContainer" class="map-container" aria-live="polite"></div>
-
-    <!-- Modal para imagem ampliada -->
-    <div id="myModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImage">
+    <div class="input-area" id="inputArea">
+        <textarea id="textInput" placeholder="Cole seu texto aqui..." oninput="preserveFormatting()"></textarea>
+        <button onclick="processText()">Gerar Retângulos</button>
     </div>
+    <div class="container" id="textContainer"></div>
 
     <script>
-        function generateMindMap() {
-            document.getElementById('tituloMapaMental').style.display = 'none';
-            document.getElementById('labelInputTexto').style.display = 'none';
-            document.getElementById('inputText').style.display = 'none';
-            document.querySelector('button').style.display = 'none';
-
-            const inputText = document.getElementById('inputText').value;
-            const mapContainer = document.getElementById('mapContainer');
-
-            mapContainer.innerHTML = '';
-
-            const sentences = inputText.split(/\n+/);
-
-            const startX = 50;
-            const startY = 50;
-            const gapX = 250;
-            const gapY = 150;
-
-            let currentX = startX;
-            let currentY = startY;
-
-            sentences.forEach((sentence, index) => {
-                if (sentence.trim()) {
-                    const node = document.createElement('div');
-                    node.className = 'node';
-                    node.contentEditable = "true";
-                    node.textContent = sentence.trim();
-                    node.style.left = currentX + 'px';
-                    node.style.top = currentY + 'px';
-                    currentX += gapX;
-                    if (currentX + gapX > mapContainer.offsetWidth) {
-                        currentX = startX;
-                        currentY += gapY;
+        function processText() {
+            const container = document.getElementById("textContainer");
+            const text = document.getElementById("textInput").value;
+            const inputArea = document.getElementById("inputArea");
+            inputArea.style.display = "none";
+            container.innerHTML = "";
+            const paragraphs = text.split('\n');
+            paragraphs.forEach((paragraph, index) => {
+                if (paragraph.trim() !== "") {
+                    const box = document.createElement("div");
+                    box.classList.add("box");
+                    let cleanText = paragraph.replace(/[*•]/g, ''); // Remove marcadores para não serem lidos
+                    if (index === 0) {
+                        box.classList.add("concept-box");
                     }
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-btn';
-                    deleteBtn.innerHTML = '×';
-                    deleteBtn.onclick = () => node.remove();
-                    node.appendChild(deleteBtn);
-
-                    node.onmousedown = function (event) {
-                        if (event.target.classList.contains('delete-btn')) return;
-
-                        const shiftX = event.clientX - node.getBoundingClientRect().left;
-                        const shiftY = event.clientY - node.getBoundingClientRect().top;
-
-                        function moveAt(pageX, pageY) {
-                            node.style.left = pageX - shiftX + 'px';
-                            node.style.top = pageY - shiftY + 'px';
-
-                            // Ajusta o tamanho do contêiner para caber o nodo
-                            const nodeRect = node.getBoundingClientRect();
-                            const containerRect = mapContainer.getBoundingClientRect();
-
-                            if (nodeRect.bottom > containerRect.bottom) {
-                                mapContainer.style.height = mapContainer.scrollHeight + 100 + 'px';
-                            }
-                            if (nodeRect.right > containerRect.right) {
-                                mapContainer.style.width = mapContainer.scrollWidth + 100 + 'px';
-                            }
-                        }
-
-                        function onMouseMove(event) {
-                            moveAt(event.pageX, event.pageY);
-                        }
-
-                        document.addEventListener('mousemove', onMouseMove);
-                        document.onmouseup = function () {
-                            document.removeEventListener('mousemove', onMouseMove);
-                            document.onmouseup = null;
-                        };
-                        moveAt(event.pageX, event.pageY);
-                    };
-
-                    node.ondragstart = function () {
-                        return false;
-                    };
-
-                    // Permitir colar imagem dentro do nodo
-                    node.addEventListener('paste', function (event) {
-                        const items = event.clipboardData.items;
-                        for (let i = 0; i < items.length; i++) {
-                            const item = items[i];
-                            if (item.type.indexOf('image') === 0) {
-                                const file = item.getAsFile();
-                                const reader = new FileReader();
-                                reader.onload = function (e) {
-                                    const img = document.createElement('img');
-                                    img.src = e.target.result;
-                                    img.style.maxWidth = '100%';
-                                    img.style.maxHeight = '150px';
-                                    img.classList.add('clickable-img');
-                                    node.appendChild(img);
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        }
-                    });
-
-                    mapContainer.appendChild(node);
+                    if (paragraph.includes("*")) { // Identifica marcadores (*) no texto
+                        box.classList.add("highlight-box");
+                    }
+                    if (paragraph.includes("•")) { // Identifica marcador de bolinha preta (•)
+                        box.classList.add("bullet-box");
+                    }
+                    box.innerHTML = cleanText;
+                    container.appendChild(box);
                 }
             });
+        }
 
-            // Centraliza o mapa mental na tela
-            const resizeObserver = new ResizeObserver(() => {
-                const containerRect = mapContainer.getBoundingClientRect();
-                const parentRect = mapContainer.parentElement.getBoundingClientRect();
-
-                mapContainer.style.marginLeft = (parentRect.width - containerRect.width) / 2 + 'px';
-                mapContainer.style.marginTop = (parentRect.height - containerRect.height) / 2 + 'px';
+        function preserveFormatting() {
+            const textarea = document.getElementById("textInput");
+            textarea.addEventListener("paste", function(event) {
+                event.preventDefault();
+                const text = (event.clipboardData || window.clipboardData).getData("text/html") || event.clipboardData.getData("text/plain");
+                document.execCommand("insertHTML", false, text);
             });
-
-            resizeObserver.observe(mapContainer);
         }
-
-        // Função para abrir o modal com a imagem ampliada
-        function openModal(imageSrc) {
-            const modal = document.getElementById('myModal');
-            const modalImage = document.getElementById('modalImage');
-            modal.style.display = 'flex';
-            modalImage.src = imageSrc;
-        }
-
-        // Função para fechar o modal
-        function closeModal() {
-            document.getElementById('myModal').style.display = 'none';
-        }
-
-        // Torna as imagens clicáveis para abrir no modal
-        document.addEventListener('click', function(event) {
-            if (event.target && event.target.classList.contains('clickable-img')) {
-                openModal(event.target.src);
-            }
-        });
     </script>
 </body>
-</html>
+</html> 
