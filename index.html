@@ -1,115 +1,885 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Texto em Retângulos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f9f9f9;
-            flex-direction: column;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-            width: auto;
-        }
-        .box {
-            display: block;
-            padding: 10px;
-            border-radius: 10px;
-            background-color: #f0f0f0;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
-        }
-        .concept-box {
-            background-color: #ffd700; /* Dourado para destacar o conceito */
-            font-weight: bold;
-        }
-        .highlight-box {
-            background-color: #ffa07a; /* Laranja suave para marcar frases com marcador */
-            font-weight: bold;
-        }
-        .bullet-box {
-            background-color: #add8e6; /* Azul claro para frases com marcador de bolinha preta */
-            font-weight: bold;
-        }
-        .input-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            width: 50%;
-        }
-        textarea {
-            width: 100%;
-            height: 100px;
-            resize: none;
-        }
-        button {
-            padding: 10px 15px;
-            border: none;
-            background-color: #007BFF;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editor Estilo Excel</title>
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Área de Entrada */
+    .input-area {
+      background-color: #ffffff;
+      padding: 20px;
+      border-bottom: 1px solid #ddd;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .editable-div {
+      width: 100%;
+      height: 120px;
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      line-height: 1.5;
+      resize: vertical;
+      overflow-y: auto;
+      transition: border-color 0.3s;
+    }
+
+    .editable-div:focus {
+      outline: none;
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Container das Linhas */
+    .container {
+      flex: 1;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: auto;
+    }
+
+    /* Cada "linha" (bloco) */
+    .box {
+      background-color: #f0f0f0; 
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      height: 45px;            /* Altura fixa para texto */
+      display: flex;
+      align-items: center;     /* Centraliza verticalmente */
+      padding: 0 15px;
+      font-size: 16px;
+      transition: background-color 0.3s, height 0.3s, border-color 0.3s;
+      cursor: text;
+      position: relative;
+      width: 100%;
+      overflow: hidden;        /* Corta o que exceder */
+      white-space: nowrap;     /* Uma só linha */
+      text-overflow: ellipsis; /* Reticências se exceder a largura */
+    }
+
+    .box.colored {
+      height: 50px;
+      background-color: #e6f2ff;
+    }
+
+    /* Foco no bloco */
+    .box:focus-within {
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0,123,255,0.3);
+      background-color: #e6f2ff;
+    }
+
+    /* Efeito de Hover */
+    .box:hover {
+      border-color: #007BFF;
+    }
+
+    /* Menu de Contexto Personalizado */
+    .custom-context-menu {
+      position: absolute;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 10px 0;
+      z-index: 1000;
+      width: 220px;
+      display: none;
+      border-radius: 6px;
+    }
+
+    .custom-context-menu ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .custom-context-menu li {
+      padding: 10px 20px;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+
+    .custom-context-menu li:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Submenu */
+    .submenu {
+      position: relative;
+    }
+
+    .submenu > ul {
+      position: absolute;
+      top: 0;
+      left: 100%;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 10px 0;
+      display: none;
+      border-radius: 6px;
+      min-width: 150px;
+      z-index: 1001;
+    }
+
+    .submenu:hover > ul {
+      display: block;
+    }
+
+    .submenu::after {
+      content: '▶';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #555;
+    }
+
+    /* Responsividade */
+    @media (max-width: 600px) {
+      .editable-div, button, .box {
+        font-size: 14px;
+      }
+
+      .custom-context-menu {
+        width: 180px;
+      }
+
+      .submenu > ul {
+        min-width: 120px;
+      }
+    }
+
+    /* Tabela e #texto (se precisar) */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid orange;
+    }
+    th {
+      background-color: orange;
+      text-align: left;
+      padding: 8px;
+    }
+    td {
+      min-height: 25px;
+      vertical-align: top;
+      padding: 8px;
+    }
+    #texto {
+      width: 100%;
+      height: 250px;
+      box-sizing: border-box;
+    }
+
+    /* Centraliza imagens e tabelas dentro dos blocos */
+    .box img, .box table {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
-    <div class="input-area" id="inputArea">
-        <textarea id="textInput" placeholder="Cole seu texto aqui..." oninput="preserveFormatting()"></textarea>
-        <button onclick="processText()">Gerar Retângulos</button>
-    </div>
-    <div class="container" id="textContainer"></div>
+  <!-- Área de Entrada (inicialmente na parte superior) -->
+  <div class="input-area" id="inputArea">
+    <div class="editable-div" id="textInput" contenteditable="true" placeholder="Cole seu texto aqui..."></div>
+    <button onclick="processText()">Gerar Texto</button>
+    <button id="loadButton" onclick="loadLastDocument()" style="margin-left:10px;">&#x21BA; Último Documento</button>
+  </div>
 
-    <script>
-        function processText() {
-            const container = document.getElementById("textContainer");
-            const text = document.getElementById("textInput").value;
-            const inputArea = document.getElementById("inputArea");
-            inputArea.style.display = "none";
-            container.innerHTML = "";
-            const paragraphs = text.split('\n');
-            paragraphs.forEach((paragraph, index) => {
-                if (paragraph.trim() !== "") {
-                    const box = document.createElement("div");
-                    box.classList.add("box");
-                    let cleanText = paragraph.replace(/[*•]/g, ''); // Remove marcadores para não serem lidos
-                    if (index === 0) {
-                        box.classList.add("concept-box");
-                    }
-                    if (paragraph.includes("*")) { // Identifica marcadores (*) no texto
-                        box.classList.add("highlight-box");
-                    }
-                    if (paragraph.includes("•")) { // Identifica marcador de bolinha preta (•)
-                        box.classList.add("bullet-box");
-                    }
-                    box.innerHTML = cleanText;
-                    container.appendChild(box);
-                }
-            });
-        }
+  <!-- Container dos Blocos Processados -->
+  <div class="container" id="textContainer"></div>
 
-        function preserveFormatting() {
-            const textarea = document.getElementById("textInput");
-            textarea.addEventListener("paste", function(event) {
-                event.preventDefault();
-                const text = (event.clipboardData || window.clipboardData).getData("text/html") || event.clipboardData.getData("text/plain");
-                document.execCommand("insertHTML", false, text);
-            });
+  <!-- Menu de Contexto Personalizado -->
+  <div class="custom-context-menu" id="contextMenu">
+    <ul>
+      <li id="deleteBlock">Excluir Bloco</li>
+      <li id="centerImageInsideBlock">Centralizar Imagem no Bloco</li>
+      <li class="submenu">Alterar Tamanho da Fonte
+        <ul>
+          <li data-font-size="14px">14px</li>
+          <li data-font-size="16px">16px</li>
+          <li data-font-size="18px">18px</li>
+          <li data-font-size="20px">20px</li>
+          <li data-font-size="22px">22px</li>
+        </ul>
+      </li>
+      <li class="submenu">Alterar Cor da Linha
+        <ul>
+          <li data-color="#f0f0f0">Cinza Claro</li>
+          <li data-color="#00B050">Verde</li>
+          <li data-color="#FFC000">Amarelo</li>
+          <li data-color="#00B0F0">Azul</li>
+          <li data-color="#00C0C0">Turquesa</li>
+          <li data-color="#F79646">Laranja</li>
+          <li data-color="#FF00FF">Magenta</li>
+          <li data-color="#00FF00">Verde Vibrante</li>
+          <li data-color="#FFFF00">Amarelo Vibrante</li>
+          <li data-color="#FF69B4">Rosa Shock</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    /* Lista de cores */
+    const colorSequence = [
+      "#f0f0f0",
+      "#00B050",
+      "#FFC000",
+      "#00B0F0",
+      "#00C0C0",
+      "#F79646",
+      "#FF00FF",
+      "#00FF00",
+      "#FFFF00",
+      "#FF69B4"
+    ];
+
+    const defaultFontSize = "16px";
+
+    /**
+     * Processa o conteúdo da área de edição e cria os blocos.
+     * Após processar, oculta a área de entrada e adiciona os botões “+” e “💾”.
+     */
+    function processText() {
+      const container = document.getElementById("textContainer");
+      const inputArea = document.getElementById("inputArea");
+      const textInput = document.getElementById("textInput");
+
+      // Remove o botão de adicionar, se existir
+      const existingButtonContainer = document.getElementById("buttonContainer");
+      if (existingButtonContainer) {
+        existingButtonContainer.remove();
+      }
+
+      // Oculta a área de entrada
+      inputArea.style.display = "none";
+
+      // Pega o conteúdo inserido
+      const htmlContent = textInput.innerHTML;
+      const tempContainer = document.createElement("div");
+      tempContainer.innerHTML = htmlContent;
+      const childNodes = Array.from(tempContainer.childNodes);
+
+      childNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE ||
+            (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "")) {
+          createEditableBox(node.outerHTML || node.textContent, container);
         }
-    </script>
+      });
+
+      // Limpa apenas o conteúdo da área de edição
+      textInput.innerHTML = "";
+
+      // Adiciona os botões “+” e “💾” ao final
+      addAddButton();
+    }
+
+    /**
+     * Cria um novo bloco editável com o conteúdo fornecido e o adiciona ao container.
+     * Após a criação, inicializa os event listeners do bloco.
+     */
+    function createEditableBox(content, container) {
+      const box = document.createElement("div");
+      box.classList.add("box");
+      box.setAttribute("contenteditable", "true");
+      box.innerHTML = content;
+
+      // Define configurações iniciais
+      const initialColorIndex = 0;
+      box.style.backgroundColor = colorSequence[initialColorIndex];
+      box.style.fontSize = defaultFontSize;
+      box.setAttribute('data-color-index', initialColorIndex);
+
+      capitalizeFirstLetter(box);
+      autoCenterElements(box);
+
+      // Inicializa os event listeners (dblclick, keydown, contextmenu, input, paste)
+      initBlockEvents(box);
+
+      container.appendChild(box);
+      return box;
+    }
+
+    /**
+     * Inicializa os event listeners para um bloco (box).
+     * Esses eventos incluem: dupla-clique para alterar a cor, tecla Enter para criar novo bloco,
+     * menu de contexto, input para capitalização/centralização e paste para tratar imagens/texto.
+     */
+    function initBlockEvents(box) {
+      // Duplo clique: alterna cor
+      box.addEventListener("dblclick", function() {
+        let currentColorIndex = parseInt(box.getAttribute('data-color-index')) || 0;
+        currentColorIndex = (currentColorIndex + 1) % colorSequence.length;
+        box.style.backgroundColor = colorSequence[currentColorIndex];
+        box.setAttribute('data-color-index', currentColorIndex);
+        if (colorSequence[currentColorIndex] !== "#f0f0f0") {
+          box.classList.add("colored");
+        } else {
+          box.classList.remove("colored");
+        }
+      });
+
+      // Tecla Enter (sem Shift): cria um novo bloco abaixo
+      box.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          const container = document.getElementById("textContainer");
+          const selection = window.getSelection();
+          if (!selection.rangeCount) return;
+          const range = selection.getRangeAt(0);
+          const rangeClone = range.cloneRange();
+          rangeClone.selectNodeContents(box);
+          rangeClone.setStart(range.endContainer, range.endOffset);
+          const afterContent = rangeClone.extractContents();
+          const newBox = createEditableBox("", container);
+          newBox.appendChild(afterContent);
+          container.insertBefore(newBox, box.nextSibling);
+          newBox.focus();
+          capitalizeFirstLetter(newBox);
+          autoCenterElements(newBox);
+        }
+      });
+
+      // Menu de contexto personalizado
+      box.addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+        showContextMenu(event.pageX, event.pageY, box);
+      });
+
+      // A cada alteração no conteúdo, capitaliza a primeira letra e ajusta a centralização
+      box.addEventListener("input", function() {
+        capitalizeFirstLetter(box);
+        autoCenterElements(box);
+      });
+
+      // Tratamento de colagem (para imagens e textos)
+      box.addEventListener("paste", function(event) {
+        event.preventDefault();
+        const clipboardData = (event.clipboardData || window.clipboardData);
+        const text = clipboardData.getData("text/html") || clipboardData.getData("text/plain");
+        if (clipboardData.files && clipboardData.files.length > 0) {
+          const file = clipboardData.files[0];
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.alt = "Imagem colada";
+            img.style.display = "block";
+            img.style.margin = "0 auto";
+            img.style.maxWidth = "100%";
+            img.style.height = "auto";
+            document.execCommand("insertHTML", false, img.outerHTML);
+            // Ajusta o bloco para comportar a imagem
+            box.style.height = "auto";
+            box.style.overflow = "visible";
+            box.style.whiteSpace = "normal";
+            box.style.alignItems = "center";
+            box.style.justifyContent = "center";
+            box.style.padding = "10px";
+            box.style.flexDirection = "column";
+            autoCenterElements(box);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          document.execCommand("insertHTML", false, text);
+        }
+      });
+    }
+
+    /**
+     * Capitaliza a primeira letra do primeiro nó de texto encontrado no bloco.
+     */
+    function capitalizeFirstLetter(box) {
+      const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT, null, false);
+      let textNode = walker.nextNode();
+      while (textNode) {
+        const text = textNode.nodeValue.trim();
+        if (text.length > 0) {
+          const firstChar = text.charAt(0);
+          const firstCharUpper = firstChar.toUpperCase();
+          if (firstChar !== firstCharUpper) {
+            textNode.nodeValue = firstCharUpper + textNode.nodeValue.slice(1);
+          }
+          break;
+        }
+        textNode = walker.nextNode();
+      }
+    }
+
+    /**
+     * Centraliza automaticamente imagens e tabelas dentro do bloco.
+     */
+    function autoCenterElements(box) {
+      const images = box.querySelectorAll('img');
+      const tables = box.querySelectorAll('table');
+      
+      if (images.length > 0 || tables.length > 0) {
+        box.style.height = "auto";
+        box.style.overflow = "visible";
+        box.style.whiteSpace = "normal";
+        box.style.alignItems = "center";
+        box.style.justifyContent = "center";
+        box.style.padding = "10px";
+        box.style.flexDirection = "column";
+
+        images.forEach(img => {
+          img.style.display = 'block';
+          img.style.marginLeft = 'auto';
+          img.style.marginRight = 'auto';
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+        });
+
+        tables.forEach(table => {
+          table.style.marginLeft = 'auto';
+          table.style.marginRight = 'auto';
+          table.style.width = 'auto';
+        });
+
+        const bgColor = box.style.backgroundColor;
+        if (bgColor !== "rgb(240, 240, 240)" && bgColor !== "#f0f0f0") {
+          box.classList.add("colored");
+        } else {
+          box.classList.remove("colored");
+        }
+      } else {
+        box.style.height = "45px";
+        box.style.overflow = "hidden";
+        box.style.whiteSpace = "nowrap";
+        box.style.alignItems = "center";
+        box.style.justifyContent = "flex-start";
+        box.style.padding = "0 15px";
+        box.style.flexDirection = "row";
+        box.classList.remove("colored");
+      }
+    }
+
+    // Tratamento de colagem na área de entrada para imagens e textos
+    document.getElementById("textInput").addEventListener("paste", function(event) {
+      event.preventDefault();
+      const clipboardData = (event.clipboardData || window.clipboardData);
+      const text = clipboardData.getData("text/html") || clipboardData.getData("text/plain");
+      if (clipboardData.files && clipboardData.files.length > 0) {
+        const file = clipboardData.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.alt = "Imagem colada";
+          img.style.display = "block";
+          img.style.margin = "0 auto";
+          img.style.maxWidth = "100%";
+          img.style.height = "auto";
+          document.execCommand("insertHTML", false, img.outerHTML);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        document.execCommand("insertHTML", false, text);
+      }
+    });
+
+    // Ctrl+N para criar um novo bloco manualmente
+    function addNewBlock(event) {
+      if (event.ctrlKey && event.key === 'n') {
+        event.preventDefault();
+        const container = document.getElementById("textContainer");
+        const activeBox = document.querySelector(".box:focus");
+        if (activeBox) {
+          const newBox = createEditableBox("<br>", container);
+          container.insertBefore(newBox, activeBox.nextSibling);
+          newBox.focus();
+          capitalizeFirstLetter(newBox);
+          autoCenterElements(newBox);
+        }
+      }
+    }
+    document.addEventListener("keydown", addNewBlock);
+
+    // Fecha o menu de contexto ao clicar fora
+    document.addEventListener("click", function(event) {
+      const contextMenu = document.getElementById("contextMenu");
+      if (contextMenu.style.display === "block") {
+        contextMenu.style.display = "none";
+      }
+    });
+
+    // Exibe o menu de contexto personalizado
+    function showContextMenu(x, y, box) {
+      const contextMenu = document.getElementById("contextMenu");
+      contextMenu.style.top = `${y}px`;
+      contextMenu.style.left = `${x}px`;
+      contextMenu.style.display = "block";
+      contextMenu.currentBox = box;
+    }
+
+    // "Excluir Bloco"
+    document.getElementById("deleteBlock").addEventListener("click", function() {
+      const contextMenu = document.getElementById("contextMenu");
+      const box = contextMenu.currentBox;
+      if (box && box.parentNode) {
+        box.parentNode.removeChild(box);
+      }
+      contextMenu.style.display = "none";
+    });
+
+    // "Centralizar Imagem no Bloco"
+    document.getElementById("centerImageInsideBlock").addEventListener("click", function() {
+      const contextMenu = document.getElementById("contextMenu");
+      const box = contextMenu.currentBox;
+      if (box) {
+        box.style.height = "auto";
+        box.style.overflow = "visible";
+        box.style.whiteSpace = "normal";
+        box.style.alignItems = "center";
+        box.style.justifyContent = "center";
+        box.style.padding = "10px";
+        box.style.flexDirection = "column";
+
+        const images = box.querySelectorAll('img');
+        images.forEach(img => {
+          img.style.display = 'block';
+          img.style.marginLeft = 'auto';
+          img.style.marginRight = 'auto';
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+        });
+
+        const tables = box.querySelectorAll('table');
+        tables.forEach(table => {
+          table.style.marginLeft = 'auto';
+          table.style.marginRight = 'auto';
+          table.style.width = 'auto';
+        });
+      }
+      contextMenu.style.display = "none";
+    });
+
+    // "Alterar Tamanho da Fonte"
+    const fontSizeOptions = document.querySelectorAll('.submenu ul li[data-font-size]');
+    fontSizeOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const contextMenu = document.getElementById("contextMenu");
+        const box = contextMenu.currentBox;
+        const newFontSize = option.getAttribute('data-font-size');
+        if (box && newFontSize) {
+          box.style.fontSize = newFontSize;
+        }
+        contextMenu.style.display = "none";
+      });
+    });
+
+    // "Alterar Cor da Linha"
+    const colorOptions = document.querySelectorAll('.submenu ul li[data-color]');
+    colorOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const contextMenu = document.getElementById("contextMenu");
+        const box = contextMenu.currentBox;
+        const newColor = option.getAttribute('data-color');
+        if (box) {
+          box.style.backgroundColor = newColor;
+          if (newColor !== "#f0f0f0") {
+            box.classList.add("colored");
+          } else {
+            box.classList.remove("colored");
+          }
+        }
+        contextMenu.style.display = "none";
+      });
+    });
+
+    /**
+     * Função auxiliar que aguarda que todas as imagens do container clonado estejam carregadas.
+     * Retorna uma Promise que se resolve quando todas as imagens estão carregadas ou com erro.
+     */
+    function waitForImages(containerClone) {
+      const images = containerClone.querySelectorAll('img');
+      if (images.length === 0) return Promise.resolve();
+      let loadedCount = 0;
+      return new Promise(resolve => {
+        images.forEach(img => {
+          if (img.complete && img.naturalWidth !== 0) {
+            loadedCount++;
+            if (loadedCount === images.length) resolve();
+          } else {
+            img.addEventListener('load', () => {
+              loadedCount++;
+              if (loadedCount === images.length) resolve();
+            });
+            img.addEventListener('error', () => {
+              loadedCount++;
+              if (loadedCount === images.length) resolve();
+            });
+          }
+        });
+      });
+    }
+
+    /**
+     * Função que percorre todas as imagens do container clonado e, se a imagem não possuir
+     * uma Data URL, a converte para Data URL. Isso garante que as imagens sejam exibidas
+     * mesmo após salvar e recarregar o documento.
+     */
+    function convertImagesToDataURLs(container) {
+      const images = container.querySelectorAll("img");
+      const promises = [];
+      images.forEach(img => {
+        if (!img.src.startsWith("data:")) {
+          const promise = new Promise(resolve => {
+            const image = new Image();
+            image.crossOrigin = "Anonymous";
+            image.onload = function() {
+              const canvas = document.createElement("canvas");
+              canvas.width = image.width;
+              canvas.height = image.height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(image, 0, 0);
+              try {
+                const dataURL = canvas.toDataURL();
+                img.src = dataURL;
+              } catch (e) {
+                console.error("Erro ao converter imagem: ", e);
+              }
+              resolve();
+            };
+            image.onerror = function() {
+              resolve();
+            };
+            image.src = img.src;
+          });
+          promises.push(promise);
+        }
+      });
+      return Promise.all(promises);
+    }
+
+    /**
+     * Cria e adiciona os botões “+” e “💾” ao final do container.
+     * O botão “+” permite trazer a área de entrada para editar/novo conteúdo,
+     * enquanto o ícone “💾” salva o documento atual (todo o HTML dos blocos) no localStorage.
+     */
+    function addAddButton() {
+      const container = document.getElementById("textContainer");
+      
+      // Cria um container para os botões
+      const buttonContainer = document.createElement("div");
+      buttonContainer.id = "buttonContainer";
+      buttonContainer.style.display = "flex";
+      buttonContainer.style.justifyContent = "center";
+      buttonContainer.style.alignItems = "center";
+      buttonContainer.style.gap = "20px";
+      buttonContainer.style.margin = "10px 0";
+
+      // Botão de adicionar (“+”)
+      const addButton = document.createElement("div");
+      addButton.id = "addButton";
+      addButton.textContent = "+";
+      addButton.style.cursor = "pointer";
+      addButton.style.textAlign = "center";
+      addButton.style.fontSize = "24px";
+      addButton.style.padding = "5px";
+
+      addButton.addEventListener("click", function() {
+        buttonContainer.remove();
+        const inputArea = document.getElementById("inputArea");
+        inputArea.style.display = "block";
+        container.appendChild(inputArea);
+        document.getElementById("textInput").focus();
+      });
+
+      // Botão de salvar (ícone de disquete)
+      const saveButton = document.createElement("div");
+      saveButton.id = "saveButton";
+      saveButton.textContent = "💾";
+      saveButton.style.cursor = "pointer";
+      saveButton.style.textAlign = "center";
+      saveButton.style.fontSize = "24px";
+      saveButton.style.padding = "5px";
+
+      saveButton.addEventListener("click", function() {
+        saveDocument();
+      });
+
+      buttonContainer.appendChild(addButton);
+      buttonContainer.appendChild(saveButton);
+      container.appendChild(buttonContainer);
+    }
+
+    /**
+     * Salva o documento atual.
+     * O procedimento é o seguinte:
+     *   1. Clona o container (removendo o container de botões do clone).
+     *   2. Converte as imagens para Data URL (se necessário) e aguarda que todas estejam carregadas.
+     *   3. Enquanto isso, exibe um overlay com um indicador de progresso que avança até 90%.
+     *   4. Quando as imagens estiverem carregadas, o progresso é animado até 100% e o HTML é salvo.
+     */
+    function saveDocument() {
+      const container = document.getElementById("textContainer");
+      // Clona o container para não alterar o DOM visível
+      const containerClone = container.cloneNode(true);
+      const buttonContainerClone = containerClone.querySelector("#buttonContainer");
+      if (buttonContainerClone) {
+        buttonContainerClone.remove();
+      }
+
+      // Cria o overlay de progresso
+      const progressOverlay = document.createElement("div");
+      progressOverlay.style.position = "fixed";
+      progressOverlay.style.top = 0;
+      progressOverlay.style.left = 0;
+      progressOverlay.style.width = "100%";
+      progressOverlay.style.height = "100%";
+      progressOverlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+      progressOverlay.style.display = "flex";
+      progressOverlay.style.flexDirection = "column";
+      progressOverlay.style.justifyContent = "center";
+      progressOverlay.style.alignItems = "center";
+      progressOverlay.style.zIndex = 2000;
+
+      // Container do indicador de progresso
+      const progressContainer = document.createElement("div");
+      progressContainer.style.width = "80%";
+      progressContainer.style.maxWidth = "400px";
+      progressContainer.style.backgroundColor = "#fff";
+      progressContainer.style.borderRadius = "10px";
+      progressContainer.style.padding = "20px";
+      progressContainer.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
+      progressContainer.style.textAlign = "center";
+
+      const progressText = document.createElement("div");
+      progressText.style.marginBottom = "10px";
+      progressText.innerText = "Salvando: 0%";
+
+      const progressBar = document.createElement("div");
+      progressBar.style.width = "100%";
+      progressBar.style.height = "20px";
+      progressBar.style.backgroundColor = "#ddd";
+      progressBar.style.borderRadius = "10px";
+      progressBar.style.overflow = "hidden";
+
+      const progressFill = document.createElement("div");
+      progressFill.style.width = "0%";
+      progressFill.style.height = "100%";
+      progressFill.style.backgroundColor = "#007BFF";
+
+      progressBar.appendChild(progressFill);
+      progressContainer.appendChild(progressText);
+      progressContainer.appendChild(progressBar);
+      progressOverlay.appendChild(progressContainer);
+      document.body.appendChild(progressOverlay);
+
+      let simulatedProgress = 0;
+      // Intervalo para simular a evolução até 90%
+      const progressInterval = setInterval(() => {
+        if (simulatedProgress < 90) {
+          simulatedProgress += Math.random() * 5;
+          if (simulatedProgress > 90) simulatedProgress = 90;
+          progressFill.style.width = simulatedProgress + "%";
+          progressText.innerText = "Salvando: " + Math.floor(simulatedProgress) + "%";
+        }
+      }, 200);
+
+      // Converte as imagens para Data URL, se necessário, e aguarda que todas estejam carregadas
+      convertImagesToDataURLs(containerClone).then(() => {
+        // Aguarda que todas as imagens do clone estejam carregadas
+        waitForImages(containerClone).then(() => {
+          clearInterval(progressInterval);
+          // Após as imagens estarem carregadas, anima o progresso até 100%
+          const animateToFull = setInterval(() => {
+            simulatedProgress += 5;
+            if (simulatedProgress >= 100) {
+              simulatedProgress = 100;
+              progressFill.style.width = "100%";
+              progressText.innerText = "Salvando: 100%";
+              clearInterval(animateToFull);
+              // Salva o HTML (com as imagens já carregadas) no localStorage
+              localStorage.setItem("lastDocument", containerClone.innerHTML);
+              progressText.innerText = "Documento salvo com sucesso!";
+              // Remove o overlay após um breve atraso
+              setTimeout(() => {
+                document.body.removeChild(progressOverlay);
+              }, 1500);
+            } else {
+              progressFill.style.width = simulatedProgress + "%";
+              progressText.innerText = "Salvando: " + Math.floor(simulatedProgress) + "%";
+            }
+          }, 100);
+        });
+      });
+    }
+
+    /**
+     * Carrega o último documento salvo do localStorage.
+     * Após inserir o HTML salvo no container, reinicializa os event listeners de cada bloco
+     * e garante que cada bloco permaneça editável para que você possa continuar trabalhando normalmente.
+     *
+     * **Alteração Realizada:** Após reatribuir o innerHTML salvo, cada bloco (box) é verificado e, se conter imagens
+     * ou tabelas, a função `autoCenterElements(box)` é chamada para garantir que elas sejam exibidas corretamente.
+     */
+    function loadLastDocument() {
+      const savedHTML = localStorage.getItem("lastDocument");
+      if (savedHTML) {
+        const container = document.getElementById("textContainer");
+        container.innerHTML = savedHTML;
+        const boxes = container.querySelectorAll(".box");
+        boxes.forEach(box => {
+          // Garante que o bloco seja editável
+          box.setAttribute("contenteditable", "true");
+          initBlockEvents(box);
+          // **Chamada adicionada** para ajustar imagens/tabelas, caso presentes
+          autoCenterElements(box);
+        });
+        document.getElementById("inputArea").style.display = "none";
+        addAddButton();
+      } else {
+        alert("Nenhum documento salvo encontrado.");
+      }
+    }
+  </script>
 </body>
-</html> 
+</html>
