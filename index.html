@@ -21,7 +21,26 @@
       min-height: 100vh;
     }
 
-    /* Área de Entrada */
+    /* Título geral: bloco estilizado */
+    .page-title {
+      background-color: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px; /* maior, mas ainda harmonioso */
+      font-weight: bold;
+      border-radius: 8px; /* cantos arredondados */
+    }
+
+    /* Oculta o título do editor (solicitação) */
+    #editorTitle {
+      display: none;
+    }
+
+    /* Área de Entrada (editor) */
     .input-area {
       background-color: #ffffff;
       padding: 20px;
@@ -48,23 +67,7 @@
       box-shadow: 0 0 5px rgba(0,123,255,0.5);
     }
 
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #007BFF;
-      color: #ffffff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    /* Container das Linhas */
+    /* Container das Linhas (Editor) */
     .container {
       flex: 1;
       padding: 20px 0;
@@ -79,18 +82,18 @@
       background-color: #f0f0f0; 
       border: 1px solid #ddd;
       border-radius: 8px;
-      height: 45px;            /* Altura fixa para texto */
+      height: 45px;
       display: flex;
-      align-items: center;     /* Centraliza verticalmente */
+      align-items: center;
       padding: 0 15px;
       font-size: 16px;
       transition: background-color 0.3s, height 0.3s, border-color 0.3s;
       cursor: text;
       position: relative;
       width: 100%;
-      overflow: hidden;        /* Corta o que exceder */
-      white-space: nowrap;     /* Uma só linha */
-      text-overflow: ellipsis; /* Reticências se exceder a largura */
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     .box.colored {
@@ -105,12 +108,12 @@
       background-color: #e6f2ff;
     }
 
-    /* Efeito de Hover */
+    /* Hover no bloco do editor */
     .box:hover {
       border-color: #007BFF;
     }
 
-    /* Menu de Contexto Personalizado */
+    /* Menu de Contexto Personalizado (blocos do editor) */
     .custom-context-menu {
       position: absolute;
       background-color: #ffffff;
@@ -122,29 +125,25 @@
       display: none;
       border-radius: 6px;
     }
-
     .custom-context-menu ul {
       list-style: none;
       margin: 0;
       padding: 0;
     }
-
     .custom-context-menu li {
       padding: 10px 20px;
       cursor: pointer;
       position: relative;
       transition: background-color 0.2s;
     }
-
     .custom-context-menu li:hover {
       background-color: #f1f1f1;
     }
 
-    /* Submenu */
+    /* Submenu do contexto */
     .submenu {
       position: relative;
     }
-
     .submenu > ul {
       position: absolute;
       top: 0;
@@ -158,11 +157,9 @@
       min-width: 150px;
       z-index: 1001;
     }
-
     .submenu:hover > ul {
       display: block;
     }
-
     .submenu::after {
       content: '▶';
       position: absolute;
@@ -175,7 +172,7 @@
 
     /* Responsividade */
     @media (max-width: 600px) {
-      .editable-div, button, .box {
+      .editable-div, .box {
         font-size: 14px;
       }
 
@@ -188,85 +185,788 @@
       }
     }
 
-    /* Tabela e #texto (se precisar) */
-    table {
+    /* === PASTAS E SUBPASTAS === */
+
+    /* Tela inicial de pastas */
+    #folderScreen {
+      padding: 20px;
+      position: relative;
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid orange;
-    }
-    th {
-      background-color: orange;
-      text-align: left;
-      padding: 8px;
-    }
-    td {
-      min-height: 25px;
-      vertical-align: top;
-      padding: 8px;
-    }
-    #texto {
-      width: 100%;
-      height: 250px;
-      box-sizing: border-box;
+      height: 100%;
     }
 
-    /* Centraliza imagens e tabelas dentro dos blocos */
-    .box img, .box table {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      max-width: 100%;
-      height: auto;
+    #folderList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center; /* centraliza horizontalmente */
+      margin-top: 20px;
+      width: 100%;
     }
+
+    /* 
+       Agora a cor base "mais escura" fica fixa (por ex: #e0e0e0), 
+       e ao passar o mouse ela fica mais clara (#f5f5f5).
+       Mantivemos a sombra/box-shadow.
+    */
+    .folder-item {
+      width: 100px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background-color: #e0e0e0; /* cor escura fixa */
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 16px;
+      position: relative;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .folder-item:hover {
+      /* ao passar o mouse, ficar mais claro */
+      background-color: #f5f5f5;
+    }
+
+    .folder-icon {
+      font-size: 40px; /* Tamanho do ícone da pasta */
+      margin-top: 10px;
+    }
+    .folder-name {
+      margin-top: 5px;
+      padding: 0 5px;
+      font-size: 14px;
+      line-height: 1.2;
+      word-wrap: break-word;
+      font-weight: bold; /* negrito */
+    }
+
+    /* Tela de subpastas */
+    #subFolderScreen {
+      display: none;
+      padding: 20px;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    #subFolderList {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 
+       Também invertido aqui: base #e0e0e0 fixa,
+       e no hover fica #f5f5f5.
+       Mantida a sombra.
+    */
+    .subfolder-item {
+      background-color: #e0e0e0; 
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 16px;
+      font-weight: bold; /* negrito */
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .subfolder-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    /* Tela de Documentos */
+    #documentListScreen {
+      display: none;
+      padding: 20px;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #documentList {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .doc-item {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 16px;
+      position: relative;
+    }
+    .doc-item:hover {
+      background-color: #e0e0e0;
+    }
+    .doc-item-title {
+      font-weight: bold; /* negrito no nome */
+      margin-bottom: 5px;
+    }
+    .doc-item-subject {
+      font-size: 14px;
+      color: #666;
+      white-space: pre-wrap;
+      margin-left: 20px; /* recuo */
+      position: relative;
+    }
+    .doc-item-subject::before {
+      content: "- ";
+      position: absolute;
+      left: -15px; /* para encaixar o travessão */
+    }
+
+    /* Botões "mais (+)" e Setas de navegação */
+    .folder-header,
+    .document-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    /* Botões + ficam à esquerda */
+    .plus-button {
+      border: none;
+      background: #fff;
+      color: #aaa; 
+      font-size: 28px;  /* um pouco maior que as setas para destaque */
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .plus-button:hover {
+      background-color: #eee;
+    }
+
+    /* Botões de navegação (setas) em tom clarinho */
+    .nav-buttons {
+      margin: 0 auto; /* para tentar centralizar */
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-button {
+      font-size: 28px;
+      border: none;
+      background: #fff;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      color: #aaa; /* tom clarinho */
+      transition: background-color 0.2s;
+    }
+    .nav-button:hover {
+      background-color: #eee;
+      color: #777; 
+    }
+
+    /* Formulário "Novo Documento" */
+    #createDocumentForm {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+    #createDocumentForm label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    #createDocumentForm input {
+      width: 80%;
+      max-width: 400px;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    /* Context menu para Folders/Docs/Subfolders e "Pasta em branco" */
+    .context-menu-folder,
+    .context-menu-doc,
+    .context-menu-subfolder,
+    .context-menu-background {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: none;
+      border-radius: 6px;
+    }
+    .context-menu-folder ul,
+    .context-menu-doc ul,
+    .context-menu-subfolder ul,
+    .context-menu-background ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .context-menu-folder li,
+    .context-menu-doc li,
+    .context-menu-subfolder li,
+    .context-menu-background li {
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .context-menu-folder li:hover,
+    .context-menu-doc li:hover,
+    .context-menu-subfolder li:hover,
+    .context-menu-background li:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* 
+      CENTRALIZAR setas na TELA DE EDIÇÃO
+      (sem mudar nas outras telas).
+    */
+    #editorSection .nav-buttons {
+      justify-content: center;
+    }
+
   </style>
 </head>
 <body>
-  <!-- Área de Entrada (inicialmente na parte superior) -->
-  <div class="input-area" id="inputArea">
-    <div class="editable-div" id="textInput" contenteditable="true" placeholder="Cole seu texto aqui..."></div>
-    <button onclick="processText()">Gerar Texto</button>
-    <button id="loadButton" onclick="loadLastDocument()" style="margin-left:10px;">&#x21BA; Último Documento</button>
+
+  <!-- === TELA INICIAL DE PASTAS === -->
+  <div id="folderScreen">
+    <div class="page-title" id="folderScreenTitle">Painel inicial</div>
+
+    <div class="folder-header">
+      <button id="createFolderBtn" class="plus-button">+</button>
+      <div class="nav-buttons">
+        <button class="nav-button" id="folderLeftArrow" title="Voltar (início)">&larr;</button>
+        <button class="nav-button" id="folderRightArrow" title="Avançar (não há avançar)">&rarr;</button>
+      </div>
+    </div>
+
+    <div id="folderList"></div>
+  </div>
+  <!-- === FIM PASTAS === -->
+
+  <!-- === TELA DE SUBPASTAS === -->
+  <div id="subFolderScreen">
+    <div class="page-title" id="subFolderTitle"></div>
+
+    <div class="folder-header">
+      <button id="btnCreateSubFolder" class="plus-button">+</button>
+      <div class="nav-buttons">
+        <button class="nav-button" id="subFolderLeftArrow" title="Voltar para Pastas">&larr;</button>
+        <button class="nav-button" id="subFolderRightArrow" title="Não há tela seguinte">&rarr;</button>
+      </div>
+    </div>
+
+    <div id="subFolderList"></div>
   </div>
 
-  <!-- Container dos Blocos Processados -->
-  <div class="container" id="textContainer"></div>
+  <!-- === TELA DE DOCUMENTOS === -->
+  <div id="documentListScreen">
+    <div class="page-title">
+      <div id="documentListTitle"></div>
+    </div>
 
-  <!-- Menu de Contexto Personalizado -->
-  <div class="custom-context-menu" id="contextMenu">
+    <div class="document-header">
+      <button id="btnCreateDoc" class="plus-button">+</button>
+      <div class="nav-buttons">
+        <button class="nav-button" id="docLeftArrow" title="Voltar">&larr;</button>
+        <button class="nav-button" id="docRightArrow" title="Não há avanço">&rarr;</button>
+      </div>
+    </div>
+
+    <!-- Formulário de criação de documento -->
+    <div id="createDocumentForm">
+      <label for="docNameInput">Nome do Documento:</label>
+      <input type="text" id="docNameInput" placeholder="Ex: Relatório 2025" />
+      
+      <label for="docSubjectInput">Assunto:</label>
+      <input type="text" id="docSubjectInput" placeholder="Ex: Análise de Custos..." />
+
+      <button onclick="createNewDocument()">Salvar</button>
+    </div>
+
+    <div id="documentList"></div>
+  </div>
+  <!-- === FIM DA TELA DE DOCUMENTOS === -->
+
+  <!-- Section do editor -->
+  <div id="editorSection" style="display:none;">
+    <!-- page-title do Editor ocultado via CSS (#editorTitle { display: none }) -->
+    <div class="page-title" id="editorTitle">Editor</div>
+
+    <!-- Área de Entrada (parte superior) -->
+    <div class="input-area" id="inputArea">
+      <div class="editable-div" id="textInput" contenteditable="true" placeholder="Cole seu texto aqui..."></div>
+      <button onclick="processText()">Gerar Texto</button>
+      <button id="loadButton" onclick="loadLastDocument()" style="margin-left:10px;">&#x21BA; Último Documento</button>
+    </div>
+
+    <!-- Botões de navegação (setas) no Editor -->
+    <div class="nav-buttons" style="margin-top:10px;">
+      <button class="nav-button" id="editorLeftArrow" title="Voltar para documentos">&larr;</button>
+      <button class="nav-button" id="editorRightArrow" title="Nenhum avanço">&rarr;</button>
+    </div>
+
+    <!-- Container dos Blocos Processados -->
+    <div class="container" id="textContainer"></div>
+
+    <!-- Menu de Contexto Personalizado (para os blocos do editor) -->
+    <div class="custom-context-menu" id="contextMenu">
+      <ul>
+        <li id="deleteBlock">Excluir Bloco</li>
+        <li id="centerImageInsideBlock">Centralizar Imagem no Bloco</li>
+        <li class="submenu">Alterar Tamanho da Fonte
+          <ul>
+            <li data-font-size="14px">14px</li>
+            <li data-font-size="16px">16px</li>
+            <li data-font-size="18px">18px</li>
+            <li data-font-size="20px">20px</li>
+            <li data-font-size="22px">22px</li>
+          </ul>
+        </li>
+        <li class="submenu">Alterar Cor da Linha
+          <ul>
+            <li data-color="#f0f0f0">Cinza Claro</li>
+            <li data-color="#00B050">Verde</li>
+            <li data-color="#FFC000">Amarelo</li>
+            <li data-color="#00B0F0">Azul</li>
+            <li data-color="#00C0C0">Turquesa</li>
+            <li data-color="#F79646">Laranja</li>
+            <li data-color="#FF00FF">Magenta</li>
+            <li data-color="#00FF00">Verde Vibrante</li>
+            <li data-color="#FFFF00">Amarelo Vibrante</li>
+            <li data-color="#FF69B4">Rosa Shock</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Fim editorSection -->
+
+  <!-- Context Menu para Folders -->
+  <div class="context-menu-folder" id="contextMenuFolder">
     <ul>
-      <li id="deleteBlock">Excluir Bloco</li>
-      <li id="centerImageInsideBlock">Centralizar Imagem no Bloco</li>
-      <li class="submenu">Alterar Tamanho da Fonte
-        <ul>
-          <li data-font-size="14px">14px</li>
-          <li data-font-size="16px">16px</li>
-          <li data-font-size="18px">18px</li>
-          <li data-font-size="20px">20px</li>
-          <li data-font-size="22px">22px</li>
-        </ul>
-      </li>
-      <li class="submenu">Alterar Cor da Linha
-        <ul>
-          <li data-color="#f0f0f0">Cinza Claro</li>
-          <li data-color="#00B050">Verde</li>
-          <li data-color="#FFC000">Amarelo</li>
-          <li data-color="#00B0F0">Azul</li>
-          <li data-color="#00C0C0">Turquesa</li>
-          <li data-color="#F79646">Laranja</li>
-          <li data-color="#FF00FF">Magenta</li>
-          <li data-color="#00FF00">Verde Vibrante</li>
-          <li data-color="#FFFF00">Amarelo Vibrante</li>
-          <li data-color="#FF69B4">Rosa Shock</li>
-        </ul>
-      </li>
+      <li id="copyFolderItem">Copiar Pasta</li>
+      <!-- NOVO: "Colar aqui" dentro da pasta -->
+      <li id="pasteIntoFolder" style="display:none;">Colar aqui</li>
+      <li id="editFolderItem">Renomear Pasta</li>
+      <li id="deleteFolderItem">Excluir Pasta</li>
+    </ul>
+  </div>
+
+  <!-- Context Menu para Subfolders -->
+  <div class="context-menu-subfolder" id="contextMenuSubFolder">
+    <ul>
+      <li id="copySubFolderItem">Copiar Subpasta</li>
+      <!-- NOVO: "Colar aqui" dentro da subpasta -->
+      <li id="pasteIntoSubFolder" style="display:none;">Colar aqui</li>
+      <li id="editSubFolderItem">Renomear Subpasta</li>
+      <li id="deleteSubFolderItem">Excluir Subpasta</li>
+    </ul>
+  </div>
+
+  <!-- Context Menu para Documentos -->
+  <div class="context-menu-doc" id="contextMenuDoc">
+    <ul>
+      <li id="copyDocItem">Copiar Documento</li>
+      <li id="editDocItem">Renomear Documento</li>
+      <li id="deleteDocItem">Excluir Documento</li>
+    </ul>
+  </div>
+
+  <!-- Context Menu "vazio" (para Paste) -->
+  <div class="context-menu-background" id="contextMenuBackground">
+    <ul>
+      <li id="pasteItem">Colar</li>
     </ul>
   </div>
 
   <script>
-    /* Lista de cores */
+    /* =========================================
+       VARIÁVEIS GLOBAIS
+       ========================================= */
+    let currentFolder = null;       // Pasta em que estamos no momento
+    let currentSubFolder = null;    // Subpasta em que estamos (ou null)
+    let currentDocName = null;      // Nome do documento atual
+    let currentDocSubject = null;   // Assunto do documento atual
+
+    // Buffer de cópia
+    let copyBuffer = null; 
+    // Estrutura do copyBuffer:
+    // {
+    //   type: "folder" | "subfolder" | "document",
+    //   name: string,
+    //   folderName: string,       // se subfolder/doc
+    //   subFolderName: string,    // se doc
+    //   subfolders: [...],        // se folder
+    //   docs: [...],              // se folder ou subfolder
+    //   content: "HTML do doc"    // se document
+    //   subject: "...",           // se document
+    // }
+
+    /* =========================================
+       AO CARREGAR: MOSTRAR TELA DE PASTAS
+       ========================================= */
+    window.addEventListener('load', () => {
+      showFolderScreen();
+    });
+
+    /* =========================================
+       NAVEGAÇÃO (SETAS) E EVENTOS DOS BOTÕES "+"
+       ========================================= */
+    // Pastas
+    const folderLeftArrow = document.getElementById("folderLeftArrow");
+    const folderRightArrow = document.getElementById("folderRightArrow");
+    const createFolderBtn = document.getElementById("createFolderBtn");
+    folderLeftArrow.addEventListener('click', () => {
+      showFolderScreen();
+    });
+    folderRightArrow.addEventListener('click', () => {
+      alert("Não há tela seguinte.");
+    });
+    createFolderBtn.addEventListener("click", () => {
+      createFolder();
+    });
+
+    // Subpastas
+    const subFolderLeftArrow = document.getElementById("subFolderLeftArrow");
+    const subFolderRightArrow = document.getElementById("subFolderRightArrow");
+    const btnCreateSubFolder = document.getElementById("btnCreateSubFolder");
+    subFolderLeftArrow.addEventListener('click', () => {
+      showFolderScreen();
+    });
+    subFolderRightArrow.addEventListener('click', () => {
+      alert("Não há tela seguinte.");
+    });
+    btnCreateSubFolder.addEventListener("click", () => {
+      createSubFolder(currentFolder);
+    });
+
+    // Documentos
+    const docLeftArrow = document.getElementById("docLeftArrow");
+    const docRightArrow = document.getElementById("docRightArrow");
+    const btnCreateDoc = document.getElementById("btnCreateDoc");
+    docLeftArrow.addEventListener('click', () => {
+      showSubFolderScreen(currentFolder);
+    });
+    docRightArrow.addEventListener('click', () => {
+      alert("Não há tela seguinte.");
+    });
+    btnCreateDoc.addEventListener("click", () => {
+      showCreateDocForm();
+    });
+
+    // Editor
+    const editorLeftArrow = document.getElementById("editorLeftArrow");
+    const editorRightArrow = document.getElementById("editorRightArrow");
+    editorLeftArrow.addEventListener('click', () => {
+      showDocumentList(currentFolder, currentSubFolder);
+    });
+    editorRightArrow.addEventListener('click', () => {
+      alert("Não há tela seguinte.");
+    });
+
+
+    /* =========================================
+       TELA DE PASTAS
+       ========================================= */
+    function showFolderScreen() {
+      const folderScreen = document.getElementById("folderScreen");
+      const editorSection = document.getElementById("editorSection");
+      const documentListScreen = document.getElementById("documentListScreen");
+      const subFolderScreen = document.getElementById("subFolderScreen");
+
+      // Oculta o resto
+      editorSection.style.display = "none";
+      documentListScreen.style.display = "none";
+      subFolderScreen.style.display = "none";
+      folderScreen.style.display = "block";
+
+      // Reinicia variáveis de controle
+      currentFolder = null;
+      currentSubFolder = null;
+      currentDocName = null;
+      currentDocSubject = null;
+
+      const folderList = document.getElementById("folderList");
+      let folders = JSON.parse(localStorage.getItem("folders")) || [];
+      folderList.innerHTML = "";
+
+      if (folders.length === 0) {
+        const msg = document.createElement("div");
+        msg.textContent = "Nenhuma pasta criada ainda.";
+        folderList.appendChild(msg);
+      } else {
+        folders.forEach(folderName => {
+          // "Cartão" com ícone e título
+          const folderItem = document.createElement("div");
+          folderItem.classList.add("folder-item");
+
+          // Ícone
+          const icon = document.createElement("div");
+          icon.classList.add("folder-icon");
+          icon.textContent = "📂";
+          folderItem.appendChild(icon);
+
+          // Nome
+          const nameDiv = document.createElement("div");
+          nameDiv.classList.add("folder-name");
+          nameDiv.textContent = folderName;
+          folderItem.appendChild(nameDiv);
+
+          // Clique normal: entrar na pasta
+          folderItem.onclick = () => enterFolder(folderName);
+
+          // Context menu
+          folderItem.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showContextMenuFolder(e.pageX, e.pageY, folderName);
+          });
+
+          folderList.appendChild(folderItem);
+        });
+      }
+    }
+
+    function createFolder() {
+      const folderName = prompt("Digite o nome da nova pasta:");
+      if (!folderName) return;
+      let folders = JSON.parse(localStorage.getItem("folders")) || [];
+      if (folders.includes(folderName)) {
+        alert("Já existe uma pasta com este nome.");
+        return;
+      }
+      folders.push(folderName);
+      localStorage.setItem("folders", JSON.stringify(folders));
+
+      // Inicializa subpastas para esta pasta se não existir
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      if (!folderSubfolders[folderName]) {
+        folderSubfolders[folderName] = [];
+        localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+      }
+
+      showFolderScreen();
+    }
+
+    function enterFolder(folderName) {
+      currentFolder = folderName;
+      showSubFolderScreen(folderName);
+    }
+
+
+    /* =========================================
+       TELA DE SUBPASTAS
+       ========================================= */
+    const subFolderList = document.getElementById("subFolderList");
+    const subFolderTitle = document.getElementById("subFolderTitle");
+
+    function showSubFolderScreen(folderName) {
+      document.getElementById("folderScreen").style.display = "none";
+      document.getElementById("editorSection").style.display = "none";
+      document.getElementById("documentListScreen").style.display = "none";
+
+      const subFolderScreen = document.getElementById("subFolderScreen");
+      subFolderScreen.style.display = "block";
+
+      // Título
+      subFolderTitle.textContent = folderName;
+
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      let subfolders = folderSubfolders[folderName] || [];
+
+      subFolderList.innerHTML = "";
+      if (subfolders.length === 0) {
+        const msg = document.createElement("div");
+        msg.textContent = "Não há subpastas nesta pasta.";
+        subFolderList.appendChild(msg);
+      } else {
+        subfolders.forEach(subName => {
+          const item = document.createElement("div");
+          item.classList.add("subfolder-item");
+          item.textContent = subName;
+
+          // Clique: mostrar documentos
+          item.onclick = () => {
+            showDocumentList(folderName, subName);
+          };
+
+          // Context menu
+          item.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showContextMenuSubFolder(e.pageX, e.pageY, subName);
+          });
+
+          subFolderList.appendChild(item);
+        });
+      }
+    }
+
+    function createSubFolder(folderName) {
+      const subName = prompt(`Digite o nome da nova subpasta em "${folderName}":`);
+      if (!subName) return;
+
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      if (!folderSubfolders[folderName]) {
+        folderSubfolders[folderName] = [];
+      }
+      if (folderSubfolders[folderName].includes(subName)) {
+        alert("Já existe uma subpasta com este nome nessa pasta.");
+        return;
+      }
+
+      folderSubfolders[folderName].push(subName);
+      localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+      showSubFolderScreen(folderName);
+    }
+
+
+    /* =========================================
+       TELA DE DOCUMENTOS
+       ========================================= */
+    const documentListTitle = document.getElementById("documentListTitle");
+    const documentList = document.getElementById("documentList");
+    const createDocumentForm = document.getElementById("createDocumentForm");
+
+    function showDocumentList(folderName, subFolderName) {
+      currentFolder = folderName;
+      currentSubFolder = subFolderName || null;
+
+      document.getElementById("folderScreen").style.display = "none";
+      document.getElementById("editorSection").style.display = "none";
+      document.getElementById("subFolderScreen").style.display = "none";
+
+      const documentListScreen = document.getElementById("documentListScreen");
+      documentListScreen.style.display = "block";
+      documentList.innerHTML = "";
+      createDocumentForm.style.display = "none"; // oculta o form de criação
+
+      // Título
+      if (subFolderName) {
+        documentListTitle.textContent = `${folderName} / ${subFolderName}`;
+      } else {
+        documentListTitle.textContent = folderName;
+      }
+
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      let docsInHere = namedDocuments.filter(doc => {
+        return (doc.folderName === folderName) &&
+               (doc.subFolderName || null) === (subFolderName || null);
+      });
+
+      if (docsInHere.length === 0) {
+        const msg = document.createElement("div");
+        msg.textContent = "Não há documentos salvos aqui.";
+        documentList.appendChild(msg);
+      } else {
+        docsInHere.forEach(doc => {
+          const docItem = document.createElement("div");
+          docItem.classList.add("doc-item");
+
+          const docTitle = document.createElement("div");
+          docTitle.classList.add("doc-item-title");
+          docTitle.textContent = doc.name;
+
+          const docSubject = document.createElement("div");
+          docSubject.classList.add("doc-item-subject");
+          docSubject.textContent = doc.subject || "";
+
+          docItem.appendChild(docTitle);
+          docItem.appendChild(docSubject);
+
+          docItem.onclick = () => {
+            loadDocumentInEditor(doc.name, doc.subject, folderName, subFolderName);
+          };
+
+          docItem.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showContextMenuDoc(e.pageX, e.pageY, doc.name);
+          });
+
+          documentList.appendChild(docItem);
+        });
+      }
+    }
+
+    function showCreateDocForm() {
+      document.getElementById("documentListScreen").style.display = "block";
+      createDocumentForm.style.display = "block";
+      // Limpa campos
+      document.getElementById("docNameInput").value = "";
+      document.getElementById("docSubjectInput").value = "";
+    }
+
+    function createNewDocument() {
+      const docNameInput = document.getElementById("docNameInput");
+      const docSubjectInput = document.getElementById("docSubjectInput");
+
+      const docName = docNameInput.value.trim();
+      const docSubject = docSubjectInput.value.trim();
+
+      if (!docName) {
+        alert("Informe um nome para o documento.");
+        return;
+      }
+
+      currentDocName = docName;
+      currentDocSubject = docSubject;
+
+      // Abre editor vazio
+      document.getElementById("documentListScreen").style.display = "none";
+      document.getElementById("editorSection").style.display = "block";
+      document.getElementById("textContainer").innerHTML = "";
+      document.getElementById("inputArea").style.display = "block";
+      createDocumentForm.style.display = "none";
+    }
+
+    // Carregar doc específico no editor
+    function loadDocumentInEditor(docName, docSubject, folderName, subFolderName) {
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      let foundDoc = namedDocuments.find(doc => 
+        doc.folderName === folderName &&
+        (doc.subFolderName || null) === (subFolderName || null) &&
+        doc.name === docName
+      );
+      if (!foundDoc) {
+        alert("Documento não encontrado.");
+        return;
+      }
+
+      currentDocName = docName;
+      currentDocSubject = docSubject || "";
+      currentFolder = folderName;
+      currentSubFolder = subFolderName || null;
+
+      const savedHTML = foundDoc.content;
+      document.getElementById("documentListScreen").style.display = "none";
+      document.getElementById("editorSection").style.display = "block";
+
+      const container = document.getElementById("textContainer");
+      container.innerHTML = savedHTML;
+      const boxes = container.querySelectorAll(".box");
+      boxes.forEach(box => {
+        box.setAttribute("contenteditable", "true");
+        initBlockEvents(box);
+        autoCenterElements(box);
+      });
+      document.getElementById("inputArea").style.display = "none";
+      addAddButton();
+    }
+
+
+    /* =========================================
+       CÓDIGO ORIGINAL DO EDITOR
+       ========================================= */
     const colorSequence = [
       "#f0f0f0",
       "#00B050",
@@ -279,28 +979,20 @@
       "#FFFF00",
       "#FF69B4"
     ];
-
     const defaultFontSize = "16px";
 
-    /**
-     * Processa o conteúdo da área de edição e cria os blocos.
-     * Após processar, oculta a área de entrada e adiciona os botões “+” e “💾”.
-     */
     function processText() {
       const container = document.getElementById("textContainer");
       const inputArea = document.getElementById("inputArea");
       const textInput = document.getElementById("textInput");
 
-      // Remove o botão de adicionar, se existir
       const existingButtonContainer = document.getElementById("buttonContainer");
       if (existingButtonContainer) {
         existingButtonContainer.remove();
       }
 
-      // Oculta a área de entrada
       inputArea.style.display = "none";
 
-      // Pega o conteúdo inserido
       const htmlContent = textInput.innerHTML;
       const tempContainer = document.createElement("div");
       tempContainer.innerHTML = htmlContent;
@@ -313,24 +1005,16 @@
         }
       });
 
-      // Limpa apenas o conteúdo da área de edição
       textInput.innerHTML = "";
-
-      // Adiciona os botões “+” e “💾” ao final
       addAddButton();
     }
 
-    /**
-     * Cria um novo bloco editável com o conteúdo fornecido e o adiciona ao container.
-     * Após a criação, inicializa os event listeners do bloco.
-     */
     function createEditableBox(content, container) {
       const box = document.createElement("div");
       box.classList.add("box");
       box.setAttribute("contenteditable", "true");
       box.innerHTML = content;
 
-      // Define configurações iniciais
       const initialColorIndex = 0;
       box.style.backgroundColor = colorSequence[initialColorIndex];
       box.style.fontSize = defaultFontSize;
@@ -339,20 +1023,13 @@
       capitalizeFirstLetter(box);
       autoCenterElements(box);
 
-      // Inicializa os event listeners (dblclick, keydown, contextmenu, input, paste)
       initBlockEvents(box);
 
       container.appendChild(box);
       return box;
     }
 
-    /**
-     * Inicializa os event listeners para um bloco (box).
-     * Esses eventos incluem: dupla-clique para alterar a cor, tecla Enter para criar novo bloco,
-     * menu de contexto, input para capitalização/centralização e paste para tratar imagens/texto.
-     */
     function initBlockEvents(box) {
-      // Duplo clique: alterna cor
       box.addEventListener("dblclick", function() {
         let currentColorIndex = parseInt(box.getAttribute('data-color-index')) || 0;
         currentColorIndex = (currentColorIndex + 1) % colorSequence.length;
@@ -365,7 +1042,6 @@
         }
       });
 
-      // Tecla Enter (sem Shift): cria um novo bloco abaixo
       box.addEventListener("keydown", function(event) {
         if (event.key === "Enter" && !event.shiftKey) {
           event.preventDefault();
@@ -386,19 +1062,16 @@
         }
       });
 
-      // Menu de contexto personalizado
       box.addEventListener("contextmenu", function(event) {
         event.preventDefault();
-        showContextMenu(event.pageX, event.pageY, box);
+        showEditorContextMenu(event.pageX, event.pageY, box);
       });
 
-      // A cada alteração no conteúdo, capitaliza a primeira letra e ajusta a centralização
       box.addEventListener("input", function() {
         capitalizeFirstLetter(box);
         autoCenterElements(box);
       });
 
-      // Tratamento de colagem (para imagens e textos)
       box.addEventListener("paste", function(event) {
         event.preventDefault();
         const clipboardData = (event.clipboardData || window.clipboardData);
@@ -412,10 +1085,17 @@
             img.alt = "Imagem colada";
             img.style.display = "block";
             img.style.margin = "0 auto";
-            img.style.maxWidth = "100%";
+            img.style.maxWidth = "700px";
             img.style.height = "auto";
-            document.execCommand("insertHTML", false, img.outerHTML);
-            // Ajusta o bloco para comportar a imagem
+            const selection = window.getSelection();
+            if (selection.rangeCount) {
+              const range = selection.getRangeAt(0);
+              range.deleteContents();
+              range.insertNode(img);
+              range.collapse(false);
+            } else {
+              document.execCommand("insertHTML", false, img.outerHTML);
+            }
             box.style.height = "auto";
             box.style.overflow = "visible";
             box.style.whiteSpace = "normal";
@@ -432,9 +1112,6 @@
       });
     }
 
-    /**
-     * Capitaliza a primeira letra do primeiro nó de texto encontrado no bloco.
-     */
     function capitalizeFirstLetter(box) {
       const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT, null, false);
       let textNode = walker.nextNode();
@@ -452,13 +1129,10 @@
       }
     }
 
-    /**
-     * Centraliza automaticamente imagens e tabelas dentro do bloco.
-     */
     function autoCenterElements(box) {
       const images = box.querySelectorAll('img');
       const tables = box.querySelectorAll('table');
-      
+
       if (images.length > 0 || tables.length > 0) {
         box.style.height = "auto";
         box.style.overflow = "visible";
@@ -472,7 +1146,7 @@
           img.style.display = 'block';
           img.style.marginLeft = 'auto';
           img.style.marginRight = 'auto';
-          img.style.maxWidth = '100%';
+          img.style.maxWidth = '700px';
           img.style.height = 'auto';
         });
 
@@ -500,7 +1174,6 @@
       }
     }
 
-    // Tratamento de colagem na área de entrada para imagens e textos
     document.getElementById("textInput").addEventListener("paste", function(event) {
       event.preventDefault();
       const clipboardData = (event.clipboardData || window.clipboardData);
@@ -514,9 +1187,17 @@
           img.alt = "Imagem colada";
           img.style.display = "block";
           img.style.margin = "0 auto";
-          img.style.maxWidth = "100%";
+          img.style.maxWidth = "700px";
           img.style.height = "auto";
-          document.execCommand("insertHTML", false, img.outerHTML);
+          const selection = window.getSelection();
+          if (selection.rangeCount) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(img);
+            range.collapse(false);
+          } else {
+            document.execCommand("insertHTML", false, img.outerHTML);
+          }
         };
         reader.readAsDataURL(file);
       } else {
@@ -524,7 +1205,6 @@
       }
     });
 
-    // Ctrl+N para criar um novo bloco manualmente
     function addNewBlock(event) {
       if (event.ctrlKey && event.key === 'n') {
         event.preventDefault();
@@ -541,102 +1221,195 @@
     }
     document.addEventListener("keydown", addNewBlock);
 
-    // Fecha o menu de contexto ao clicar fora
-    document.addEventListener("click", function(event) {
-      const contextMenu = document.getElementById("contextMenu");
-      if (contextMenu.style.display === "block") {
-        contextMenu.style.display = "none";
+    /* Salvar "Último Documento" (global) */
+    function saveDocument() {
+      const container = document.getElementById("textContainer");
+      const containerClone = container.cloneNode(true);
+      const buttonContainerClone = containerClone.querySelector("#buttonContainer");
+      if (buttonContainerClone) {
+        buttonContainerClone.remove();
       }
-    });
 
-    // Exibe o menu de contexto personalizado
-    function showContextMenu(x, y, box) {
-      const contextMenu = document.getElementById("contextMenu");
-      contextMenu.style.top = `${y}px`;
-      contextMenu.style.left = `${x}px`;
-      contextMenu.style.display = "block";
-      contextMenu.currentBox = box;
+      showSavingOverlay().then(() => {
+        // Salva no localStorage
+        localStorage.setItem("lastDocument", containerClone.innerHTML);
+      });
     }
 
-    // "Excluir Bloco"
-    document.getElementById("deleteBlock").addEventListener("click", function() {
-      const contextMenu = document.getElementById("contextMenu");
-      const box = contextMenu.currentBox;
-      if (box && box.parentNode) {
-        box.parentNode.removeChild(box);
-      }
-      contextMenu.style.display = "none";
-    });
-
-    // "Centralizar Imagem no Bloco"
-    document.getElementById("centerImageInsideBlock").addEventListener("click", function() {
-      const contextMenu = document.getElementById("contextMenu");
-      const box = contextMenu.currentBox;
-      if (box) {
-        box.style.height = "auto";
-        box.style.overflow = "visible";
-        box.style.whiteSpace = "normal";
-        box.style.alignItems = "center";
-        box.style.justifyContent = "center";
-        box.style.padding = "10px";
-        box.style.flexDirection = "column";
-
-        const images = box.querySelectorAll('img');
-        images.forEach(img => {
-          img.style.display = 'block';
-          img.style.marginLeft = 'auto';
-          img.style.marginRight = 'auto';
-          img.style.maxWidth = '100%';
-          img.style.height = 'auto';
+    // Carrega o "Último Documento" (global)
+    function loadLastDocument() {
+      const savedHTML = localStorage.getItem("lastDocument");
+      if (savedHTML) {
+        const container = document.getElementById("textContainer");
+        container.innerHTML = savedHTML;
+        const boxes = container.querySelectorAll(".box");
+        boxes.forEach(box => {
+          box.setAttribute("contenteditable", "true");
+          initBlockEvents(box);
+          autoCenterElements(box);
         });
-
-        const tables = box.querySelectorAll('table');
-        tables.forEach(table => {
-          table.style.marginLeft = 'auto';
-          table.style.marginRight = 'auto';
-          table.style.width = 'auto';
-        });
+        document.getElementById("inputArea").style.display = "none";
+        currentDocName = null;
+        currentDocSubject = null;
+        addAddButton();
+      } else {
+        alert("Nenhum documento salvo encontrado.");
       }
-      contextMenu.style.display = "none";
-    });
+    }
 
-    // "Alterar Tamanho da Fonte"
-    const fontSizeOptions = document.querySelectorAll('.submenu ul li[data-font-size]');
-    fontSizeOptions.forEach(option => {
-      option.addEventListener('click', function() {
-        const contextMenu = document.getElementById("contextMenu");
-        const box = contextMenu.currentBox;
-        const newFontSize = option.getAttribute('data-font-size');
-        if (box && newFontSize) {
-          box.style.fontSize = newFontSize;
+    // "Salvar com nome"
+    function saveDocumentWithName() {
+      if (!currentFolder) {
+        alert("Você precisa escolher uma pasta antes de salvar.");
+        return;
+      }
+
+      let newName;
+      let newSubject;
+      if (currentDocName) {
+        newName = prompt("Nome do documento:", currentDocName);
+        if (newName === null) return;
+        if (!newName.trim()) {
+          alert("Nome inválido.");
+          return;
         }
-        contextMenu.style.display = "none";
-      });
-    });
+        newSubject = prompt("Assunto do documento:", currentDocSubject || "");
+        if (newSubject === null) newSubject = "";
+      } else {
+        newName = prompt("Nome do documento:");
+        if (!newName) return;
+        newSubject = prompt("Assunto do documento:") || "";
+      }
 
-    // "Alterar Cor da Linha"
-    const colorOptions = document.querySelectorAll('.submenu ul li[data-color]');
-    colorOptions.forEach(option => {
-      option.addEventListener('click', function() {
-        const contextMenu = document.getElementById("contextMenu");
-        const box = contextMenu.currentBox;
-        const newColor = option.getAttribute('data-color');
-        if (box) {
-          box.style.backgroundColor = newColor;
-          if (newColor !== "#f0f0f0") {
-            box.classList.add("colored");
-          } else {
-            box.classList.remove("colored");
+      currentDocName = newName;
+      currentDocSubject = newSubject;
+
+      saveDocumentNamed(newName, newSubject);
+    }
+
+    function saveDocumentNamed(docName, docSubject) {
+      if (!currentFolder) {
+        alert("Você precisa escolher uma pasta antes de salvar.");
+        return;
+      }
+
+      const container = document.getElementById("textContainer");
+      const containerClone = container.cloneNode(true);
+      const buttonContainerClone = containerClone.querySelector("#buttonContainer");
+      if (buttonContainerClone) {
+        buttonContainerClone.remove();
+      }
+
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+
+      const finishSaving = () => {
+        // Localiza se já existe doc com este nome e pasta+subpasta
+        const existingIndex = namedDocuments.findIndex(doc => 
+          doc.name === docName &&
+          doc.folderName === currentFolder &&
+          (doc.subFolderName || null) === (currentSubFolder || null)
+        );
+        if (existingIndex !== -1) {
+          namedDocuments[existingIndex].content = containerClone.innerHTML;
+          namedDocuments[existingIndex].subject = docSubject;
+        } else {
+          namedDocuments.push({
+            name: docName,
+            subject: docSubject,
+            content: containerClone.innerHTML,
+            folderName: currentFolder,
+            subFolderName: currentSubFolder || null
+          });
+        }
+        localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+      };
+
+      showSavingOverlay().then(() => {
+        finishSaving();
+      });
+    }
+
+    function showSavingOverlay() {
+      return new Promise((resolve) => {
+        const progressOverlay = document.createElement("div");
+        progressOverlay.style.position = "fixed";
+        progressOverlay.style.top = 0;
+        progressOverlay.style.left = 0;
+        progressOverlay.style.width = "100%";
+        progressOverlay.style.height = "100%";
+        progressOverlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+        progressOverlay.style.display = "flex";
+        progressOverlay.style.flexDirection = "column";
+        progressOverlay.style.justifyContent = "center";
+        progressOverlay.style.alignItems = "center";
+        progressOverlay.style.zIndex = 2000;
+
+        const progressContainer = document.createElement("div");
+        progressContainer.style.width = "80%";
+        progressContainer.style.maxWidth = "400px";
+        progressContainer.style.backgroundColor = "#fff";
+        progressContainer.style.borderRadius = "10px";
+        progressContainer.style.padding = "20px";
+        progressContainer.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
+        progressContainer.style.textAlign = "center";
+
+        const progressText = document.createElement("div");
+        progressText.style.marginBottom = "10px";
+        progressText.innerText = "Salvando: 0%";
+
+        const progressBar = document.createElement("div");
+        progressBar.style.width = "100%";
+        progressBar.style.height = "20px";
+        progressBar.style.backgroundColor = "#ddd";
+        progressBar.style.borderRadius = "10px";
+        progressBar.style.overflow = "hidden";
+
+        const progressFill = document.createElement("div");
+        progressFill.style.width = "0%";
+        progressFill.style.height = "100%";
+        progressFill.style.backgroundColor = "#007BFF";
+
+        progressBar.appendChild(progressFill);
+        progressContainer.appendChild(progressText);
+        progressContainer.appendChild(progressBar);
+        progressOverlay.appendChild(progressContainer);
+        document.body.appendChild(progressOverlay);
+
+        let simulatedProgress = 0;
+        const progressInterval = setInterval(() => {
+          if (simulatedProgress < 90) {
+            simulatedProgress += Math.random() * 5;
+            if (simulatedProgress > 90) simulatedProgress = 90;
+            progressFill.style.width = simulatedProgress + "%";
+            progressText.innerText = "Salvando: " + Math.floor(simulatedProgress) + "%";
           }
-        }
-        contextMenu.style.display = "none";
-      });
-    });
+        }, 200);
 
-    /**
-     * Função auxiliar que aguarda que todas as imagens do container clonado estejam carregadas.
-     * Retorna uma Promise que se resolve quando todas as imagens estão carregadas ou com erro.
-     */
+        // Vamos simular que o "load" termina rapidamente
+        setTimeout(() => {
+          clearInterval(progressInterval);
+          let finishInterval = setInterval(() => {
+            simulatedProgress += 5;
+            if (simulatedProgress >= 100) {
+              simulatedProgress = 100;
+              progressFill.style.width = "100%";
+              progressText.innerText = "Salvando: 100%";
+              clearInterval(finishInterval);
+
+              progressText.innerText = "Documento salvo com sucesso!";
+              setTimeout(() => {
+                document.body.removeChild(progressOverlay);
+                resolve();
+              }, 800);
+            } else {
+              progressFill.style.width = simulatedProgress + "%";
+              progressText.innerText = "Salvando: " + Math.floor(simulatedProgress) + "%";
+            }
+          }, 100);
+        }, 1500);
+      });
+    }
+
     function waitForImages(containerClone) {
       const images = containerClone.querySelectorAll('img');
       if (images.length === 0) return Promise.resolve();
@@ -660,53 +1433,9 @@
       });
     }
 
-    /**
-     * Função que percorre todas as imagens do container clonado e, se a imagem não possuir
-     * uma Data URL, a converte para Data URL. Isso garante que as imagens sejam exibidas
-     * mesmo após salvar e recarregar o documento.
-     */
-    function convertImagesToDataURLs(container) {
-      const images = container.querySelectorAll("img");
-      const promises = [];
-      images.forEach(img => {
-        if (!img.src.startsWith("data:")) {
-          const promise = new Promise(resolve => {
-            const image = new Image();
-            image.crossOrigin = "Anonymous";
-            image.onload = function() {
-              const canvas = document.createElement("canvas");
-              canvas.width = image.width;
-              canvas.height = image.height;
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(image, 0, 0);
-              try {
-                const dataURL = canvas.toDataURL();
-                img.src = dataURL;
-              } catch (e) {
-                console.error("Erro ao converter imagem: ", e);
-              }
-              resolve();
-            };
-            image.onerror = function() {
-              resolve();
-            };
-            image.src = img.src;
-          });
-          promises.push(promise);
-        }
-      });
-      return Promise.all(promises);
-    }
-
-    /**
-     * Cria e adiciona os botões “+” e “💾” ao final do container.
-     * O botão “+” permite trazer a área de entrada para editar/novo conteúdo,
-     * enquanto o ícone “💾” salva o documento atual (todo o HTML dos blocos) no localStorage.
-     */
     function addAddButton() {
       const container = document.getElementById("textContainer");
       
-      // Cria um container para os botões
       const buttonContainer = document.createElement("div");
       buttonContainer.id = "buttonContainer";
       buttonContainer.style.display = "flex";
@@ -723,6 +1452,9 @@
       addButton.style.textAlign = "center";
       addButton.style.fontSize = "24px";
       addButton.style.padding = "5px";
+      addButton.style.borderRadius = "6px";
+      addButton.style.background = "#fff";
+      addButton.style.color = "#aaa";
 
       addButton.addEventListener("click", function() {
         buttonContainer.remove();
@@ -732,7 +1464,7 @@
         document.getElementById("textInput").focus();
       });
 
-      // Botão de salvar (ícone de disquete)
+      // Botão de salvar “💾”
       const saveButton = document.createElement("div");
       saveButton.id = "saveButton";
       saveButton.textContent = "💾";
@@ -740,146 +1472,867 @@
       saveButton.style.textAlign = "center";
       saveButton.style.fontSize = "24px";
       saveButton.style.padding = "5px";
+      saveButton.style.borderRadius = "6px";
+      saveButton.style.background = "#fff";
+      saveButton.style.color = "#aaa";
 
       saveButton.addEventListener("click", function() {
-        saveDocument();
+        if (currentDocName) {
+          // Salva no mesmo nome
+          saveDocumentNamed(currentDocName, currentDocSubject || "");
+        } else {
+          saveDocument(); // Salvar como "lastDocument" global
+        }
+      });
+
+      // Botão: "Salvar como..."
+      const saveWithNameButton = document.createElement("div");
+      saveWithNameButton.id = "saveWithNameButton";
+      saveWithNameButton.textContent = "💾🖉";
+      saveWithNameButton.style.cursor = "pointer";
+      saveWithNameButton.style.textAlign = "center";
+      saveWithNameButton.style.fontSize = "24px";
+      saveWithNameButton.style.padding = "5px";
+      saveWithNameButton.style.borderRadius = "6px";
+      saveWithNameButton.style.background = "#fff";
+      saveWithNameButton.style.color = "#aaa";
+      saveWithNameButton.title = "Salvar documento com um nome personalizado";
+
+      saveWithNameButton.addEventListener("click", function() {
+        saveDocumentWithName();
+      });
+
+      // Botão: "Carregar..."
+      const loadByNameButton = document.createElement("div");
+      loadByNameButton.id = "loadByNameButton";
+      loadByNameButton.textContent = "📂";
+      loadByNameButton.style.cursor = "pointer";
+      loadByNameButton.style.textAlign = "center";
+      loadByNameButton.style.fontSize = "24px";
+      loadByNameButton.style.padding = "5px";
+      loadByNameButton.style.borderRadius = "6px";
+      loadByNameButton.style.background = "#fff";
+      loadByNameButton.style.color = "#aaa";
+      loadByNameButton.title = "Carregar um dos documentos salvos";
+
+      loadByNameButton.addEventListener("click", function() {
+        loadDocumentByName();
       });
 
       buttonContainer.appendChild(addButton);
       buttonContainer.appendChild(saveButton);
+      buttonContainer.appendChild(saveWithNameButton);
+      buttonContainer.appendChild(loadByNameButton);
+
       container.appendChild(buttonContainer);
     }
 
-    /**
-     * Salva o documento atual.
-     * O procedimento é o seguinte:
-     *   1. Clona o container (removendo o container de botões do clone).
-     *   2. Converte as imagens para Data URL (se necessário) e aguarda que todas estejam carregadas.
-     *   3. Enquanto isso, exibe um overlay com um indicador de progresso que avança até 90%.
-     *   4. Quando as imagens estiverem carregadas, o progresso é animado até 100% e o HTML é salvo.
-     */
-    function saveDocument() {
-      const container = document.getElementById("textContainer");
-      // Clona o container para não alterar o DOM visível
-      const containerClone = container.cloneNode(true);
-      const buttonContainerClone = containerClone.querySelector("#buttonContainer");
-      if (buttonContainerClone) {
-        buttonContainerClone.remove();
+    function loadDocumentByName() {
+      if (!currentFolder) {
+        alert("Você precisa escolher uma pasta antes de carregar.");
+        return;
+      }
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      let docsInHere = namedDocuments.filter(doc => 
+         doc.folderName === currentFolder &&
+         (doc.subFolderName || null) === (currentSubFolder || null)
+      );
+
+      if (docsInHere.length === 0) {
+        alert("Não há documentos salvos nesta pasta/subpasta.");
+        return;
       }
 
-      // Cria o overlay de progresso
-      const progressOverlay = document.createElement("div");
-      progressOverlay.style.position = "fixed";
-      progressOverlay.style.top = 0;
-      progressOverlay.style.left = 0;
-      progressOverlay.style.width = "100%";
-      progressOverlay.style.height = "100%";
-      progressOverlay.style.backgroundColor = "rgba(0,0,0,0.5)";
-      progressOverlay.style.display = "flex";
-      progressOverlay.style.flexDirection = "column";
-      progressOverlay.style.justifyContent = "center";
-      progressOverlay.style.alignItems = "center";
-      progressOverlay.style.zIndex = 2000;
+      let listString = `Documentos em "${currentFolder}"`;
+      if (currentSubFolder) listString += ` / "${currentSubFolder}"`;
+      listString += ":\n\n";
+      docsInHere.forEach((doc, index) => {
+        listString += `${index + 1}. ${doc.name} (Assunto: ${doc.subject || "sem assunto"})\n`;
+      });
+      listString += "\nOu clique em Cancelar para sair.";
 
-      // Container do indicador de progresso
-      const progressContainer = document.createElement("div");
-      progressContainer.style.width = "80%";
-      progressContainer.style.maxWidth = "400px";
-      progressContainer.style.backgroundColor = "#fff";
-      progressContainer.style.borderRadius = "10px";
-      progressContainer.style.padding = "20px";
-      progressContainer.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
-      progressContainer.style.textAlign = "center";
+      let choice = prompt(listString);
+      if (choice === null) return;
+      let docIndex = parseInt(choice, 10) - 1;
 
-      const progressText = document.createElement("div");
-      progressText.style.marginBottom = "10px";
-      progressText.innerText = "Salvando: 0%";
+      if (isNaN(docIndex) || docIndex < 0 || docIndex >= docsInHere.length) {
+        alert("Opção inválida.");
+        return;
+      }
 
-      const progressBar = document.createElement("div");
-      progressBar.style.width = "100%";
-      progressBar.style.height = "20px";
-      progressBar.style.backgroundColor = "#ddd";
-      progressBar.style.borderRadius = "10px";
-      progressBar.style.overflow = "hidden";
+      const chosenDoc = docsInHere[docIndex];
+      loadDocumentInEditor(chosenDoc.name, chosenDoc.subject, chosenDoc.folderName, chosenDoc.subFolderName);
+    }
 
-      const progressFill = document.createElement("div");
-      progressFill.style.width = "0%";
-      progressFill.style.height = "100%";
-      progressFill.style.backgroundColor = "#007BFF";
 
-      progressBar.appendChild(progressFill);
-      progressContainer.appendChild(progressText);
-      progressContainer.appendChild(progressBar);
-      progressOverlay.appendChild(progressContainer);
-      document.body.appendChild(progressOverlay);
+    /* =========================================
+       MENUS DE CONTEXTO (FOLDER, SUBFOLDER, DOC)
+       + COPY/PASTE
+       ========================================= */
+    const menuFolder = document.getElementById("contextMenuFolder");
+    const menuSubFolder = document.getElementById("contextMenuSubFolder");
+    const menuDoc = document.getElementById("contextMenuDoc");
+    const menuBackground = document.getElementById("contextMenuBackground");
 
-      let simulatedProgress = 0;
-      // Intervalo para simular a evolução até 90%
-      const progressInterval = setInterval(() => {
-        if (simulatedProgress < 90) {
-          simulatedProgress += Math.random() * 5;
-          if (simulatedProgress > 90) simulatedProgress = 90;
-          progressFill.style.width = simulatedProgress + "%";
-          progressText.innerText = "Salvando: " + Math.floor(simulatedProgress) + "%";
+    // === CLICK FORA FECHA MENUS ===
+    document.addEventListener("click", function(event) {
+      if (menuFolder.style.display === "block") menuFolder.style.display = "none";
+      if (menuSubFolder.style.display === "block") menuSubFolder.style.display = "none";
+      if (menuDoc.style.display === "block") menuDoc.style.display = "none";
+      if (menuBackground.style.display === "block") menuBackground.style.display = "none";
+    });
+
+    // === FOLDER MENU ===
+    function showContextMenuFolder(x, y, folderName) {
+      menuFolder.style.display = "block";
+      menuFolder.style.left = x + "px";
+      menuFolder.style.top = y + "px";
+      menuFolder.targetFolder = folderName;
+
+      // Exibe ou esconde o item "Colar aqui"
+      const pasteIntoFolderLi = document.getElementById("pasteIntoFolder");
+      if (!copyBuffer) {
+        pasteIntoFolderLi.style.display = "none";
+      } else {
+        pasteIntoFolderLi.style.display = "block";
+      }
+    }
+
+    document.getElementById("copyFolderItem").addEventListener("click", function(){
+      const folderName = menuFolder.targetFolder;
+      copyFolder(folderName);
+      menuFolder.style.display = "none";
+    });
+
+    document.getElementById("pasteIntoFolder").addEventListener("click", function(){
+      const folderName = menuFolder.targetFolder;
+      if (!copyBuffer) {
+        alert("Nada copiado.");
+        return;
+      }
+      pasteIntoThisFolder(folderName);
+      menuFolder.style.display = "none";
+    });
+
+    document.getElementById("editFolderItem").addEventListener("click", function() {
+      const oldName = menuFolder.targetFolder;
+      const newName = prompt("Renomear pasta:", oldName);
+      if (newName && newName !== oldName) {
+        renameFolder(oldName, newName);
+      }
+      menuFolder.style.display = "none";
+    });
+
+    document.getElementById("deleteFolderItem").addEventListener("click", function() {
+      const folderName = menuFolder.targetFolder;
+      if (confirm(`Tem certeza que deseja excluir a pasta "${folderName}"?`)) {
+        deleteFolder(folderName);
+      }
+      menuFolder.style.display = "none";
+    });
+
+    function copyFolder(folderName) {
+      // Carrega subpastas e docs desse folder
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      let subfolders = folderSubfolders[folderName] || [];
+
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      let docsInThisFolder = namedDocuments.filter(doc => doc.folderName === folderName);
+
+      copyBuffer = {
+        type: "folder",
+        name: folderName,
+        subfolders: JSON.parse(JSON.stringify(subfolders)),
+        docs: JSON.parse(JSON.stringify(docsInThisFolder))
+      };
+
+      alert(`Pasta "${folderName}" copiada. Agora vá até a área vazia na tela inicial de Pastas para colar (ou use “Colar aqui” em branco).`);
+    }
+
+    function pasteIntoThisFolder(folderName) {
+      // Se o copyBuffer for subfolder ou document, conseguimos colar.
+      // Se for folder → não suportamos "pasta dentro de pasta" (sem subsubpastas).
+      if (copyBuffer.type === "folder") {
+        alert("Não é possível colar uma Pasta dentro de outra Pasta (subsubpastas não implementadas).");
+        return;
+      }
+      else if (copyBuffer.type === "subfolder") {
+        // Copiamos a subpasta para dentro desta folder
+        let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+        if (!folderSubfolders[folderName]) folderSubfolders[folderName] = [];
+
+        let subs = folderSubfolders[folderName];
+        let originalName = copyBuffer.name;
+        let newName = originalName;
+        
+        // se já existe subpasta com esse nome
+        let count = 1;
+        while (subs.includes(newName)) {
+          newName = originalName + " (Cópia" + (count > 1 ? " " + count : "") + ")";
+          count++;
         }
-      }, 200);
+        subs.push(newName);
+        folderSubfolders[folderName] = subs;
+        localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
 
-      // Converte as imagens para Data URL, se necessário, e aguarda que todas estejam carregadas
-      convertImagesToDataURLs(containerClone).then(() => {
-        // Aguarda que todas as imagens do clone estejam carregadas
-        waitForImages(containerClone).then(() => {
-          clearInterval(progressInterval);
-          // Após as imagens estarem carregadas, anima o progresso até 100%
-          const animateToFull = setInterval(() => {
-            simulatedProgress += 5;
-            if (simulatedProgress >= 100) {
-              simulatedProgress = 100;
-              progressFill.style.width = "100%";
-              progressText.innerText = "Salvando: 100%";
-              clearInterval(animateToFull);
-              // Salva o HTML (com as imagens já carregadas) no localStorage
-              localStorage.setItem("lastDocument", containerClone.innerHTML);
-              progressText.innerText = "Documento salvo com sucesso!";
-              // Remove o overlay após um breve atraso
-              setTimeout(() => {
-                document.body.removeChild(progressOverlay);
-              }, 1500);
-            } else {
-              progressFill.style.width = simulatedProgress + "%";
-              progressText.innerText = "Salvando: " + Math.floor(simulatedProgress) + "%";
-            }
-          }, 100);
+        // Copia os documentos dessa subpasta
+        let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+        copyBuffer.docs.forEach(d => {
+          let docName = d.name;
+          // checar conflito
+          let conflict = namedDocuments.find(x =>
+            x.folderName === folderName &&
+            (x.subFolderName || null) === newName &&
+            x.name === docName
+          );
+          let docNameOriginal = docName;
+          let docCount = 1;
+          while (conflict) {
+            docName = docNameOriginal + " (Cópia" + (docCount > 1 ? " " + docCount : "") + ")";
+            docCount++;
+            conflict = namedDocuments.find(x =>
+              x.folderName === folderName &&
+              (x.subFolderName || null) === newName &&
+              x.name === docName
+            );
+          }
+
+          namedDocuments.push({
+            folderName: folderName,
+            subFolderName: newName,
+            name: docName,
+            subject: d.subject,
+            content: d.content
+          });
+        });
+        localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+        alert(`Subpasta "${originalName}" colada como "${newName}" dentro da pasta "${folderName}".`);
+        showSubFolderScreen(folderName);
+      }
+      else if (copyBuffer.type === "document") {
+        // colar doc dentro dessa pasta (sem subfolder)
+        let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+        let originalName = copyBuffer.name;
+        let newName = originalName;
+
+        // checar conflito
+        let conflict = namedDocuments.find(x =>
+          x.folderName === folderName &&
+          (x.subFolderName || null) === null &&
+          x.name === newName
+        );
+        let count = 1;
+        while (conflict) {
+          newName = originalName + " (Cópia" + (count > 1 ? " " + count : "") + ")";
+          count++;
+          conflict = namedDocuments.find(x =>
+            x.folderName === folderName &&
+            (x.subFolderName || null) === null &&
+            x.name === newName
+          );
+        }
+
+        namedDocuments.push({
+          name: newName,
+          subject: copyBuffer.subject || "",
+          content: copyBuffer.content,
+          folderName: folderName,
+          subFolderName: null
+        });
+        localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+        alert(`Documento "${originalName}" colado como "${newName}" dentro da pasta "${folderName}".`);
+        showSubFolderScreen(folderName);
+      }
+    }
+
+    function renameFolder(oldName, newName) {
+      let folders = JSON.parse(localStorage.getItem("folders")) || [];
+      if (folders.includes(newName)) {
+        alert("Já existe uma pasta com esse nome.");
+        return;
+      }
+      folders = folders.map(f => (f === oldName ? newName : f));
+      localStorage.setItem("folders", JSON.stringify(folders));
+
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      if (folderSubfolders[oldName] !== undefined) {
+        folderSubfolders[newName] = folderSubfolders[oldName];
+        delete folderSubfolders[oldName];
+      }
+      localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      namedDocuments.forEach(doc => {
+        if (doc.folderName === oldName) {
+          doc.folderName = newName;
+        }
+      });
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      showFolderScreen();
+    }
+
+    function deleteFolder(folderName) {
+      let folders = JSON.parse(localStorage.getItem("folders")) || [];
+      folders = folders.filter(f => f !== folderName);
+      localStorage.setItem("folders", JSON.stringify(folders));
+
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      delete folderSubfolders[folderName];
+      localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      namedDocuments = namedDocuments.filter(doc => doc.folderName !== folderName);
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      showFolderScreen();
+    }
+
+
+    // === SUBFOLDER MENU ===
+    function showContextMenuSubFolder(x, y, subFolderName) {
+      menuSubFolder.style.display = "block";
+      menuSubFolder.style.left = x + "px";
+      menuSubFolder.style.top = y + "px";
+      menuSubFolder.targetSubFolder = subFolderName;
+
+      // Exibe ou esconde "Colar aqui"
+      const pasteIntoSubFolderLi = document.getElementById("pasteIntoSubFolder");
+      if (!copyBuffer) {
+        pasteIntoSubFolderLi.style.display = "none";
+      } else {
+        pasteIntoSubFolderLi.style.display = "block";
+      }
+    }
+
+    document.getElementById("copySubFolderItem").addEventListener("click", function(){
+      const subName = menuSubFolder.targetSubFolder;
+      copySubFolder(currentFolder, subName);
+      menuSubFolder.style.display = "none";
+    });
+
+    document.getElementById("pasteIntoSubFolder").addEventListener("click", function(){
+      const subFolderName = menuSubFolder.targetSubFolder;
+      if (!copyBuffer) {
+        alert("Nada copiado.");
+        return;
+      }
+      pasteIntoThisSubFolder(currentFolder, subFolderName);
+      menuSubFolder.style.display = "none";
+    });
+
+    document.getElementById("editSubFolderItem").addEventListener("click", function() {
+      const oldSubName = menuSubFolder.targetSubFolder;
+      const newSubName = prompt("Renomear subpasta:", oldSubName);
+      if (newSubName && newSubName !== oldSubName) {
+        renameSubFolder(currentFolder, oldSubName, newSubName);
+      }
+      menuSubFolder.style.display = "none";
+    });
+
+    document.getElementById("deleteSubFolderItem").addEventListener("click", function() {
+      const subFolderName = menuSubFolder.targetSubFolder;
+      if (confirm(`Tem certeza que deseja excluir a subpasta "${subFolderName}"?`)) {
+        deleteSubFolder(currentFolder, subFolderName);
+      }
+      menuSubFolder.style.display = "none";
+    });
+
+    function copySubFolder(folderName, subFolderName) {
+      // Carrega docs dentro dessa subpasta
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      let docsInSub = namedDocuments.filter(doc => 
+        doc.folderName === folderName && doc.subFolderName === subFolderName
+      );
+
+      copyBuffer = {
+        type: "subfolder",
+        name: subFolderName,
+        folderName: folderName,
+        docs: JSON.parse(JSON.stringify(docsInSub))
+      };
+
+      alert(`Subpasta "${subFolderName}" copiada. Você pode colar numa outra Pasta (ou área vazia de subpastas).`);
+    }
+
+    function pasteIntoThisSubFolder(folderName, subFolderName) {
+      // Se copyBuffer.type = "document", podemos colar doc aqui. 
+      // Se "folder" ou "subfolder", não suportamos subsubpastas.
+      if (copyBuffer.type === "document") {
+        let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+        let originalName = copyBuffer.name;
+        let newName = originalName;
+
+        // checar conflito
+        let conflict = namedDocuments.find(x =>
+          x.folderName === folderName &&
+          (x.subFolderName || null) === subFolderName &&
+          x.name === newName
+        );
+        let count = 1;
+        while (conflict) {
+          newName = originalName + " (Cópia" + (count > 1 ? " " + count : "") + ")";
+          count++;
+          conflict = namedDocuments.find(x =>
+            x.folderName === folderName &&
+            (x.subFolderName || null) === subFolderName &&
+            x.name === newName
+          );
+        }
+
+        namedDocuments.push({
+          folderName: folderName,
+          subFolderName: subFolderName,
+          name: newName,
+          subject: copyBuffer.subject || "",
+          content: copyBuffer.content
+        });
+        localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+        alert(`Documento "${originalName}" colado como "${newName}" em "${folderName}/${subFolderName}".`);
+        showSubFolderScreen(folderName);
+
+      } else {
+        alert("Não é possível colar Pastas ou Subpastas dentro de outra Subpasta (sub-subpastas não implementadas).");
+      }
+    }
+
+    function renameSubFolder(folderName, oldSub, newSub) {
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      let subs = folderSubfolders[folderName] || [];
+      if (subs.includes(newSub)) {
+        alert("Já existe uma subpasta com esse nome.");
+        return;
+      }
+      subs = subs.map(s => (s === oldSub ? newSub : s));
+      folderSubfolders[folderName] = subs;
+      localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      namedDocuments.forEach(doc => {
+        if (doc.folderName === folderName && doc.subFolderName === oldSub) {
+          doc.subFolderName = newSub;
+        }
+      });
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      showSubFolderScreen(folderName);
+    }
+
+    function deleteSubFolder(folderName, subFolderName) {
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      if (folderSubfolders[folderName]) {
+        folderSubfolders[folderName] = folderSubfolders[folderName].filter(s => s !== subFolderName);
+        localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+      }
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      namedDocuments = namedDocuments.filter(doc => {
+        return !(doc.folderName === folderName && doc.subFolderName === subFolderName);
+      });
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      showSubFolderScreen(folderName);
+    }
+
+
+    // === DOC MENU ===
+    function showContextMenuDoc(x, y, docName) {
+      menuDoc.style.display = "block";
+      menuDoc.style.left = x + "px";
+      menuDoc.style.top = y + "px";
+      menuDoc.targetDocName = docName;
+    }
+
+    document.getElementById("copyDocItem").addEventListener("click", function(){
+      const docName = menuDoc.targetDocName;
+      copyDoc(docName);
+      menuDoc.style.display = "none";
+    });
+
+    document.getElementById("editDocItem").addEventListener("click", function() {
+      const oldDocName = menuDoc.targetDocName;
+      editDocument(oldDocName);
+      menuDoc.style.display = "none";
+    });
+
+    document.getElementById("deleteDocItem").addEventListener("click", function() {
+      const docName = menuDoc.targetDocName;
+      if (confirm(`Tem certeza que deseja excluir o documento "${docName}"?`)) {
+        deleteDocument(docName);
+      }
+      menuDoc.style.display = "none";
+    });
+
+    function copyDoc(docName) {
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      let doc = namedDocuments.find(d => 
+        d.folderName === currentFolder && 
+        (d.subFolderName || null) === (currentSubFolder||null) &&
+        d.name === docName
+      );
+      if (!doc) {
+        alert("Documento não encontrado.");
+        return;
+      }
+      copyBuffer = {
+        type: "document",
+        name: doc.name,
+        folderName: doc.folderName,
+        subFolderName: doc.subFolderName,
+        subject: doc.subject,
+        content: doc.content
+      };
+      alert(`Documento "${docName}" copiado. Para colar, clique com direito onde deseja colocar.`);
+    }
+
+    function editDocument(oldDocName) {
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      const docIndex = namedDocuments.findIndex(d =>
+        d.name === oldDocName &&
+        d.folderName === currentFolder &&
+        (d.subFolderName || null) === (currentSubFolder || null)
+      );
+      if (docIndex === -1) {
+        alert("Documento não encontrado.");
+        return;
+      }
+      const doc = namedDocuments[docIndex];
+      const newName = prompt("Novo nome do documento:", doc.name);
+      if (!newName) return;
+      const newSubject = prompt("Novo assunto:", doc.subject || "");
+      if (newSubject === null) return;
+
+      // Verifica conflito
+      const conflict = namedDocuments.find(d =>
+        d !== doc &&
+        d.name === newName &&
+        d.folderName === currentFolder &&
+        (d.subFolderName || null) === (currentSubFolder || null)
+      );
+      if (conflict) {
+        alert("Já existe outro documento com este nome.");
+        return;
+      }
+
+      doc.name = newName;
+      doc.subject = newSubject;
+      namedDocuments[docIndex] = doc;
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      showDocumentList(currentFolder, currentSubFolder);
+    }
+
+    function deleteDocument(docName) {
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      namedDocuments = namedDocuments.filter(doc => {
+        return !(doc.folderName === currentFolder &&
+                 (doc.subFolderName || null) === (currentSubFolder || null) &&
+                 doc.name === docName);
+      });
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      showDocumentList(currentFolder, currentSubFolder);
+    }
+
+
+    /* =========================================
+       MENU DE CONTEXTO "BACKGROUND" (PARA PASTES)
+       ========================================= */
+    // Precisamos detectar cliques com botão direito
+    // nas áreas vazias de cada tela, para exibir "Colar"
+    document.getElementById("folderScreen").addEventListener("contextmenu", function(e){
+      // se clique não foi em .folder-item
+      if (e.target.classList.contains("folder-item") || e.target.closest(".folder-item")) {
+        return; // context menu do item
+      }
+      e.preventDefault();
+      // verif se copyBuffer.type = "folder"
+      if (copyBuffer && copyBuffer.type === "folder") {
+        showContextMenuBackground(e.pageX, e.pageY, "folderscreen");
+      }
+    });
+
+    document.getElementById("subFolderScreen").addEventListener("contextmenu", function(e){
+      if (e.target.classList.contains("subfolder-item") || e.target.closest(".subfolder-item")) {
+        return;
+      }
+      e.preventDefault();
+      // Só podemos colar subfolder se copyBuffer.type = "subfolder"
+      if (copyBuffer && copyBuffer.type === "subfolder") {
+        showContextMenuBackground(e.pageX, e.pageY, "subfolderscreen");
+      }
+    });
+
+    document.getElementById("documentListScreen").addEventListener("contextmenu", function(e){
+      if (e.target.classList.contains("doc-item") || e.target.closest(".doc-item")) {
+        return;
+      }
+      e.preventDefault();
+      // Só podemos colar doc se copyBuffer.type = "document"
+      if (copyBuffer && copyBuffer.type === "document") {
+        showContextMenuBackground(e.pageX, e.pageY, "documentscreen");
+      }
+    });
+
+    function showContextMenuBackground(x, y, screenType) {
+      menuBackground.style.display = "block";
+      menuBackground.style.left = x + "px";
+      menuBackground.style.top = y + "px";
+      menuBackground.screenType = screenType;
+    }
+
+    document.getElementById("pasteItem").addEventListener("click", function(){
+      if (!copyBuffer) {
+        alert("Nada copiado.");
+        return;
+      }
+      const screenType = menuBackground.screenType;
+      menuBackground.style.display = "none";
+      handlePaste(screenType);
+    });
+
+    function handlePaste(screenType) {
+      if (screenType === "folderscreen") {
+        if (copyBuffer.type !== "folder") {
+          alert("Só é possível colar pastas nesta área inicial.");
+          return;
+        }
+        pasteFolder();
+      }
+      else if (screenType === "subfolderscreen") {
+        if (copyBuffer.type !== "subfolder") {
+          alert("Só é possível colar subpastas nesta área.");
+          return;
+        }
+        pasteSubFolder();
+      }
+      else if (screenType === "documentscreen") {
+        if (copyBuffer.type !== "document") {
+          alert("Só é possível colar documentos nesta área.");
+          return;
+        }
+        pasteDocument();
+      }
+    }
+
+    function pasteFolder() {
+      // copyBuffer = {type:'folder', name, subfolders, docs}
+      let folders = JSON.parse(localStorage.getItem("folders")) || [];
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+
+      let originalName = copyBuffer.name;
+      let newName = originalName;
+      // se já existe, adiciona (Cópia)
+      let count = 1;
+      while (folders.includes(newName)) {
+        newName = originalName + " (Cópia" + (count > 1 ? " " + count : "") + ")";
+        count++;
+      }
+      folders.push(newName);
+      localStorage.setItem("folders", JSON.stringify(folders));
+
+      // Adiciona subpastas
+      folderSubfolders[newName] = copyBuffer.subfolders.slice(); 
+      localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+
+      // Adiciona docs
+      copyBuffer.docs.forEach(d => {
+        let docName = d.name;
+        let conflict = namedDocuments.find( x => x.folderName === newName && x.name === docName );
+        let docNameOriginal = docName;
+        let docCount = 1;
+        while (conflict) {
+          docName = docNameOriginal + " (Cópia" + (docCount > 1 ? " " + docCount : "") + ")";
+          docCount++;
+          conflict = namedDocuments.find( x => x.folderName === newName && x.name === docName );
+        }
+        namedDocuments.push({
+          folderName: newName,
+          subFolderName: d.subFolderName, 
+          name: docName,
+          subject: d.subject,
+          content: d.content
         });
       });
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      alert(`Pasta "${originalName}" colada como "${newName}".`);
+      showFolderScreen();
     }
 
-    /**
-     * Carrega o último documento salvo do localStorage.
-     * Após inserir o HTML salvo no container, reinicializa os event listeners de cada bloco
-     * e garante que cada bloco permaneça editável para que você possa continuar trabalhando normalmente.
-     *
-     * **Alteração Realizada:** Após reatribuir o innerHTML salvo, cada bloco (box) é verificado e, se conter imagens
-     * ou tabelas, a função `autoCenterElements(box)` é chamada para garantir que elas sejam exibidas corretamente.
-     */
-    function loadLastDocument() {
-      const savedHTML = localStorage.getItem("lastDocument");
-      if (savedHTML) {
-        const container = document.getElementById("textContainer");
-        container.innerHTML = savedHTML;
-        const boxes = container.querySelectorAll(".box");
-        boxes.forEach(box => {
-          // Garante que o bloco seja editável
-          box.setAttribute("contenteditable", "true");
-          initBlockEvents(box);
-          // **Chamada adicionada** para ajustar imagens/tabelas, caso presentes
-          autoCenterElements(box);
-        });
-        document.getElementById("inputArea").style.display = "none";
-        addAddButton();
-      } else {
-        alert("Nenhum documento salvo encontrado.");
+    function pasteSubFolder() {
+      // copyBuffer = { type:'subfolder', name, folderName, docs }
+      // Colamos no currentFolder (subFolderScreen)
+      let folderSubfolders = JSON.parse(localStorage.getItem("folderSubfolders")) || {};
+      let subs = folderSubfolders[currentFolder] || [];
+
+      let originalName = copyBuffer.name;
+      let newName = originalName;
+      let count = 1;
+      while (subs.includes(newName)) {
+        newName = originalName + " (Cópia" + (count > 1 ? " " + count : "") + ")";
+        count++;
       }
+      subs.push(newName);
+      folderSubfolders[currentFolder] = subs;
+      localStorage.setItem("folderSubfolders", JSON.stringify(folderSubfolders));
+
+      // Copia docs
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+      copyBuffer.docs.forEach(d => {
+        let docName = d.name;
+        let conflict = namedDocuments.find(x =>
+          x.folderName === currentFolder &&
+          (x.subFolderName || null) === newName &&
+          x.name === docName
+        );
+        let docNameOriginal = docName;
+        let docCount = 1;
+        while (conflict) {
+          docName = docNameOriginal + " (Cópia" + (docCount > 1 ? " " + docCount : "") + ")";
+          docCount++;
+          conflict = namedDocuments.find(x =>
+            x.folderName === currentFolder &&
+            (x.subFolderName || null) === newName &&
+            x.name === docName
+          );
+        }
+
+        namedDocuments.push({
+          folderName: currentFolder,
+          subFolderName: newName,
+          name: docName,
+          subject: d.subject,
+          content: d.content
+        });
+      });
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      alert(`Subpasta "${originalName}" colada como "${newName}" em "${currentFolder}".`);
+      showSubFolderScreen(currentFolder);
     }
+
+    function pasteDocument() {
+      // copyBuffer = { type:'document', name, folderName, subFolderName, content }
+      let namedDocuments = JSON.parse(localStorage.getItem("namedDocuments")) || [];
+
+      let originalName = copyBuffer.name;
+      let newName = originalName;
+      // checar conflito
+      let conflict = namedDocuments.find(x =>
+        x.folderName === currentFolder &&
+        (x.subFolderName || null) === (currentSubFolder || null) &&
+        x.name === newName
+      );
+      let count = 1;
+      while (conflict) {
+        newName = originalName + " (Cópia" + (count > 1 ? " " + count : "") + ")";
+        count++;
+        conflict = namedDocuments.find(x =>
+          x.folderName === currentFolder &&
+          (x.subFolderName || null) === (currentSubFolder || null) &&
+          x.name === newName
+        );
+      }
+
+      namedDocuments.push({
+        name: newName,
+        subject: copyBuffer.subject || "",
+        content: copyBuffer.content,
+        folderName: currentFolder,
+        subFolderName: currentSubFolder || null
+      });
+      localStorage.setItem("namedDocuments", JSON.stringify(namedDocuments));
+
+      alert(`Documento "${originalName}" colado como "${newName}".`);
+      showDocumentList(currentFolder, currentSubFolder);
+    }
+
+
+    /* =========================================
+       CONTEXTO DO EDITOR
+       ========================================= */
+    function showEditorContextMenu(x, y, box) {
+      const contextMenu = document.getElementById("contextMenu");
+      contextMenu.style.top = `${y}px`;
+      contextMenu.style.left = `${x}px`;
+      contextMenu.style.display = "block";
+      contextMenu.currentBox = box;
+    }
+
+    document.getElementById("deleteBlock").addEventListener("click", function() {
+      const contextMenu = document.getElementById("contextMenu");
+      const box = contextMenu.currentBox;
+      if (box && box.parentNode) {
+        box.parentNode.removeChild(box);
+      }
+      contextMenu.style.display = "none";
+    });
+
+    document.getElementById("centerImageInsideBlock").addEventListener("click", function() {
+      const contextMenu = document.getElementById("contextMenu");
+      const box = contextMenu.currentBox;
+      if (box) {
+        box.style.height = "auto";
+        box.style.overflow = "visible";
+        box.style.whiteSpace = "normal";
+        box.style.alignItems = "center";
+        box.style.justifyContent = "center";
+        box.style.padding = "10px";
+        box.style.flexDirection = "column";
+
+        const images = box.querySelectorAll('img');
+        images.forEach(img => {
+          img.style.display = 'block';
+          img.style.marginLeft = 'auto';
+          img.style.marginRight = 'auto';
+          img.style.maxWidth = '700px';
+          img.style.height = 'auto';
+        });
+
+        const tables = box.querySelectorAll('table');
+        tables.forEach(table => {
+          table.style.marginLeft = 'auto';
+          table.style.marginRight = 'auto';
+          table.style.width = 'auto';
+        });
+      }
+      contextMenu.style.display = "none";
+    });
+
+    const fontSizeOptions = document.querySelectorAll('.submenu ul li[data-font-size]');
+    fontSizeOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const contextMenu = document.getElementById("contextMenu");
+        const box = contextMenu.currentBox;
+        const newFontSize = option.getAttribute('data-font-size');
+        if (box && newFontSize) {
+          box.style.fontSize = newFontSize;
+        }
+        contextMenu.style.display = "none";
+      });
+    });
+
+    const colorOptions = document.querySelectorAll('.submenu ul li[data-color]');
+    colorOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const contextMenu = document.getElementById("contextMenu");
+        const box = contextMenu.currentBox;
+        const newColor = option.getAttribute('data-color');
+        if (box) {
+          box.style.backgroundColor = newColor;
+          if (newColor !== "#f0f0f0") {
+            box.classList.add("colored");
+          } else {
+            box.classList.remove("colored");
+          }
+        }
+        contextMenu.style.display = "none";
+      });
+    });
   </script>
 </body>
 </html>
