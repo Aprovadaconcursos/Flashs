@@ -443,6 +443,55 @@
         padding: 10px;
       }
     }
+
+    /* =================== ESTILOS PARA A CAIXA MODAL DE EXPLICAÇÃO =================== */
+    #explanationModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 3000;
+      max-width: 80%;
+      max-height: 80%;
+      overflow-y: auto;
+      display: none;
+    }
+    #explanationModalClose {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    /* =================== MENU DE CONTEXTO GLOBAL PARA EXPLICAÇÃO =================== */
+    #contextMenuExplainGlobal {
+      position: absolute;
+      display: none;
+      z-index: 2000;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    #contextMenuExplainGlobal ul {
+      list-style: none;
+      margin: 0;
+      padding: 5px;
+    }
+    #contextMenuExplainGlobal li {
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    #contextMenuExplainGlobal li:hover {
+      background-color: #f1f1f1;
+    }
   </style>
 </head>
 <body>
@@ -559,6 +608,7 @@
             <li data-color="#FF69B4">Rosa Shock</li>
           </ul>
         </li>
+        <li class="explain-item" data-target="editor">Explicar</li>
       </ul>
     </div>
   </div>
@@ -570,6 +620,7 @@
       <li id="pasteIntoFolder" style="display:none;">Colar aqui</li>
       <li id="editFolderItem">Renomear Pasta</li>
       <li id="deleteFolderItem">Excluir Pasta</li>
+      <li class="explain-item" data-target="folder">Explicar</li>
     </ul>
   </div>
   <div class="context-menu-subfolder" id="contextMenuSubFolder">
@@ -578,6 +629,7 @@
       <li id="pasteIntoSubFolder" style="display:none;">Colar aqui</li>
       <li id="editSubFolderItem">Renomear Subpasta</li>
       <li id="deleteSubFolderItem">Excluir Subpasta</li>
+      <li class="explain-item" data-target="subfolder">Explicar</li>
     </ul>
   </div>
   <div class="context-menu-doc" id="contextMenuDoc">
@@ -585,12 +637,27 @@
       <li id="copyDocItem">Copiar Documento</li>
       <li id="editDocItem">Renomear Documento</li>
       <li id="deleteDocItem">Excluir Documento</li>
+      <li class="explain-item" data-target="document">Explicar</li>
     </ul>
   </div>
   <div class="context-menu-background" id="contextMenuBackground">
     <ul>
       <li id="pasteItem">Colar</li>
+      <li class="explain-item" data-target="background">Explicar</li>
     </ul>
+  </div>
+
+  <!-- ===================== MENU DE CONTEXTO GLOBAL PARA EXPLICAÇÃO ===================== -->
+  <div id="contextMenuExplainGlobal">
+    <ul>
+      <li id="explainGlobalItem">Explicar</li>
+    </ul>
+  </div>
+
+  <!-- ===================== CAIXA MODAL PARA EXIBIR A EXPLICAÇÃO ===================== -->
+  <div id="explanationModal">
+    <span id="explanationModalClose">✖</span>
+    <div id="explanationContent"></div>
   </div>
 
   <!-- ===================== SCRIPT (ES MODULE) ===================== -->
@@ -641,6 +708,9 @@
     let currentSubFolder  = null;
     let currentDocName    = null;
     let currentDocSubject = null;
+
+    // Para a funcionalidade de “Explicar” – quando o menu global for acionado
+    let globalExplanationTarget = null;
 
     /* ===================== REFERÊNCIAS A ELEMENTOS DE TELA ===================== */
     const loginScreen    = document.getElementById("loginScreen");
@@ -697,6 +767,18 @@
     const menuSubFolder  = document.getElementById("contextMenuSubFolder");
     const menuDoc        = document.getElementById("contextMenuDoc");
     const menuBackground = document.getElementById("contextMenuBackground");
+
+    // Menu de contexto global para explicação
+    const contextMenuExplainGlobal = document.getElementById("contextMenuExplainGlobal");
+    const explainGlobalItem = document.getElementById("explainGlobalItem");
+
+    // Modal de explicação
+    const explanationModal = document.getElementById("explanationModal");
+    const explanationContent = document.getElementById("explanationContent");
+    const explanationModalClose = document.getElementById("explanationModalClose");
+
+    /* ===================== CHAVE PARA A API DO OPENAI ===================== */
+    const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY_HERE"; // Substitua pela sua chave de API
 
     /* ===================== LOGIN / REGISTRO ===================== */
     goRegisterLink.addEventListener("click",(e)=>{
@@ -1461,14 +1543,102 @@
       });
     }
 
+    /* ===================== FUNÇÕES DE EXPLICAÇÃO (NOVAS) ===================== */
+
+    // Função que chama a API do ChatGPT para explicar um determinado texto
+    async function explainText(text) {
+      // Exibe na modal que está carregando a explicação
+      explanationContent.innerText = "Carregando explicação...";
+      explanationModal.style.display = "block";
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{role: "user", content: "Explique o seguinte texto de forma clara e resumida:\n\n" + text}]
+          })
+        });
+        const data = await response.json();
+        if (data.choices && data.choices.length > 0) {
+          const explanation = data.choices[0].message.content;
+          explanationContent.innerText = explanation;
+        } else {
+          explanationContent.innerText = "Não foi possível obter uma explicação.";
+        }
+      } catch (error) {
+        explanationContent.innerText = "Erro ao buscar explicação: " + error.message;
+      }
+    }
+
+    // Função para tratar a ação “Explicar” a partir de um texto
+    function triggerExplanation(targetText) {
+      if(targetText && targetText.trim() !== ""){
+        explainText(targetText);
+      } else {
+        alert("Não há texto para explicar.");
+      }
+    }
+
+    // Fechar a modal de explicação ao clicar no "X"
+    explanationModalClose.addEventListener("click", () => {
+      explanationModal.style.display = "none";
+    });
+
+    /* ===================== EVENTOS PARA OCULTAR MENUS DE CONTEXTO ===================== */
     document.addEventListener("click", (e) => {
       if(menuFolder.style.display === "block") menuFolder.style.display = "none";
       if(menuSubFolder.style.display === "block") menuSubFolder.style.display = "none";
       if(menuDoc.style.display === "block") menuDoc.style.display = "none";
       if(menuBackground.style.display === "block") menuBackground.style.display = "none";
       if(contextMenuEditor.style.display === "block") contextMenuEditor.style.display = "none";
+      if(contextMenuExplainGlobal.style.display === "block") contextMenuExplainGlobal.style.display = "none";
     });
 
+    /* ===================== EVENTOS DE MENU DE CONTEXTO EXISTENTES (ADICIONANDO "EXPLICAR") ===================== */
+
+    // Para o menu de pasta
+    menuFolder.querySelector(".explain-item").addEventListener("click", () => {
+      const text = menuFolder.targetFolder;
+      triggerExplanation(text);
+      menuFolder.style.display = "none";
+    });
+
+    // Para o menu de subpasta
+    menuSubFolder.querySelector(".explain-item").addEventListener("click", () => {
+      const text = menuSubFolder.targetSubFolder;
+      triggerExplanation(text);
+      menuSubFolder.style.display = "none";
+    });
+
+    // Para o menu de documento
+    menuDoc.querySelector(".explain-item").addEventListener("click", () => {
+      const text = menuDoc.targetDocName;
+      triggerExplanation(text);
+      menuDoc.style.display = "none";
+    });
+
+    // Para o menu de fundo
+    menuBackground.querySelector(".explain-item").addEventListener("click", () => {
+      // Para o fundo, usaremos o texto do elemento que foi clicado (armazenado em globalExplanationTarget)
+      const text = globalExplanationTarget ? globalExplanationTarget.innerText : "";
+      triggerExplanation(text);
+      menuBackground.style.display = "none";
+    });
+
+    // Para o menu do editor
+    contextMenuEditor.querySelector(".explain-item").addEventListener("click", () => {
+      // Para o editor, vamos extrair o texto do bloco (currentBox)
+      const box = contextMenuEditor.currentBox;
+      const text = box ? box.innerText : "";
+      triggerExplanation(text);
+      contextMenuEditor.style.display = "none";
+    });
+
+    /* ===================== EVENTOS PARA OS MENUS DE CONTEXTO ===================== */
     function showContextMenuFolder(x, y, folderName){
       menuFolder.style.display = "block";
       menuFolder.style.left = x + "px";
@@ -1823,6 +1993,13 @@
       if(copyBuffer && copyBuffer.type === "folder"){
         e.preventDefault();
         showContextMenuBackground(e.pageX, e.pageY, "folderscreen");
+      } else {
+        // Se nenhum menu customizado for acionado, mostra o menu global de explicação
+        globalExplanationTarget = e.target;
+        e.preventDefault();
+        contextMenuExplainGlobal.style.display = "block";
+        contextMenuExplainGlobal.style.left = e.pageX + "px";
+        contextMenuExplainGlobal.style.top = e.pageY + "px";
       }
     });
     document.getElementById("subFolderScreen").addEventListener("contextmenu", (e) => {
@@ -1832,6 +2009,12 @@
       if(copyBuffer && copyBuffer.type === "subfolder"){
         e.preventDefault();
         showContextMenuBackground(e.pageX, e.pageY, "subfolderscreen");
+      } else {
+        globalExplanationTarget = e.target;
+        e.preventDefault();
+        contextMenuExplainGlobal.style.display = "block";
+        contextMenuExplainGlobal.style.left = e.pageX + "px";
+        contextMenuExplainGlobal.style.top = e.pageY + "px";
       }
     });
     document.getElementById("documentListScreen").addEventListener("contextmenu", (e) => {
@@ -1841,6 +2024,12 @@
       if(copyBuffer && copyBuffer.type === "document"){
         e.preventDefault();
         showContextMenuBackground(e.pageX, e.pageY, "documentscreen");
+      } else {
+        globalExplanationTarget = e.target;
+        e.preventDefault();
+        contextMenuExplainGlobal.style.display = "block";
+        contextMenuExplainGlobal.style.left = e.pageX + "px";
+        contextMenuExplainGlobal.style.top = e.pageY + "px";
       }
     });
     function showContextMenuBackground(x, y, screenType){
@@ -1877,6 +2066,11 @@
           alert("Só é possível colar Documentos aqui.");
         }
       }
+    });
+    explainGlobalItem.addEventListener("click", () => {
+      const text = globalExplanationTarget ? globalExplanationTarget.innerText : "";
+      triggerExplanation(text);
+      contextMenuExplainGlobal.style.display = "none";
     });
     function pasteFolder(){
       let newName = copyBuffer.name;
