@@ -18,6 +18,8 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      /* Padding para que em telas menores não fique muito colado */
+      padding: 20px;
     }
     .page-title {
       background-color: #fff;
@@ -92,8 +94,8 @@
       cursor: pointer;
       color: #aaa;
       transition: background-color 0.2s;
-      min-width: 60px;  /* Botão um pouco mais comprido */
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);  /* Sombreamento igual ao do (+) */
+      min-width: 60px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .nav-button:hover {
       background-color: #eee;
@@ -220,8 +222,6 @@
     #editorSection {
       display: none;
     }
-    /* Para o editor, os botões de navegação já estão dentro de um container centralizado (.nav-buttons) */
-
     .input-area {
       background-color: #ffffff;
       padding: 20px;
@@ -396,11 +396,52 @@
       width: 0%; height: 100%; background-color: #007BFF;
     }
 
-    /* Responsividade do Editor */
+    /* =================== RESPONSIVIDADE =================== */
     @media (max-width: 600px) {
-      .editable-div, .box { font-size: 14px; }
-      .custom-context-menu { width: 180px; }
-      .submenu > ul { min-width: 120px; }
+      .editable-div, .box { 
+        font-size: 14px; 
+      }
+      .custom-context-menu { 
+        width: 180px; 
+      }
+      .submenu > ul { 
+        min-width: 120px; 
+      }
+      /* Ajustes para inputs e botões */
+      input[type="email"],
+      input[type="password"],
+      input[type="text"] {
+        width: 90%;
+        max-width: 300px;
+      }
+      .page-title {
+        font-size: 18px;
+        padding: 10px;
+      }
+      .plus-button {
+        font-size: 24px;
+        padding: 5px;
+      }
+      .nav-button {
+        font-size: 24px;
+        padding: 5px 8px;
+        min-width: 50px;
+      }
+      /* Redução de tamanhos para itens de lista */
+      .folder-item,
+      .doc-item,
+      .subfolder-item {
+        width: 80px;
+        height: 100px;
+        font-size: 14px;
+      }
+      #folderList, #subFolderList, #documentList {
+        gap: 10px;
+      }
+      /* Garantir que os containers tenham margens adequadas */
+      #loginScreen, #registerScreen, #folderScreen, #subFolderScreen, #documentListScreen {
+        padding: 10px;
+      }
     }
   </style>
 </head>
@@ -1009,7 +1050,6 @@
     /* ===================== EDITOR (PROCESSAR TEXTO, CRIAR BLOCOS, ETC.) ===================== */
     generateTextBtn.addEventListener("click", () => processText());
     loadLastBtn.addEventListener("click",     () => loadLastDocument());
-    // Removida a chamada de salvamento aqui para evitar que o overlay seja exibido a cada navegação
     editorLeftArrow.addEventListener("click", () => {
       showDocumentList(currentFolder, currentSubFolder);
     });
