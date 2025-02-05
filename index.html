@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Editor + Firebase (Pronto para Uso)</title>
+  <title>Editor + Firebase (Corrigido)</title>
 
   <style>
-    /* ==================== SEU CSS (está completo, não mude nada) ==================== */
+    /* ==================== SEU CSS COMPLETO ==================== */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -36,6 +36,7 @@
     #editorTitle {
       display: none;
     }
+
     .input-area {
       background-color: #ffffff;
       padding: 20px;
@@ -59,6 +60,7 @@
       border-color: #007BFF;
       box-shadow: 0 0 5px rgba(0,123,255,0.5);
     }
+
     .container {
       flex: 1;
       padding: 20px 0;
@@ -67,6 +69,7 @@
       gap: 0;
       overflow-y: auto;
     }
+
     .box {
       background-color: #f0f0f0; 
       border: 1px solid #ddd;
@@ -96,6 +99,7 @@
     .box:hover {
       border-color: #007BFF;
     }
+
     .custom-context-menu {
       position: absolute;
       background-color: #ffffff;
@@ -149,6 +153,7 @@
       font-size: 12px;
       color: #555;
     }
+
     @media (max-width: 600px) {
       .editable-div, .box {
         font-size: 14px;
@@ -160,6 +165,7 @@
         min-width: 120px;
       }
     }
+
     #folderScreen {
       padding: 20px;
       position: relative;
@@ -207,6 +213,7 @@
       word-wrap: break-word;
       font-weight: bold;
     }
+
     #subFolderScreen {
       display: none;
       padding: 20px;
@@ -235,6 +242,7 @@
     .subfolder-item:hover {
       background-color: #f5f5f5;
     }
+
     #documentListScreen {
       display: none;
       padding: 20px;
@@ -277,6 +285,7 @@
       position: absolute;
       left: -15px;
     }
+
     .folder-header,
     .document-header {
       display: flex;
@@ -336,6 +345,7 @@
       border: 1px solid #ccc;
       font-size: 14px;
     }
+
     #editorSection .nav-buttons {
       justify-content: center;
     }
@@ -373,6 +383,7 @@
     .context-menu-background li:hover {
       background-color: #f1f1f1;
     }
+
     #loginScreen, #registerScreen {
       display: none;
       text-align: center;
@@ -440,7 +451,7 @@
         <button class="nav-button" id="docRightArrow" title="Não há avanço">&rarr;</button>
       </div>
     </div>
-    <div id="createDocumentForm">
+    <div id="createDocumentForm" style="margin-top:20px;text-align:center;display:none;">
       <label for="docNameInput">Nome do Documento:</label>
       <input type="text" id="docNameInput"    placeholder="Ex: Relatório 2025" />
       <label for="docSubjectInput">Assunto:</label>
@@ -495,17 +506,16 @@
   </div>
 
   <!-- ===================== MENUS DE CONTEXTO (Vazios) ===================== -->
-  <div class="context-menu-folder"    id="contextMenuFolder">   <ul></ul></div>
+  <div class="context-menu-folder"    id="contextMenuFolder"><ul></ul></div>
   <div class="context-menu-subfolder" id="contextMenuSubFolder"><ul></ul></div>
-  <div class="context-menu-doc"       id="contextMenuDoc">      <ul></ul></div>
+  <div class="context-menu-doc"       id="contextMenuDoc"><ul></ul></div>
   <div class="context-menu-background"id="contextMenuBackground"><ul></ul></div>
 
 
   <!-- ===================== SCRIPT "ES MODULES" ===================== -->
   <script type="module">
     /* 
-       Import das bibliotecas via CDN Firebase 
-       (Versão 9.17.2 ou 11.2.0 etc. — aqui uso 9.17.2 como exemplo).
+       Import das bibliotecas via CDN Firebase (versão 9.17.2)
     */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
     import { getAuth,
@@ -521,16 +531,15 @@
       from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
 
     /* 
-       Este projeto de demonstração está no "Firebase" 
-       (público, sem nada sensível). Pode usar livremente.
+       AQUI ESTÃO SUAS CHAVES do projeto "sistema-b8c6c".
     */
     const firebaseConfig = {
-      apiKey: "AIzaSyBZr-39cfWKbkPY2fP0FF0z0KlZiGNEZ_c",
-      authDomain: "demo-editor-5cc02.firebaseapp.com",
-      projectId: "demo-editor-5cc02",
-      storageBucket: "demo-editor-5cc02.appspot.com",
-      messagingSenderId: "999519999597",
-      appId: "1:999519999597:web:bf579c6490a76ea76653f3"
+      apiKey: "AIzaSyDNLcuknXeyddvqAVtul6RCOMVrlfwJQPo",
+      authDomain: "sistema-b8c6c.firebaseapp.com",
+      projectId: "sistema-b8c6c",
+      storageBucket: "sistema-b8c6c.firebasestorage.app",
+      messagingSenderId: "661126236594",
+      appId: "1:661126236594:web:f18abb296d9ba7cc6ebcab"
     };
 
     // Inicializa
@@ -538,16 +547,7 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* 
-      DAQUI PRA BAIXO: 
-      - Todo o seu código do Editor 
-      - Substituindo localStorage por Firestore 
-      - Funções de login/cadastro 
-      - E etc...
-      - EXATAMENTE como no seu script final
-    */
-
-    /* ====================== Variáveis Globais ====================== */
+    /* ====================== VARIÁVEIS GLOBAIS ====================== */
     let folders          = [];
     let folderSubfolders = {};
     let namedDocuments   = [];
@@ -559,16 +559,15 @@
     let currentDocSubject = null;
     let copyBuffer        = null;
 
-    // Login TELA
-    const loginScreen     = document.getElementById("loginScreen");
-    const registerScreen  = document.getElementById("registerScreen");
-    const folderScreen    = document.getElementById("folderScreen");
-
-    const loginBtn        = document.getElementById("loginBtn");
-    const registerBtn     = document.getElementById("registerBtn");
-    const goRegisterLink  = document.getElementById("goRegisterLink");
-    const goLoginLink     = document.getElementById("goLoginLink");
-    const logoutBtn       = document.getElementById("logoutBtn");
+    // Elementos de tela (Login, etc.)
+    const loginScreen    = document.getElementById("loginScreen");
+    const registerScreen = document.getElementById("registerScreen");
+    const folderScreen   = document.getElementById("folderScreen");
+    const loginBtn       = document.getElementById("loginBtn");
+    const registerBtn    = document.getElementById("registerBtn");
+    const goRegisterLink = document.getElementById("goRegisterLink");
+    const goLoginLink    = document.getElementById("goLoginLink");
+    const logoutBtn      = document.getElementById("logoutBtn");
 
     goRegisterLink.addEventListener("click",(e)=>{
       e.preventDefault();
@@ -588,7 +587,7 @@
         await signInWithEmailAndPassword(auth, email, pass);
         console.log("Login ok!");
       } catch(err){
-        alert("Erro login: " + err.message);
+        alert("Erro ao logar: " + err.message);
       }
     });
 
@@ -599,7 +598,7 @@
         await createUserWithEmailAndPassword(auth, email, pass);
         console.log("Cadastro ok!");
       } catch(err){
-        alert("Erro cadastro: " + err.message);
+        alert("Erro ao cadastrar: " + err.message);
       }
     });
 
@@ -608,49 +607,42 @@
       console.log("Deslogado!");
     });
 
-    // OBSERVA SE O USER LOGOU
+    // Verifica se user logou ou deslogou
     onAuthStateChanged(auth, async (user)=>{
       if(user){
         currentUserUid = user.uid;
         console.log("Logado:", user.uid);
-
-        // esconde login e cadastro
         loginScreen.style.display    = "none";
         registerScreen.style.display = "none";
-        // carrega Firestore
         await loadAllData(user.uid);
-        // mostra pasta
         folderScreen.style.display   = "block";
       } else {
         console.log("Ninguém logado");
         currentUserUid = null;
-        // oculta telas do editor
         folderScreen.style.display             = "none";
         document.getElementById("subFolderScreen").style.display  = "none";
         document.getElementById("documentListScreen").style.display= "none";
         document.getElementById("editorSection").style.display     = "none";
-
-        // mostra tela login
         loginScreen.style.display    = "block";
         registerScreen.style.display = "none";
       }
     });
 
-    // ============ Carregar / Salvar no Firestore ============
+    // ================= LEITURA / ESCRITA NO FIRESTORE =================
     async function loadAllData(uid){
       const ref = doc(db, "userData", uid);
       const snap= await getDoc(ref);
       if(snap.exists()){
         const data=snap.data();
-        folders=          data.folders          || [];
-        folderSubfolders= data.folderSubfolders || {};
-        namedDocuments=   data.namedDocuments   || [];
+        folders          = data.folders          || [];
+        folderSubfolders = data.folderSubfolders || {};
+        namedDocuments   = data.namedDocuments   || [];
       } else {
-        folders= [];
-        folderSubfolders= {};
-        namedDocuments= [];
+        folders          = [];
+        folderSubfolders = {};
+        namedDocuments   = [];
       }
-      console.log("Dados carregados. Folders:", folders.length);
+      console.log("Dados carregados. Pastas:", folders.length);
       showFolderScreen();
     }
 
@@ -665,12 +657,12 @@
       console.log("Dados salvos no Firestore.");
     }
 
-    // =========== A PARTIR DAQUI, O RESTO DO SEU EDITOR (showFolderScreen, createFolder, etc.) ===========
-
-    // Exemplo: Botões Pasta
+    /* ==================== RESTO DO EDITOR (createFolder, showFolderScreen, etc.) ==================== */
+    /* Exemplo: Botões Pasta */
     const folderLeftArrow  = document.getElementById("folderLeftArrow");
     const folderRightArrow = document.getElementById("folderRightArrow");
     const createFolderBtn  = document.getElementById("createFolderBtn");
+
     folderLeftArrow.addEventListener("click", ()=> showFolderScreen());
     folderRightArrow.addEventListener("click", ()=> alert("Não há tela seguinte."));
     createFolderBtn.addEventListener("click", ()=> createFolder());
@@ -702,17 +694,73 @@
     });
     editorRightArrow.addEventListener("click", ()=> alert("Não há tela seguinte."));
 
-    // (Cole aqui TODAS as suas funções: showFolderScreen, createFolder, showSubFolderScreen, createSubFolder, showDocumentList, loadDocumentInEditor, etc.)
-    // Basta manter o "saveAllData()" sempre que alterar "folders", "folderSubfolders" ou "namedDocuments".
-    // ...
-    // ...
-    // (Não repito o bloco todo por questão de espaço. Mas AQUI é o local certo.)
+    // Exemplo da função createFolder():
+    function createFolder(){
+      const folderName = prompt("Digite o nome da nova pasta:");
+      if(!folderName) return;
+      if(folders.includes(folderName)){
+        alert("Já existe uma pasta com este nome.");
+        return;
+      }
+      folders.push(folderName);
+      if(!folderSubfolders[folderName]){
+        folderSubfolders[folderName] = [];
+      }
+      saveAllData();
+      showFolderScreen();
+    }
 
-    /* 
-       Por fim, mantenha seu "Último Documento" no localStorage 
-       e a parte do processText, createEditableBox etc. 
-       Está tudo integrado. 
-    */
+    function showFolderScreen(){
+      document.getElementById("folderScreen").style.display     = "block";
+      document.getElementById("subFolderScreen").style.display  = "none";
+      document.getElementById("documentListScreen").style.display = "none";
+      document.getElementById("editorSection").style.display    = "none";
+
+      currentFolder     = null;
+      currentSubFolder  = null;
+      currentDocName    = null;
+      currentDocSubject = null;
+
+      const folderList = document.getElementById("folderList");
+      folderList.innerHTML = "";
+
+      if (folders.length === 0) {
+        const msg = document.createElement("div");
+        msg.textContent = "Nenhuma pasta criada ainda.";
+        folderList.appendChild(msg);
+      } else {
+        folders.forEach(folderName => {
+          const folderItem = document.createElement("div");
+          folderItem.classList.add("folder-item");
+          // Ícone
+          const icon = document.createElement("div");
+          icon.classList.add("folder-icon");
+          icon.textContent = "📂";
+          folderItem.appendChild(icon);
+
+          // Nome
+          const nameDiv = document.createElement("div");
+          nameDiv.classList.add("folder-name");
+          nameDiv.textContent = folderName;
+          folderItem.appendChild(nameDiv);
+
+          folderItem.onclick = ()=> enterFolder(folderName);
+          folderList.appendChild(folderItem);
+        });
+      }
+    }
+
+    function enterFolder(folderName){
+      currentFolder = folderName;
+      showSubFolderScreen(folderName);
+    }
+
+    /* ... e assim sucessivamente para subpastas, documentos, editor, etc... */
+    
+    // (Cole o resto do seu código do Editor, 
+    //  substituindo localStorage por "saveAllData()" e "loadAllData(...)" 
+    //  caso não tenha feito ainda.)
+
   </script>
 </body>
 </html>
