@@ -672,9 +672,9 @@
     <!-- Menu de contexto do Editor -->
     <div class="custom-context-menu" id="contextMenu">
       <ul>
+        <li id="copyBlock">Copiar Bloco</li>
         <li id="deleteBlock">Excluir Bloco</li>
         <li id="centerImageInsideBlock">Centralizar Imagem no Bloco</li>
-        <li id="explainBlockBtn">Explicar (ChatGPT)</li>
         <li class="submenu">Alterar Tamanho da Fonte
           <ul>
             <li data-font-size="14px">14px</li>
@@ -709,7 +709,6 @@
       <li id="pasteIntoFolder" style="display:none;">Colar aqui</li>
       <li id="editFolderItem">Renomear Pasta</li>
       <li id="deleteFolderItem">Excluir Pasta</li>
-      <li id="explainFolderItem">Explicar (ChatGPT)</li>
     </ul>
   </div>
   <div class="context-menu-subfolder" id="contextMenuSubFolder">
@@ -718,7 +717,6 @@
       <li id="pasteIntoSubFolder" style="display:none;">Colar aqui</li>
       <li id="editSubFolderItem">Renomear Subpasta</li>
       <li id="deleteSubFolderItem">Excluir Subpasta</li>
-      <li id="explainSubFolderItem">Explicar (ChatGPT)</li>
     </ul>
   </div>
   <div class="context-menu-doc" id="contextMenuDoc">
@@ -726,13 +724,11 @@
       <li id="copyDocItem">Copiar Documento</li>
       <li id="editDocItem">Renomear Documento</li>
       <li id="deleteDocItem">Excluir Documento</li>
-      <li id="explainDocItem">Explicar (ChatGPT)</li>
     </ul>
   </div>
   <div class="context-menu-background" id="contextMenuBackground">
     <ul>
       <li id="pasteItem">Colar</li>
-      <li id="explainBackgroundItem">Explicar (ChatGPT)</li>
     </ul>
   </div>
 
@@ -784,18 +780,10 @@
     let currentDocName    = null;
     let currentDocSubject = null;
 
-
-    /* =========================================================
-       4) FAZENDO A CHAMADA REAL AO CHATGPT (API DO OPENAI)
-       ========================================================= */
-
-    // Substitua SUA chave real aqui (exemplo didático):
+    // Função para chamada ao ChatGPT (não utilizada, pois a opção Explicar foi removida)
     async function callChatGPT(promptText) {
-      // Chave fornecida:
       const apiKey = "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";
-      
       const endpoint = "https://api.openai.com/v1/chat/completions";
-
       const requestBody = {
         model: "gpt-3.5-turbo",
         messages: [
@@ -804,7 +792,6 @@
         ],
         temperature: 0.7
       };
-
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -813,17 +800,13 @@
         },
         body: JSON.stringify(requestBody)
       });
-
       const data = await response.json();
-
       if(data.error) {
         console.error("Erro da API OpenAI:", data.error);
         throw new Error(data.error.message);
       }
-
       return data.choices?.[0]?.message?.content || "Não foi possível obter resposta do ChatGPT.";
     }
-
 
     /* ===================== ELEMENTOS DE LOGIN/REGISTRO ===================== */
     const loginScreen    = document.getElementById("loginScreen");
@@ -1268,10 +1251,9 @@
       return box;
     }
     function initBlockEvents(box){
-      // Substituído o toggle simples por um ciclo de cores
+      // Ao dar duplo clique, a paleta de cores agora possui todas as cores da opção "Alterar Cor da Linha"
       box.addEventListener("dblclick", function(){
-        // Paleta de cores para o duplo clique
-        const palette = ["#f0f0f0", "#FFC000", "#00B050", "#00B0F0", "#F79646", "lightblue"];
+        const palette = ["#f0f0f0", "#00B050", "#FFC000", "#00B0F0", "#00C0C0", "#F79646", "#FF00FF", "#00FF00", "#FFFF00", "#FF69B4"];
         let colorIndex = parseInt(box.getAttribute("data-color-index") || 0);
         colorIndex = (colorIndex + 1) % palette.length;
         box.setAttribute("data-color-index", colorIndex);
@@ -1629,114 +1611,9 @@
       if(mE.style.display==="block") mE.style.display="none";
     });
 
-    /*
-      ======================================================
-      FUNÇÃO EXPLICAR (CHATGPT) -> chamando nossa callChatGPT
-      ======================================================
-    */
-    function explainItem(text) {
-      // Overlay escurecido
-      const overlay = document.createElement("div");
-      overlay.style.position = "fixed";
-      overlay.style.top = "0";
-      overlay.style.left = "0";
-      overlay.style.width = "100%";
-      overlay.style.height = "100%";
-      overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
-      overlay.style.display = "flex";
-      overlay.style.justifyContent = "center";
-      overlay.style.alignItems = "center";
-      overlay.style.zIndex = "9999";
-
-      // Caixa branca centralizada
-      const box = document.createElement("div");
-      box.style.backgroundColor = "#fff";
-      box.style.padding = "20px";
-      box.style.borderRadius = "8px";
-      box.style.maxWidth = "500px";
-      box.style.width = "90%";
-      box.style.textAlign = "left";
-      box.style.position = "relative";
-
-      const title = document.createElement("h3");
-      title.textContent = "Explicação (ChatGPT)";
-      box.appendChild(title);
-
-      // Parágrafo onde exibiremos a explicação
-      const contentP = document.createElement("p");
-      contentP.textContent = "Carregando explicação do ChatGPT...";
-      box.appendChild(contentP);
-
-      // Chamada real à API do ChatGPT
-      callChatGPT(`Explique sobre: ${text}`)
-        .then((chatgptAnswer) => {
-          contentP.textContent = chatgptAnswer;
-        })
-        .catch((err) => {
-          console.error("Erro no ChatGPT:", err);
-          contentP.textContent = "Desculpe, não foi possível obter explicação agora.";
-        });
-
-      /* ========== ABA DE PERGUNTAS ABAIXO DO CONTEÚDO ========== */
-      const questionTab = document.createElement("div");
-      questionTab.style.marginTop = "20px";
-      questionTab.innerHTML = `
-        <label for="questionInput"><strong>Faça uma pergunta sobre este conteúdo:</strong></label><br>
-        <input id="questionInput" type="text" 
-               style="width:100%; margin-top:5px; padding:8px;"
-               placeholder="Digite sua pergunta aqui...">
-        <button id="askButton" style="margin-top:10px;">Enviar</button>
-      `;
-      box.appendChild(questionTab);
-
-      const questionInput = questionTab.querySelector("#questionInput");
-      const askButton = questionTab.querySelector("#askButton");
-
-      askButton.addEventListener("click", async () => {
-        const userQuestion = questionInput.value.trim();
-        if(!userQuestion) {
-          alert("Digite algo na pergunta.");
-          return;
-        }
-        const loadingMsg = document.createElement("p");
-        loadingMsg.textContent = "Perguntando ao ChatGPT, aguarde...";
-        box.appendChild(loadingMsg);
-
-        try {
-          const answer = await callChatGPT(userQuestion);
-          const answerP = document.createElement("p");
-          answerP.style.marginTop = "10px";
-          answerP.style.backgroundColor = "#f9f9f9";
-          answerP.style.padding = "10px";
-          answerP.style.borderRadius = "5px";
-          answerP.textContent = "Resposta: " + answer;
-          box.appendChild(answerP);
-
-        } catch (error) {
-          console.error("Erro no ChatGPT:", error);
-          const errorP = document.createElement("p");
-          errorP.textContent = "Não foi possível obter a resposta.";
-          box.appendChild(errorP);
-        }
-      });
-
-      // Botão de fechar
-      const closeBtn = document.createElement("button");
-      closeBtn.textContent = "Fechar";
-      closeBtn.style.marginTop = "20px";
-      closeBtn.addEventListener("click", () => {
-        document.body.removeChild(overlay);
-      });
-      box.appendChild(closeBtn);
-
-      overlay.appendChild(box);
-      document.body.appendChild(overlay);
-    }
-
-
     /* ========== MENU DE CONTEXTO DE PASTA ========== */
-    const menuFolder = document.getElementById("contextMenuFolder");
     function showContextMenuFolder(x,y,folderName){
+      const menuFolder = document.getElementById("contextMenuFolder");
       menuFolder.style.display="block";
       menuFolder.style.left = x + "px";
       menuFolder.style.top  = y + "px";
@@ -1744,37 +1621,32 @@
       document.getElementById("pasteIntoFolder").style.display = copyBuffer ? "block":"none";
     }
     document.getElementById("copyFolderItem").addEventListener("click", ()=>{
-      const f = menuFolder.targetFolder;
+      const f = document.getElementById("contextMenuFolder").targetFolder;
       copyFolder(f);
-      menuFolder.style.display="none";
+      document.getElementById("contextMenuFolder").style.display="none";
     });
     document.getElementById("pasteIntoFolder").addEventListener("click", ()=>{
       if(!copyBuffer){
         alert("Nada copiado.");
         return;
       }
-      pasteIntoThisFolder(menuFolder.targetFolder);
-      menuFolder.style.display="none";
+      pasteIntoThisFolder(document.getElementById("contextMenuFolder").targetFolder);
+      document.getElementById("contextMenuFolder").style.display="none";
     });
     document.getElementById("editFolderItem").addEventListener("click", ()=>{
-      const oldName = menuFolder.targetFolder;
+      const oldName = document.getElementById("contextMenuFolder").targetFolder;
       const newName = prompt("Renomear pasta:", oldName);
       if(newName && newName!==oldName){
         renameFolder(oldName, newName);
       }
-      menuFolder.style.display="none";
+      document.getElementById("contextMenuFolder").style.display="none";
     });
     document.getElementById("deleteFolderItem").addEventListener("click", ()=>{
-      const f = menuFolder.targetFolder;
+      const f = document.getElementById("contextMenuFolder").targetFolder;
       if(confirm(`Excluir pasta "${f}"?`)){
         deleteFolder(f);
       }
-      menuFolder.style.display="none";
-    });
-    document.getElementById("explainFolderItem").addEventListener("click", ()=>{
-      const f = menuFolder.targetFolder;
-      explainItem("Pasta: " + f);
-      menuFolder.style.display="none";
+      document.getElementById("contextMenuFolder").style.display="none";
     });
 
     function copyFolder(folderName){
@@ -1805,8 +1677,8 @@
         arr.push(newName);
         folderSubfolders[folderName]=arr;
         copyBuffer.docs.forEach(d=>{
-          let docName=d.name;
-          let docCount=1;
+          let docName = d.name;
+          let docCount = 1;
           let conflict = namedDocuments.find(x=>
             x.folderName===folderName &&
             (x.subFolderName||null)===newName &&
@@ -1889,45 +1761,40 @@
     }
 
     /* ========== MENU DE CONTEXTO DE SUBPASTA ========== */
-    const menuSubFolder = document.getElementById("contextMenuSubFolder");
     function showContextMenuSubFolder(x,y,subFolderName){
+      const menuSubFolder = document.getElementById("contextMenuSubFolder");
       menuSubFolder.style.display="block";
       menuSubFolder.style.left=x+"px";
       menuSubFolder.style.top =y+"px";
       menuSubFolder.targetSubFolder = subFolderName;
       document.getElementById("pasteIntoSubFolder").style.display = copyBuffer?"block":"none";
     }
-    document.getElementById("copySubFolderItem").addEventListener("click",()=>{
-      copySubFolder(currentFolder, menuSubFolder.targetSubFolder);
-      menuSubFolder.style.display="none";
+    document.getElementById("copySubFolderItem").addEventListener("click", ()=>{
+      copySubFolder(currentFolder, document.getElementById("contextMenuSubFolder").targetSubFolder);
+      document.getElementById("contextMenuSubFolder").style.display="none";
     });
-    document.getElementById("pasteIntoSubFolder").addEventListener("click",()=>{
+    document.getElementById("pasteIntoSubFolder").addEventListener("click", ()=>{
       if(!copyBuffer){
         alert("Nada copiado.");
         return;
       }
-      pasteIntoThisSubFolder(currentFolder, menuSubFolder.targetSubFolder);
-      menuSubFolder.style.display="none";
+      pasteIntoThisSubFolder(currentFolder, document.getElementById("contextMenuSubFolder").targetSubFolder);
+      document.getElementById("contextMenuSubFolder").style.display="none";
     });
-    document.getElementById("editSubFolderItem").addEventListener("click",()=>{
-      const oldSub = menuSubFolder.targetSubFolder;
+    document.getElementById("editSubFolderItem").addEventListener("click", ()=>{
+      const oldSub = document.getElementById("contextMenuSubFolder").targetSubFolder;
       const newSub = prompt("Renomear subpasta:", oldSub);
       if(newSub && newSub!==oldSub){
         renameSubFolder(currentFolder, oldSub, newSub);
       }
-      menuSubFolder.style.display="none";
+      document.getElementById("contextMenuSubFolder").style.display="none";
     });
-    document.getElementById("deleteSubFolderItem").addEventListener("click",()=>{
-      const subName=menuSubFolder.targetSubFolder;
+    document.getElementById("deleteSubFolderItem").addEventListener("click", ()=>{
+      const subName = document.getElementById("contextMenuSubFolder").targetSubFolder;
       if(confirm(`Excluir subpasta "${subName}"?`)){
         deleteSubFolder(currentFolder, subName);
       }
-      menuSubFolder.style.display="none";
-    });
-    document.getElementById("explainSubFolderItem").addEventListener("click",()=>{
-      const subName=menuSubFolder.targetSubFolder;
-      explainItem("Subpasta: "+subName);
-      menuSubFolder.style.display="none";
+      document.getElementById("contextMenuSubFolder").style.display="none";
     });
 
     function copySubFolder(folderName, subFolderName){
@@ -1944,9 +1811,9 @@
     }
     function pasteIntoThisSubFolder(folderName, subFolderName){
       if(copyBuffer.type==="document"){
-        let docName=copyBuffer.name;
-        let docCount=1;
-        let conflict=namedDocuments.find(x=>
+        let docName = copyBuffer.name;
+        let docCount = 1;
+        let conflict = namedDocuments.find(x=>
           x.folderName===folderName &&
           (x.subFolderName||null)===subFolderName &&
           x.name===docName
@@ -1954,7 +1821,7 @@
         while(conflict){
           docName = docName + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
           docCount++;
-          conflict=namedDocuments.find(x=>
+          conflict = namedDocuments.find(x=>
             x.folderName===folderName &&
             (x.subFolderName||null)===subFolderName &&
             x.name===docName
@@ -1993,7 +1860,7 @@
     function deleteSubFolder(folderName, subFolderName){
       let subs = folderSubfolders[folderName]||[];
       subs = subs.filter(s=>s!==subFolderName);
-      folderSubfolders[folderName]=subs;
+      folderSubfolders[folderName] = subs;
       namedDocuments = namedDocuments.filter(d=>
         !(d.folderName===folderName && d.subFolderName===subFolderName)
       );
@@ -2002,33 +1869,28 @@
     }
 
     /* ========== MENU DE CONTEXTO DE DOCUMENTO ========== */
-    const menuDoc = document.getElementById("contextMenuDoc");
     function showContextMenuDoc(x,y,docName){
+      const menuDoc = document.getElementById("contextMenuDoc");
       menuDoc.style.display="block";
       menuDoc.style.left = x+"px";
       menuDoc.style.top  = y+"px";
       menuDoc.targetDocName = docName;
     }
-    document.getElementById("copyDocItem").addEventListener("click",()=>{
-      copyDoc(menuDoc.targetDocName);
-      menuDoc.style.display="none";
+    document.getElementById("copyDocItem").addEventListener("click", ()=>{
+      copyDoc(document.getElementById("contextMenuDoc").targetDocName);
+      document.getElementById("contextMenuDoc").style.display="none";
     });
-    document.getElementById("editDocItem").addEventListener("click",()=>{
-      editDocument(menuDoc.targetDocName);
-      menuDoc.style.display="none";
+    document.getElementById("editDocItem").addEventListener("click", ()=>{
+      editDocument(document.getElementById("contextMenuDoc").targetDocName);
+      document.getElementById("contextMenuDoc").style.display="none";
     });
-    document.getElementById("deleteDocItem").addEventListener("click",()=>{
-      const docName=menuDoc.targetDocName;
+    document.getElementById("deleteDocItem").addEventListener("click", ()=>{
+      const docName = document.getElementById("contextMenuDoc").targetDocName;
       if(confirm(`Excluir documento "${docName}"?`)){
         deleteDocument(docName);
       }
-      menuDoc.style.display="none";
+      document.getElementById("contextMenuDoc").style.display="none";
     });
-    document.getElementById("explainDocItem").addEventListener("click",()=>{
-      explainItem("Documento: " + menuDoc.targetDocName);
-      menuDoc.style.display="none";
-    });
-
     function copyDoc(docName){
       const docObj = namedDocuments.find(d=>
         d.folderName===currentFolder &&
@@ -2092,9 +1954,15 @@
     }
 
     /* ========== MENU DE CONTEXTO DE FUNDO ========== */
-    const menuBackground = document.getElementById("contextMenuBackground");
+    function showContextMenuBackground(x,y,screenType){
+      const menuBg = document.getElementById("contextMenuBackground");
+      menuBg.style.display="block";
+      menuBg.style.left = x+"px";
+      menuBg.style.top  = y+"px";
+      menuBg.screenType = screenType;
+    }
     document.getElementById("folderScreen").addEventListener("contextmenu",(e)=>{
-      if(e.target.classList.contains("folder-item")||e.target.closest(".folder-item")){
+      if(e.target.classList.contains("folder-item") || e.target.closest(".folder-item")){
         return;
       }
       if(copyBuffer && copyBuffer.type==="folder"){
@@ -2103,7 +1971,7 @@
       }
     });
     document.getElementById("subFolderScreen").addEventListener("contextmenu",(e)=>{
-      if(e.target.classList.contains("subfolder-item")||e.target.closest(".subfolder-item")){
+      if(e.target.classList.contains("subfolder-item") || e.target.closest(".subfolder-item")){
         return;
       }
       if(copyBuffer && copyBuffer.type==="subfolder"){
@@ -2112,7 +1980,7 @@
       }
     });
     document.getElementById("documentListScreen").addEventListener("contextmenu",(e)=>{
-      if(e.target.classList.contains("doc-item")||e.target.closest(".doc-item")){
+      if(e.target.classList.contains("doc-item") || e.target.closest(".doc-item")){
         return;
       }
       if(copyBuffer && copyBuffer.type==="document"){
@@ -2120,24 +1988,13 @@
         showContextMenuBackground(e.pageX, e.pageY, "documentscreen");
       }
     });
-    document.getElementById("explainBackgroundItem").addEventListener("click",()=>{
-      explainItem("Fundo da tela (sem item selecionado)");
-      menuBackground.style.display="none";
-    });
-
-    function showContextMenuBackground(x,y,screenType){
-      menuBackground.style.display="block";
-      menuBackground.style.left = x+"px";
-      menuBackground.style.top  = y+"px";
-      menuBackground.screenType = screenType;
-    }
-    document.getElementById("pasteItem").addEventListener("click",()=>{
+    document.getElementById("pasteItem").addEventListener("click", ()=>{
       if(!copyBuffer){
         alert("Nada copiado.");
         return;
       }
-      const st = menuBackground.screenType;
-      menuBackground.style.display="none";
+      const st = document.getElementById("contextMenuBackground").screenType;
+      document.getElementById("contextMenuBackground").style.display="none";
       if(st==="folderscreen"){
         if(copyBuffer.type==="folder"){
           pasteFolder();
@@ -2161,24 +2018,24 @@
       }
     });
     function pasteFolder(){
-      let newName=copyBuffer.name;
-      let count=1;
+      let newName = copyBuffer.name;
+      let count = 1;
       while(folders.includes(newName)){
-        newName=copyBuffer.name + " (Cópia" + (count>1?" "+count:"") + ")";
+        newName = copyBuffer.name + " (Cópia" + (count>1?" "+count:"") + ")";
         count++;
       }
       folders.push(newName);
       folderSubfolders[newName] = copyBuffer.subfolders.slice();
       copyBuffer.docs.forEach(d=>{
-        let docName=d.name;
-        let docCount=1;
-        let conflict=namedDocuments.find(x=>
+        let docName = d.name;
+        let docCount = 1;
+        let conflict = namedDocuments.find(x=>
           x.folderName===newName && x.name===docName
         );
         while(conflict){
           docName = d.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
           docCount++;
-          conflict=namedDocuments.find(x=>
+          conflict = namedDocuments.find(x=>
             x.folderName===newName && x.name===docName
           );
         }
@@ -2200,26 +2057,26 @@
         return;
       }
       let subs = folderSubfolders[currentFolder] || [];
-      let newName=copyBuffer.name;
-      let count=1;
+      let newName = copyBuffer.name;
+      let count = 1;
       while(subs.includes(newName)){
         newName = copyBuffer.name + " (Cópia" + (count>1?" "+count:"") + ")";
         count++;
       }
       subs.push(newName);
-      folderSubfolders[currentFolder]=subs;
+      folderSubfolders[currentFolder] = subs;
       copyBuffer.docs.forEach(d=>{
-        let docName=d.name;
-        let docCount=1;
-        let conflict=namedDocuments.find(x=>
+        let docName = d.name;
+        let docCount = 1;
+        let conflict = namedDocuments.find(x=>
           x.folderName===currentFolder &&
           (x.subFolderName||null)===newName &&
           x.name===docName
         );
         while(conflict){
-          docName=d.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
+          docName = d.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
           docCount++;
-          conflict=namedDocuments.find(x=>
+          conflict = namedDocuments.find(x=>
             x.folderName===currentFolder &&
             (x.subFolderName||null)===newName &&
             x.name===docName
@@ -2242,17 +2099,17 @@
         alert("Não há pasta atual para colar documento.");
         return;
       }
-      let docName=copyBuffer.name;
-      let docCount=1;
-      let conflict=namedDocuments.find(x=>
+      let docName = copyBuffer.name;
+      let docCount = 1;
+      let conflict = namedDocuments.find(x=>
         x.folderName===currentFolder &&
         (x.subFolderName||null)===(currentSubFolder||null) &&
         x.name===docName
       );
       while(conflict){
-        docName=copyBuffer.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
+        docName = copyBuffer.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
         docCount++;
-        conflict=namedDocuments.find(x=>
+        conflict = namedDocuments.find(x=>
           x.folderName===currentFolder &&
           (x.subFolderName||null)===(currentSubFolder||null) &&
           x.name===docName
@@ -2271,26 +2128,34 @@
     }
 
     /* ========== MENU DE CONTEXTO DO EDITOR ========== */
-    const contextMenuEditor = document.getElementById("contextMenu");
-    const deleteBlockBtn    = document.getElementById("deleteBlock");
-    const centerImageBtn    = document.getElementById("centerImageInsideBlock");
-    const explainBlockBtn   = document.getElementById("explainBlockBtn");
-
     function showEditorContextMenu(x,y,box){
+      const contextMenuEditor = document.getElementById("contextMenu");
       contextMenuEditor.style.display="block";
       contextMenuEditor.style.left = x+"px";
       contextMenuEditor.style.top  = y+"px";
       contextMenuEditor.currentBox = box;
     }
-    deleteBlockBtn.addEventListener("click",()=>{
-      const box = contextMenuEditor.currentBox;
+    // Opção "Copiar Bloco" – agora o texto copiado incluirá a mensagem padrão
+    const copyBlockBtn = document.getElementById("copyBlock");
+    copyBlockBtn.addEventListener("click", () => {
+      const box = document.getElementById("contextMenu").currentBox;
+      if(box){
+        // Copia com a mensagem padrão seguida do conteúdo do bloco
+        navigator.clipboard.writeText("ME EXPLICA ESSE ASSUNTO DE MODO OBJETIVO, APENAS COM O NECESSÁRIO PARA ENTENDER ESSE TEXTO: " + box.innerText).catch(() => {
+          // Tratamento de erro, se necessário
+        });
+      }
+      document.getElementById("contextMenu").style.display="none";
+    });
+    document.getElementById("deleteBlock").addEventListener("click", ()=>{
+      const box = document.getElementById("contextMenu").currentBox;
       if(box && box.parentNode){
         box.parentNode.removeChild(box);
       }
-      contextMenuEditor.style.display="none";
+      document.getElementById("contextMenu").style.display="none";
     });
-    centerImageBtn.addEventListener("click",()=>{
-      const box = contextMenuEditor.currentBox;
+    document.getElementById("centerImageInsideBlock").addEventListener("click", ()=>{
+      const box = document.getElementById("contextMenu").currentBox;
       if(!box) return;
       box.style.height="auto";
       box.style.overflow="visible";
@@ -2312,33 +2177,26 @@
         tbl.style.marginRight="auto";
         tbl.style.width="auto";
       });
-      contextMenuEditor.style.display="none";
-    });
-    explainBlockBtn.addEventListener("click",()=>{
-      const box = contextMenuEditor.currentBox;
-      if(box){
-        explainItem(box.innerText.trim() || "[Bloco vazio]");
-      }
-      contextMenuEditor.style.display="none";
+      document.getElementById("contextMenu").style.display="none";
     });
 
     // Submenus: fonte e cor
-    contextMenuEditor.querySelectorAll('.submenu ul li[data-font-size]').forEach(li=>{
+    document.getElementById("contextMenu").querySelectorAll('.submenu ul li[data-font-size]').forEach(li=>{
       li.addEventListener('click',()=>{
         const size = li.getAttribute('data-font-size');
-        const box = contextMenuEditor.currentBox;
+        const box = document.getElementById("contextMenu").currentBox;
         if(box) box.style.fontSize=size;
-        contextMenuEditor.style.display="none";
+        document.getElementById("contextMenu").style.display="none";
       });
     });
-    contextMenuEditor.querySelectorAll('.submenu ul li[data-color]').forEach(li=>{
+    document.getElementById("contextMenu").querySelectorAll('.submenu ul li[data-color]').forEach(li=>{
       li.addEventListener('click',()=>{
         const color = li.getAttribute('data-color');
-        const box = contextMenuEditor.currentBox;
+        const box = document.getElementById("contextMenu").currentBox;
         if(box){
           box.style.backgroundColor=color;
         }
-        contextMenuEditor.style.display="none";
+        document.getElementById("contextMenu").style.display="none";
       });
     });
 
