@@ -36,7 +36,7 @@
       position: relative;
     }
 
-    /* ===================== TELA DE LOGIN (NOVO LAYOUT) ===================== */
+    /* ===================== TELA DE LOGIN (NOVO VISUAL) ===================== */
     #loginScreen {
       display: flex;
       flex-direction: column;
@@ -64,7 +64,7 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     .logo-icon::after {
-      content: '\1F310'; /* Ícone de globo */
+      content: '\1F310';
       font-size: 24px;
       color: white;
     }
@@ -86,7 +86,6 @@
       text-align: left;
       padding-left: 80px;
     }
-
     .container {
       background: white;
       padding: 30px;
@@ -94,7 +93,7 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       width: 420px;
       margin: auto;
-      margin-top: 60px; /* Para subir/descer o quadradinho de login */
+      margin-top: 60px;
     }
     .access-text {
       font-family: 'Montserrat', sans-serif;
@@ -138,7 +137,6 @@
       color: #007BFF;
       text-decoration: none;
     }
-
     .info-box {
       position: absolute;
       top: 180px;
@@ -174,7 +172,7 @@
       padding: 20px;
       position: relative;
       width: 100%;
-      box-sizing: border-box; /* Para caber bem na tela, sem overflow */
+      box-sizing: border-box;
     }
     .page-title {
       background-color: #fff;
@@ -202,7 +200,7 @@
       gap: 20px;
       width: 100%;
       margin: 10px 0;
-      flex-wrap: wrap; /* Para não estourar a tela */
+      flex-wrap: wrap;
     }
     .plus-button {
       border: none;
@@ -258,7 +256,7 @@
     }
     .folder-item:hover { background-color: #f5f5f5; }
     .folder-icon {
-      font-size: 40px;
+      font-size: 48px;
       margin-top: 10px;
     }
     .folder-name {
@@ -348,17 +346,69 @@
       position: relative;
     }
 
+    /* ===================== TELA DE DETALHES DO DOCUMENTO / PASTAS CUSTOMIZADAS ===================== */
+    #documentDetailScreen {
+      display: none;
+      position: relative;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 0;
+      padding-top: 0;
+    }
+    #documentDetailScreen .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      margin: 0;
+      margin-bottom: 10px;
+    }
+    #documentDetailScreen .nav-buttons {
+      display: flex;
+      gap: 20px;
+    }
+    /* A área de inclusão de pasta customizada não exibe dropdown, apenas o botão "+" abre o modal */
+    #documentDetailScreen .add-custom-folder {
+      position: relative;
+    }
+    /* Container para as pastas customizadas do documento atual */
+    #customFoldersContainer {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-right: 220px;
+    }
+    .custom-folder-item {
+      width: 120px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: #e0e0e0;
+      font-size: 16px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .custom-folder-item:hover {
+      background-color: #f5f5f5;
+    }
+
     /* ===================== TELA DO EDITOR ===================== */
     #editorSection {
       display: none;
       width: 100%;
       box-sizing: border-box;
-      min-height: 70vh; 
-      margin-top: 0; /* <--- ALTERADO aqui para ficar mais próximo do topo */
+      min-height: 70vh;
+      margin-top: 0;
       margin-bottom: 20px;
     }
-
-    /* Barra superior do editor (input-area) */
     .input-area {
       background-color: #ffffff;
       padding: 20px;
@@ -382,17 +432,14 @@
       border-color: #007BFF;
       box-shadow: 0 0 5px rgba(0,123,255,0.5);
     }
-
-    /* Container flexível onde ficam os blocos de texto (.box) */
     .editor-container {
       flex: 1;
       padding: 20px 0;
       display: flex;
       flex-direction: column;
       gap: 0;
-      overflow-y: auto;  /* Para rolagem dos blocos */
+      overflow-y: auto;
     }
-    /* Cada bloco do editor */
     .editor-container .box {
       background-color: #f0f0f0;
       border: 1px solid #ddd;
@@ -424,6 +471,7 @@
     }
 
     /* ===================== MENUS DE CONTEXTO E OUTRAS CLASSES ===================== */
+    /* Menu de contexto do Editor – agora com apenas 3 opções: copiar bloco, excluir bloco e centralizar conteúdo */
     .custom-context-menu,
     .context-menu-folder,
     .context-menu-subfolder,
@@ -462,7 +510,32 @@
     .context-menu-background li:hover {
       background-color: #f1f1f1;
     }
-    .submenu { position: relative; }
+    /* Novo menu de contexto para pastas customizadas */
+    .context-menu-custom-folder {
+      position: absolute;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: none;
+      border-radius: 6px;
+    }
+    .context-menu-custom-folder ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .context-menu-custom-folder li {
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .context-menu-custom-folder li:hover {
+      background-color: #f1f1f1;
+    }
+    .submenu {
+      position: relative;
+    }
     .submenu > ul {
       position: absolute;
       top: 0;
@@ -525,7 +598,6 @@
       .submenu > ul {
         min-width: 120px;
       }
-      /* Ajustes para inputs e botões do login */
       .login-form input {
         width: 90%;
       }
@@ -560,6 +632,36 @@
         padding: 10px;
       }
     }
+
+    /* ===================== MODAL PARA CRIAÇÃO DE PASTA CUSTOMIZADA ===================== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .option-button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -573,18 +675,15 @@
       </div>
     </div>
     <div class="slogan">Todas suas informações integradas em um só lugar</div>
-
-    <!-- Quadradinho de login com "Acesse e aproveite" no topo -->
     <div class="container">
       <div class="access-text">Acesse e aproveite</div>
       <form class="login-form" onsubmit="return false;">
-        <input type="email"    id="emailInput"    placeholder="Seu e-mail">
+        <input type="email" id="emailInput" placeholder="Seu e-mail">
         <input type="password" id="passwordInput" placeholder="Sua senha">
         <button id="loginBtn">Entrar</button>
       </form>
       <div class="register">Não tem conta? <a href="#" id="goRegisterLink">Cadastrar</a></div>
     </div>
-
     <div class="info-box">
       <div>📚 Concursos</div>
       <div>🎓 Faculdade</div>
@@ -610,7 +709,7 @@
       <button id="createFolderBtn" class="plus-button">+</button>
       <div class="nav-buttons">
         <button class="nav-button" id="folderLeftArrow" title="Voltar (início)">&larr;</button>
-        <button class="nav-button" id="folderRightArrow" title="Avançar (não há avançar)">&rarr;</button>
+        <button class="nav-button" id="folderRightArrow" title="Avançar">&rarr;</button>
       </div>
       <button id="logoutBtn" class="plus-button">Sair</button>
     </div>
@@ -621,7 +720,7 @@
   <div id="subFolderScreen">
     <div class="page-title" id="subFolderTitle"></div>
     <div class="nav-buttons">
-      <button class="nav-button" id="subFolderLeftArrow"  title="Voltar para Pastas">&larr;</button>
+      <button class="nav-button" id="subFolderLeftArrow" title="Voltar para Pastas">&larr;</button>
       <button class="nav-button" id="subFolderRightArrow" title="Não há tela seguinte">&rarr;</button>
     </div>
     <button id="btnCreateSubFolder" class="plus-button">+</button>
@@ -634,7 +733,7 @@
       <div id="documentListTitle"></div>
     </div>
     <div class="nav-buttons">
-      <button class="nav-button" id="docLeftArrow"  title="Voltar">&larr;</button>
+      <button class="nav-button" id="docLeftArrow" title="Voltar">&larr;</button>
       <button class="nav-button" id="docRightArrow" title="Não há avanço">&rarr;</button>
     </div>
     <button id="btnCreateDoc" class="plus-button">+</button>
@@ -648,56 +747,45 @@
     <div id="documentList"></div>
   </div>
 
+  <!-- ===================== TELA DE DETALHES DO DOCUMENTO / PASTAS CUSTOMIZADAS ===================== -->
+  <div id="documentDetailScreen">
+    <div class="detail-header">
+      <div class="add-custom-folder">
+        <!-- Apenas o botão "+" abre o modal -->
+        <button id="addCustomFolderBtn" style="font-size: 24px; padding: 5px;">+</button>
+      </div>
+      <div class="nav-buttons">
+        <!-- Botões de navegação (apenas setas) -->
+        <button class="nav-button" id="detailLeftArrow" title="Voltar/Pag. Anterior">&larr;</button>
+        <button class="nav-button" id="detailRightArrow" title="Avançar">&rarr;</button>
+      </div>
+    </div>
+    <!-- Renderização paginada das pastas customizadas do documento atual -->
+    <div id="customFoldersContainer"></div>
+  </div>
+
   <!-- ===================== TELA DO EDITOR ===================== -->
   <div id="editorSection">
-    <!-- Título opcional do Editor (pode deixar display:none se quiser) -->
     <div class="page-title" id="editorTitle" style="display:none;">Editor</div>
-
-    <!-- Barra superior com input de texto e botões -->
     <div class="input-area" id="inputArea">
       <div class="editable-div" id="textInput" contenteditable="true" placeholder="Cole seu texto aqui..."></div>
       <button id="generateTextBtn">Gerar Texto</button>
       <button id="loadLastBtn" style="margin-left:10px;">&#x21BA; Último Documento</button>
     </div>
-
-    <!-- Botões de navegação (Esquerda/ Direita) -->
+    <!-- Na parte superior, apenas os botões de navegação (passagem) -->
     <div class="nav-buttons">
-      <button class="nav-button" id="editorLeftArrow"  title="Voltar para documentos">&larr;</button>
+      <button class="nav-button" id="editorLeftArrow" title="Voltar para documentos">&larr;</button>
       <button class="nav-button" id="editorRightArrow" title="Nenhum avanço">&rarr;</button>
     </div>
-
-    <!-- Área flexível para exibir os blocos. Repare na classe .editor-container -->
     <div id="textContainer" class="editor-container"></div>
-
-    <!-- Menu de contexto do Editor -->
+    <!-- Na parte inferior, ao lado do botão "+", aparece apenas o botão de salvar (representado pelo ícone 💾) -->
+    <div id="bottomButtonsContainer"></div>
+    <!-- Menu de contexto do Editor (apenas com as opções solicitadas) -->
     <div class="custom-context-menu" id="contextMenu">
       <ul>
         <li id="copyBlock">Copiar Bloco</li>
         <li id="deleteBlock">Excluir Bloco</li>
-        <li id="centerImageInsideBlock">Centralizar Imagem no Bloco</li>
-        <li class="submenu">Alterar Tamanho da Fonte
-          <ul>
-            <li data-font-size="14px">14px</li>
-            <li data-font-size="16px">16px</li>
-            <li data-font-size="18px">18px</li>
-            <li data-font-size="20px">20px</li>
-            <li data-font-size="22px">22px</li>
-          </ul>
-        </li>
-        <li class="submenu">Alterar Cor da Linha
-          <ul>
-            <li data-color="#f0f0f0">Cinza Claro</li>
-            <li data-color="#00B050">Verde</li>
-            <li data-color="#FFC000">Amarelo</li>
-            <li data-color="#00B0F0">Azul</li>
-            <li data-color="#00C0C0">Turquesa</li>
-            <li data-color="#F79646">Laranja</li>
-            <li data-color="#FF00FF">Magenta</li>
-            <li data-color="#00FF00">Verde Vibrante</li>
-            <li data-color="#FFFF00">Amarelo Vibrante</li>
-            <li data-color="#FF69B4">Rosa Shock</li>
-          </ul>
-        </li>
+        <li id="centerContent">Centralizar Conteúdo</li>
       </ul>
     </div>
   </div>
@@ -731,28 +819,51 @@
       <li id="pasteItem">Colar</li>
     </ul>
   </div>
+  <!-- Novo menu de contexto para pastas customizadas -->
+  <div class="context-menu-custom-folder" id="contextMenuCustomFolder">
+    <ul>
+      <li id="copyCustomFolderItem">Copiar Pasta</li>
+      <li id="editCustomFolderItem">Renomear Pasta</li>
+      <li id="deleteCustomFolderItem">Excluir Pasta</li>
+    </ul>
+  </div>
+
+  <!-- ===================== MODAL PARA CRIAÇÃO DE PASTA CUSTOMIZADA ===================== -->
+  <div id="customFolderModal" class="modal">
+    <div class="modal-content">
+      <h2>Selecione o Assunto</h2>
+      <div class="options">
+        <button class="option-button" data-type="Teoria">Teoria</button>
+        <button class="option-button" data-type="Questoes">Questões</button>
+        <button class="option-button" data-type="Outros">+</button>
+      </div>
+      <div id="customFolderInputContainer" style="display: none; margin-top: 10px;">
+        <input type="text" id="customFolderInput" placeholder="Digite o nome...">
+      </div>
+      <div style="margin-top: 15px;">
+        <button id="createCustomFolderBtnModal">Criar</button>
+        <button id="cancelCustomFolderBtn" style="margin-left: 10px;">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ===================== SCRIPT (Firebase + Lógica) ===================== -->
   <script type="module">
-    /*
-      Import das bibliotecas via CDN Firebase (versão 9.17.2)
-    */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-    import { getAuth,
-             createUserWithEmailAndPassword,
-             signInWithEmailAndPassword,
-             onAuthStateChanged,
-             signOut } 
-      from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
-    import { getFirestore,
-             doc,
-             getDoc,
-             setDoc }
-      from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
 
-    /*
-      Config do projeto "sistema-b8c6c" (exatamente como fornecido)
-    */
     const firebaseConfig = {
       apiKey: "AIzaSyDNLcuknXeyddvqAVtul6RCOMVrlfwJQPo",
       authDomain: "sistema-b8c6c.firebaseapp.com",
@@ -762,27 +873,49 @@
       appId: "1:661126236594:web:f18abb296d9ba7cc6ebcab"
     };
 
-    // Inicializa Firebase
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* ===================== VARIÁVEIS GLOBAIS (MEMÓRIA) ===================== */
-    let folders          = [];            
-    let folderSubfolders = {};           
-    let namedDocuments   = [];           
-    let copyBuffer       = null;         
+    // Variáveis globais (tela inicial)
+    let folders          = [];
+    let folderSubfolders = {};
+    // Cada documento (aula) possui suas próprias pastas customizadas
+    let namedDocuments   = [];
+    let copyBuffer       = null;
     let currentUserUid   = null;
 
-    // Onde estamos
+    // Variáveis de navegação e documento atual
     let currentFolder     = null;
     let currentSubFolder  = null;
     let currentDocName    = null;
     let currentDocSubject = null;
+    let currentDocument   = null; // Documento (aula) atual
 
-    // Função para chamada ao ChatGPT (não utilizada, pois a opção Explicar foi removida)
+    // Para rastrear a pasta customizada atualmente em edição no editor
+    let currentCustomFolderId = null;
+
+    // Variável para guardar o tipo selecionado na criação de pasta customizada
+    let selectedCustomFolderType = null;
+
+    // Variáveis para paginação na tela de pastas (folderScreen)
+    let folderPage = 0;
+    const foldersPerPage = 6;
+
+    // Variáveis para paginação na tela de pastas customizadas (documentDetailScreen)
+    let customFolderPage = 0;
+    const customFoldersPerPage = 4;
+
+    // Função simples para simular a exibição de um overlay de salvamento (pode ser adaptada conforme necessário)
+    function showSavingOverlay() {
+      return new Promise(resolve => {
+        // Exemplo: exibir um overlay ou spinner
+        setTimeout(resolve, 300);
+      });
+    }
+
     async function callChatGPT(promptText) {
-      const apiKey = "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";
+      const apiKey = "sk-..."; 
       const endpoint = "https://api.openai.com/v1/chat/completions";
       const requestBody = {
         model: "gpt-3.5-turbo",
@@ -801,14 +934,13 @@
         body: JSON.stringify(requestBody)
       });
       const data = await response.json();
-      if(data.error) {
+      if (data.error) {
         console.error("Erro da API OpenAI:", data.error);
         throw new Error(data.error.message);
       }
       return data.choices?.[0]?.message?.content || "Não foi possível obter resposta do ChatGPT.";
     }
 
-    /* ===================== ELEMENTOS DE LOGIN/REGISTRO ===================== */
     const loginScreen    = document.getElementById("loginScreen");
     const registerScreen = document.getElementById("registerScreen");
     const goRegisterLink = document.getElementById("goRegisterLink");
@@ -863,23 +995,20 @@
       if(user){
         currentUserUid = user.uid;
         console.log("Logado como:", user.uid);
-        // Oculta telas de login/cadastro
         loginScreen.style.display    = "none";
         registerScreen.style.display = "none";
-        // Carrega dados do Firestore
         await loadAllData(user.uid);
-        // Exibe tela de pastas
         document.getElementById("folderScreen").style.display = "block";
       } else {
         console.log("Ninguém logado");
         currentUserUid = null;
-        // Volta pra tela de login
         loginScreen.style.display         = "block";
         registerScreen.style.display      = "none";
         document.getElementById("folderScreen").style.display       = "none";
         document.getElementById("subFolderScreen").style.display    = "none";
         document.getElementById("documentListScreen").style.display = "none";
         document.getElementById("editorSection").style.display      = "none";
+        document.getElementById("documentDetailScreen").style.display= "none";
       }
     });
 
@@ -890,10 +1019,9 @@
       });
     }
 
-    /* ===================== CARREGAR E SALVAR NO FIRESTORE ===================== */
     async function loadAllData(uid){
       const ref = doc(db, "userData", uid);
-      const snap= await getDoc(ref);
+      const snap = await getDoc(ref);
       if(snap.exists()){
         const data = snap.data();
         folders          = data.folders          || [];
@@ -919,47 +1047,42 @@
       console.log("Dados salvos no Firestore.");
     }
 
-    /* ===================== TELA DE PASTAS ===================== */
-    const folderScreen    = document.getElementById("folderScreen");
-    const folderList      = document.getElementById("folderList");
-    const createFolderBtn = document.getElementById("createFolderBtn");
-    const folderLeftArrow = document.getElementById("folderLeftArrow");
-    const folderRightArrow= document.getElementById("folderRightArrow");
-
-    folderLeftArrow.addEventListener("click", () => { showFolderScreen(); });
-    folderRightArrow.addEventListener("click", () => { alert("Não há tela seguinte."); });
-    createFolderBtn.addEventListener("click", () => { createFolder(); });
-
+    // ====== PAGINAÇÃO NA TELA DE PASTAS (folderScreen) ======
     function showFolderScreen(){
-      folderScreen.style.display       = "block";
-      document.getElementById("subFolderScreen").style.display    = "none";
+      const folderScreen = document.getElementById("folderScreen");
+      folderScreen.style.display = "block";
+      document.getElementById("subFolderScreen").style.display = "none";
       document.getElementById("documentListScreen").style.display = "none";
-      document.getElementById("editorSection").style.display      = "none";
+      document.getElementById("editorSection").style.display = "none";
+      document.getElementById("documentDetailScreen").style.display = "none";
 
       currentFolder     = null;
       currentSubFolder  = null;
       currentDocName    = null;
       currentDocSubject = null;
+      currentDocument   = null;
 
+      const folderList = document.getElementById("folderList");
       folderList.innerHTML = "";
       if(folders.length === 0){
         const msg = document.createElement("div");
         msg.textContent = "Nenhuma pasta criada ainda.";
         folderList.appendChild(msg);
       } else {
-        folders.forEach(folderName =>{
+        const startIndex = folderPage * foldersPerPage;
+        const endIndex = startIndex + foldersPerPage;
+        const foldersToShow = folders.slice(startIndex, endIndex);
+        foldersToShow.forEach(folderName =>{
           const folderItem = document.createElement("div");
           folderItem.classList.add("folder-item");
           const icon = document.createElement("div");
           icon.classList.add("folder-icon");
           icon.textContent = "📂";
           folderItem.appendChild(icon);
-
           const nameDiv = document.createElement("div");
           nameDiv.classList.add("folder-name");
           nameDiv.textContent = folderName;
           folderItem.appendChild(nameDiv);
-
           folderItem.onclick = ()=> enterFolder(folderName);
           folderItem.addEventListener("contextmenu",(e)=>{
             e.preventDefault();
@@ -968,7 +1091,24 @@
           folderList.appendChild(folderItem);
         });
       }
+      document.getElementById("folderLeftArrow").disabled = (folderPage === 0);
+      document.getElementById("folderRightArrow").disabled = ((folderPage+1)*foldersPerPage >= folders.length);
     }
+    document.getElementById("folderLeftArrow").addEventListener("click", () => {
+      if(folderPage > 0){
+        folderPage--;
+        showFolderScreen();
+      }
+    });
+    document.getElementById("folderRightArrow").addEventListener("click", () => {
+      if((folderPage+1)*foldersPerPage < folders.length){
+        folderPage++;
+        showFolderScreen();
+      }
+    });
+    // *** Correção: Botão "+" para criar nova pasta na Tela de Pastas ***
+    document.getElementById("createFolderBtn").addEventListener("click", createFolder);
+
     function createFolder(){
       const folderName = prompt("Nome da nova pasta:");
       if(!folderName) return;
@@ -988,10 +1128,9 @@
       showSubFolderScreen(folderName);
     }
 
-    /* ===================== TELA DE SUBPASTAS ===================== */
-    const subFolderScreen     = document.getElementById("subFolderScreen");
-    const subFolderList       = document.getElementById("subFolderList");
-    const subFolderTitle      = document.getElementById("subFolderTitle");
+    const subFolderScreen = document.getElementById("subFolderScreen");
+    const subFolderList   = document.getElementById("subFolderList");
+    const subFolderTitle  = document.getElementById("subFolderTitle");
     const subFolderLeftArrow  = document.getElementById("subFolderLeftArrow");
     const subFolderRightArrow = document.getElementById("subFolderRightArrow");
     const btnCreateSubFolder  = document.getElementById("btnCreateSubFolder");
@@ -1008,17 +1147,16 @@
     });
 
     function showSubFolderScreen(folderName){
-      folderScreen.style.display       = "none";
-      subFolderScreen.style.display    = "block";
+      document.getElementById("folderScreen").style.display = "none";
+      subFolderScreen.style.display = "block";
       document.getElementById("documentListScreen").style.display = "none";
-      document.getElementById("editorSection").style.display      = "none";
+      document.getElementById("editorSection").style.display = "none";
+      document.getElementById("documentDetailScreen").style.display = "none";
 
       currentFolder = folderName;
       subFolderTitle.textContent = folderName;
-
       const subs = folderSubfolders[folderName] || [];
       subFolderList.innerHTML = "";
-
       if(subs.length === 0){
         const msg = document.createElement("div");
         msg.textContent = "Não há subpastas nesta pasta.";
@@ -1050,7 +1188,6 @@
       showSubFolderScreen(folderName);
     }
 
-    /* ===================== TELA DE DOCUMENTOS ===================== */
     const documentListScreen = document.getElementById("documentListScreen");
     const documentListTitle  = document.getElementById("documentListTitle");
     const documentList       = document.getElementById("documentList");
@@ -1080,12 +1217,13 @@
     function showDocumentList(folderName, subFolderName){
       currentFolder     = folderName;
       currentSubFolder  = subFolderName || null;
-      folderScreen.style.display       = "none";
-      subFolderScreen.style.display    = "none";
+      document.getElementById("folderScreen").style.display = "none";
+      document.getElementById("subFolderScreen").style.display = "none";
       documentListScreen.style.display = "block";
       document.getElementById("editorSection").style.display = "none";
+      document.getElementById("documentDetailScreen").style.display = "none";
 
-      documentList.innerHTML           = "";
+      documentList.innerHTML = "";
       createDocumentForm.style.display = "none";
 
       if(subFolderName){
@@ -1106,24 +1244,19 @@
         docs.forEach(doc => {
           const docItem = document.createElement("div");
           docItem.classList.add("doc-item");
-
           const docTitle = document.createElement("div");
           docTitle.classList.add("doc-item-title");
           docTitle.textContent = doc.name;
-
           const docSub = document.createElement("div");
           docSub.classList.add("doc-item-subject");
           docSub.textContent = doc.subject || "";
-
           docItem.appendChild(docTitle);
           docItem.appendChild(docSub);
-
-          docItem.onclick = () => loadDocumentInEditor(doc.name, doc.subject, folderName, subFolderName);
+          docItem.onclick = () => loadDocumentDetailScreen(doc.name, doc.subject, folderName, subFolderName);
           docItem.addEventListener("contextmenu",(e)=>{
             e.preventDefault();
             showContextMenuDoc(e.pageX, e.pageY, doc.name);
           });
-
           documentList.appendChild(docItem);
         });
       }
@@ -1135,7 +1268,6 @@
         alert("Informe um nome para o documento.");
         return;
       }
-      // Verifica se já existe doc com mesmo nome
       const conflict = namedDocuments.find(d =>
         d.folderName===currentFolder &&
         (d.subFolderName||null)===(currentSubFolder||null) &&
@@ -1150,7 +1282,8 @@
         subFolderName: currentSubFolder || null,
         name: docName,
         subject: docSub,
-        content: ""
+        content: "",
+        customFolders: []
       });
       saveAllData();
       docNameInput.value    = "";
@@ -1158,65 +1291,211 @@
       createDocumentForm.style.display = "none";
       showDocumentList(currentFolder, currentSubFolder);
     }
-    function loadDocumentInEditor(docName, docSubject, folderName, subFolderName){
-      const docObj = namedDocuments.find(d =>
-        d.folderName===folderName &&
-        (d.subFolderName||null)===(subFolderName||null) &&
-        d.name===docName
-      );
-      if(!docObj){
+    function loadDocumentDetailScreen(docName, docSubject, folderName, subFolderName) {
+      documentListScreen.style.display = "none";
+      document.getElementById("documentDetailScreen").style.display = "block";
+      currentDocument = namedDocuments.find(d => d.folderName === folderName &&
+                                                  (d.subFolderName || null) === (subFolderName || null) &&
+                                                  d.name === docName);
+      if(!currentDocument){
         alert("Documento não encontrado.");
         return;
       }
-      currentFolder     = folderName;
-      currentSubFolder  = subFolderName||null;
-      currentDocName    = docName;
-      currentDocSubject = docSubject||"";
+      currentDocName = currentDocument.name;
+      currentDocSubject = currentDocument.subject;
+      customFolderPage = 0;
+      renderCurrentDocumentCustomFolders();
+    }
 
-      documentListScreen.style.display = "none";
-      document.getElementById("editorSection").style.display = "block";
-      
-      /* Limpa / recria os blocos no editor */
-      const textContainer = document.getElementById("textContainer");
-      textContainer.innerHTML = docObj.content;
-
-      const boxes = textContainer.querySelectorAll(".box");
-      boxes.forEach(box => {
-        box.setAttribute("contenteditable","true");
-        initBlockEvents(box);
-        autoCenterElements(box);
-      });
-
-      // Se estava vazio, mostra input-area
-      if(docObj.content.trim() === ""){
-        document.getElementById("inputArea").style.display = "block";
-        document.getElementById("textInput").focus();
+    /* Renderiza (com paginação) as pastas customizadas do documento atual */
+    function renderCurrentDocumentCustomFolders(){
+      const container = document.getElementById("customFoldersContainer");
+      container.innerHTML = "";
+      if(currentDocument.customFolders && currentDocument.customFolders.length > 0){
+        const startIndex = customFolderPage * customFoldersPerPage;
+        const endIndex = startIndex + customFoldersPerPage;
+        const foldersToShow = currentDocument.customFolders.slice(startIndex, endIndex);
+        foldersToShow.forEach(folder => {
+          const folderDiv = document.createElement("div");
+          folderDiv.classList.add("custom-folder-item");
+          folderDiv.innerHTML = `<div style="font-size:48px;">📁</div><div>${folder.type}</div>`;
+          folderDiv.setAttribute("data-folder-id", folder.id);
+          container.appendChild(folderDiv);
+        });
       } else {
-        document.getElementById("inputArea").style.display = "none";
+        container.innerHTML = "<div>Nenhuma pasta customizada criada.</div>";
       }
+    }
 
-      addAddButton();
+    /* ===================== LÓGICA DAS PASTAS CUSTOMIZADAS (dentro de cada documento) ===================== */
+    document.getElementById("addCustomFolderBtn").addEventListener("click", ()=>{
+      document.getElementById("customFolderModal").style.display = "block";
+    });
+    document.querySelectorAll("#customFolderModal .option-button").forEach(button => {
+      button.addEventListener("click", function(){
+        document.querySelectorAll("#customFolderModal .option-button").forEach(btn => btn.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedCustomFolderType = this.getAttribute("data-type");
+        if(selectedCustomFolderType === "Outros"){
+          document.getElementById("customFolderInputContainer").style.display = "block";
+        } else {
+          document.getElementById("customFolderInputContainer").style.display = "none";
+        }
+      });
+    });
+    document.getElementById("createCustomFolderBtnModal").addEventListener("click", ()=>{
+      let folderLabel = selectedCustomFolderType;
+      if(selectedCustomFolderType === "Outros"){
+        const customName = document.getElementById("customFolderInput").value.trim();
+        if(!customName){
+          alert("Digite um nome para a pasta customizada.");
+          return;
+        }
+        folderLabel = customName;
+      }
+      const folderId = "customFolder_" + Date.now();
+      if(!currentDocument.customFolders) currentDocument.customFolders = [];
+      currentDocument.customFolders.push({
+        id: folderId,
+        type: folderLabel,
+        editorContent: ""
+      });
+      saveAllData();
+      renderCurrentDocumentCustomFolders();
+      document.getElementById("customFolderModal").style.display = "none";
+      document.getElementById("customFolderInput").value = "";
+      document.querySelectorAll("#customFolderModal .option-button").forEach(btn => btn.classList.remove("selected"));
+      selectedCustomFolderType = null;
+      document.getElementById("customFolderInputContainer").style.display = "none";
+    });
+    document.getElementById("cancelCustomFolderBtn").addEventListener("click", ()=>{
+      document.getElementById("customFolderModal").style.display = "none";
+      document.getElementById("customFolderInput").value = "";
+      document.querySelectorAll("#customFolderModal .option-button").forEach(btn => btn.classList.remove("selected"));
+      selectedCustomFolderType = null;
+      document.getElementById("customFolderInputContainer").style.display = "none";
+    });
+    // Adiciona evento de clique com botão direito para as pastas customizadas
+    document.getElementById("customFoldersContainer").addEventListener("contextmenu", function(e) {
+      e.preventDefault();
+      const folderDiv = e.target.closest(".custom-folder-item");
+      if(folderDiv) {
+        const folderId = folderDiv.getAttribute("data-folder-id");
+        showContextMenuCustomFolder(e.pageX, e.pageY, folderId);
+      }
+    });
+    // Função para exibir menu de contexto para pastas customizadas
+    function showContextMenuCustomFolder(x, y, folderId) {
+      const menu = document.getElementById("contextMenuCustomFolder");
+      menu.style.display = "block";
+      menu.style.left = x + "px";
+      menu.style.top = y + "px";
+      menu.targetFolderId = folderId;
+    }
+    // Evento para copiar pasta customizada
+    document.getElementById("copyCustomFolderItem").addEventListener("click", ()=>{
+      const folderId = document.getElementById("contextMenuCustomFolder").targetFolderId;
+      copyCustomFolder(folderId);
+      document.getElementById("contextMenuCustomFolder").style.display = "none";
+    });
+    function copyCustomFolder(folderId) {
+      const folder = currentDocument.customFolders.find(f => f.id === folderId);
+      if(folder){
+        copyBuffer = {
+          type: "customFolder",
+          folder: JSON.parse(JSON.stringify(folder))
+        };
+        alert(`Pasta customizada "${folder.type}" copiada.`);
+      }
+    }
+    // Evento para renomear pasta customizada
+    document.getElementById("editCustomFolderItem").addEventListener("click", ()=>{
+      const folderId = document.getElementById("contextMenuCustomFolder").targetFolderId;
+      const folder = currentDocument.customFolders.find(f => f.id === folderId);
+      if(folder){
+        const newName = prompt("Renomear pasta customizada:", folder.type);
+        if(newName && newName.trim() !== ""){
+          folder.type = newName;
+          saveAllData();
+          renderCurrentDocumentCustomFolders();
+        }
+      }
+      document.getElementById("contextMenuCustomFolder").style.display = "none";
+    });
+    // Evento para excluir pasta customizada
+    document.getElementById("deleteCustomFolderItem").addEventListener("click", ()=>{
+      const folderId = document.getElementById("contextMenuCustomFolder").targetFolderId;
+      if(confirm("Excluir pasta customizada?")){
+        currentDocument.customFolders = currentDocument.customFolders.filter(f => f.id !== folderId);
+        saveAllData();
+        renderCurrentDocumentCustomFolders();
+      }
+      document.getElementById("contextMenuCustomFolder").style.display = "none";
+    });
+
+    document.getElementById("customFoldersContainer").addEventListener("click", function(e) {
+      const folderDiv = e.target.closest(".custom-folder-item");
+      if(folderDiv) {
+        const folderId = folderDiv.getAttribute("data-folder-id");
+        loadCustomFolderEditor(folderId);
+      }
+    });
+    function loadCustomFolderEditor(folderId){
+      document.getElementById("documentDetailScreen").style.display = "none";
+      document.getElementById("editorSection").style.display = "block";
+      const folder = currentDocument.customFolders.find(f=>f.id === folderId);
+      if(folder){
+        const textContainer = document.getElementById("textContainer");
+        textContainer.innerHTML = folder.editorContent || "";
+        currentCustomFolderId = folderId;
+        if(folder.editorContent && folder.editorContent.trim() !== ""){
+          document.getElementById("inputArea").style.display = "none";
+        } else {
+          document.getElementById("inputArea").style.display = "block";
+        }
+        const boxes = textContainer.querySelectorAll(".box");
+        boxes.forEach(box=>{
+          box.setAttribute("contenteditable", "true");
+          initBlockEvents(box);
+          autoCenterElements(box);
+        });
+        addAddButton();
+      }
+    }
+    function saveCurrentEditorContent(){
+      const textContainer = document.getElementById("textContainer");
+      if(currentCustomFolderId){
+        const folder = currentDocument.customFolders.find(f=>f.id === currentCustomFolderId);
+        if(folder){
+          folder.editorContent = textContainer.innerHTML;
+          alert("Conteúdo salvo na pasta customizada.");
+          saveAllData();
+        }
+      }
     }
 
     /* ===================== EDITOR (BLOCOS E EVENTOS) ===================== */
-    const editorSection   = document.getElementById("editorSection");
-    const textInput       = document.getElementById("textInput");
+    const editorSection = document.getElementById("editorSection");
+    const textInput     = document.getElementById("textInput");
     const generateTextBtn = document.getElementById("generateTextBtn");
-    const loadLastBtn     = document.getElementById("loadLastBtn");
+    const loadLastBtn   = document.getElementById("loadLastBtn");
     const editorLeftArrow = document.getElementById("editorLeftArrow");
-    const editorRightArrow= document.getElementById("editorRightArrow");
+    const editorRightArrow = document.getElementById("editorRightArrow");
+    // O botão de salvar agora está presente no bottomButtonsContainer (criado na função addAddButton)
 
     editorLeftArrow.addEventListener("click", ()=>{
-      showDocumentList(currentFolder, currentSubFolder);
+      if(currentCustomFolderId){
+        document.getElementById("editorSection").style.display = "none";
+        document.getElementById("documentDetailScreen").style.display = "block";
+      } else {
+        showDocumentList(currentFolder, currentSubFolder);
+      }
     });
     editorRightArrow.addEventListener("click", ()=>{
       alert("Não há tela seguinte.");
     });
-
     generateTextBtn.addEventListener("click", ()=> processText());
-    loadLastBtn.addEventListener("click", ()=>{
-      alert("Exemplo: Carregar último doc ainda não está implementado.");
-    });
+    loadLastBtn.addEventListener("click", ()=>{ alert("Exemplo: Carregar último doc ainda não está implementado."); });
 
     function processText(){
       document.getElementById("inputArea").style.display = "none";
@@ -1225,7 +1504,6 @@
       temp.innerHTML = htmlContent;
       const childNodes = Array.from(temp.childNodes);
       const container = document.getElementById("textContainer");
-
       childNodes.forEach(node => {
         if(node.nodeType === Node.ELEMENT_NODE ||
            (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "")){
@@ -1240,10 +1518,9 @@
       box.classList.add("box");
       box.setAttribute("contenteditable", "true");
       box.innerHTML = content;
-      box.style.backgroundColor = "#f0f0f0"; // cor inicial
+      box.style.backgroundColor = "#f0f0f0";
       box.style.fontSize = "16px";
       box.setAttribute('data-color-index','0');
-
       capitalizeFirstLetter(box);
       autoCenterElements(box);
       initBlockEvents(box);
@@ -1251,7 +1528,6 @@
       return box;
     }
     function initBlockEvents(box){
-      // Ao dar duplo clique, a paleta de cores agora possui todas as cores da opção "Alterar Cor da Linha"
       box.addEventListener("dblclick", function(){
         const palette = ["#f0f0f0", "#00B050", "#FFC000", "#00B0F0", "#00C0C0", "#F79646", "#FF00FF", "#00FF00", "#FFFF00", "#FF69B4"];
         let colorIndex = parseInt(box.getAttribute("data-color-index") || 0);
@@ -1259,7 +1535,6 @@
         box.setAttribute("data-color-index", colorIndex);
         box.style.backgroundColor = palette[colorIndex];
       });
-
       box.addEventListener("keydown", function(e){
         if(e.key === "Enter" && !e.shiftKey){
           e.preventDefault();
@@ -1290,7 +1565,6 @@
         const cd = e.clipboardData || window.clipboardData;
         const text = cd.getData("text/html") || cd.getData("text/plain");
         if(cd.files && cd.files.length > 0){
-          // Colando arquivo/imagem
           const file = cd.files[0];
           const reader = new FileReader();
           reader.onload = function(ev){
@@ -1336,7 +1610,7 @@
           if(first !== upper){
             textNode.nodeValue = upper + textNode.nodeValue.slice(1);
           }
-          break; 
+          break;
         }
         textNode = walker.nextNode();
       }
@@ -1344,7 +1618,7 @@
     function autoCenterElements(box){
       const imgs = box.querySelectorAll("img");
       const tables = box.querySelectorAll("table");
-      if(imgs.length>0 || tables.length>0){
+      if(imgs.length > 0 || tables.length > 0){
         box.style.height = "auto";
         box.style.overflow = "visible";
         box.style.whiteSpace = "normal";
@@ -1375,20 +1649,22 @@
       }
     }
 
-    /* Botões “+”, “Salvar”, etc. no editor */
+    /* Função para adicionar o botão "+" e o botão de salvar (único) na parte inferior dos blocos */
     function addAddButton(){
       const container = document.getElementById("textContainer");
-      const old = document.getElementById("buttonContainer");
+      // Remove botão inferior antigo se existir
+      const old = document.getElementById("bottomButtonsContainer");
       if(old) old.remove();
+      // Cria um novo container para os botões inferiores
+      const bottomContainer = document.createElement("div");
+      bottomContainer.id = "bottomButtonsContainer";
+      bottomContainer.style.display = "flex";
+      bottomContainer.style.justifyContent = "center";
+      bottomContainer.style.alignItems = "center";
+      bottomContainer.style.gap = "20px";
+      bottomContainer.style.margin = "10px 0";
 
-      const buttonContainer = document.createElement("div");
-      buttonContainer.id = "buttonContainer";
-      buttonContainer.style.display = "flex";
-      buttonContainer.style.justifyContent = "center";
-      buttonContainer.style.alignItems = "center";
-      buttonContainer.style.gap = "20px";
-      buttonContainer.style.margin = "10px 0";
-
+      // Botão para adicionar um novo bloco ("+")
       const addButton = document.createElement("div");
       addButton.textContent = "+";
       addButton.style.cursor = "pointer";
@@ -1400,218 +1676,55 @@
       addButton.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
       addButton.title = "Adicionar novo bloco de texto/imagem";
       addButton.addEventListener("click", () => {
-        buttonContainer.remove();
+        bottomContainer.remove();
         document.getElementById("inputArea").style.display = "block";
-        textInput.focus();
+        document.getElementById("textInput").focus();
       });
 
+      // Botão de salvar (único) – representado pelo ícone de salvar (💾)
       const saveButton = document.createElement("div");
-      saveButton.textContent = "💾";
+      saveButton.innerHTML = "💾";
       saveButton.style.cursor = "pointer";
       saveButton.style.fontSize = "24px";
-      saveButton.style.padding = "5px";
+      saveButton.style.padding = "5px 10px";
       saveButton.style.borderRadius = "6px";
       saveButton.style.background = "#fff";
       saveButton.style.color = "#aaa";
       saveButton.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
-      saveButton.title = "Salvar alterações neste documento";
+      saveButton.title = "Salvar Conteúdo";
       saveButton.addEventListener("click", () => {
-        if(currentDocName){
+        if(currentCustomFolderId){
+          saveCurrentEditorContent();
+        } else if(currentDocName){
+          // Se desejar, implemente também a função saveDocumentNamed para salvar documentos
           saveDocumentNamed(currentDocName, currentDocSubject || "");
         } else {
-          alert("Este documento não tem nome. Use 'Salvar com nome' para escolher um nome.");
+          alert("Não há nada para salvar.");
         }
       });
 
-      const saveWithName = document.createElement("div");
-      saveWithName.textContent = "💾🖉";
-      saveWithName.style.cursor = "pointer";
-      saveWithName.style.fontSize = "24px";
-      saveWithName.style.padding = "5px";
-      saveWithName.style.borderRadius = "6px";
-      saveWithName.style.background = "#fff";
-      saveWithName.style.color = "#aaa";
-      saveWithName.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
-      saveWithName.title = "Salvar como (nome e assunto)";
-      saveWithName.addEventListener("click", () => {
-        saveDocumentWithName();
-      });
-
-      const loadButton = document.createElement("div");
-      loadButton.textContent = "📂";
-      loadButton.style.cursor = "pointer";
-      loadButton.style.fontSize = "24px";
-      loadButton.style.padding = "5px";
-      loadButton.style.borderRadius = "6px";
-      loadButton.style.background = "#fff";
-      loadButton.style.color = "#aaa";
-      loadButton.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
-      loadButton.title = "Carregar documento salvo";
-      loadButton.addEventListener("click", () => {
-        loadDocumentByName();
-      });
-
-      buttonContainer.appendChild(addButton);
-      buttonContainer.appendChild(saveButton);
-      buttonContainer.appendChild(saveWithName);
-      buttonContainer.appendChild(loadButton);
-      container.appendChild(buttonContainer);
-    }
-    function saveDocumentNamed(docName, docSubject){
-      if(!currentFolder){
-        alert("Escolha uma pasta antes de salvar.");
-        return;
-      }
-      const textContainer = document.getElementById("textContainer");
-      const containerClone = textContainer.cloneNode(true);
-      const buttonContainerClone = containerClone.querySelector("#buttonContainer");
-      if(buttonContainerClone) buttonContainerClone.remove();
-
-      const docIndex = namedDocuments.findIndex(d =>
-        d.folderName === currentFolder &&
-        (d.subFolderName||null) === (currentSubFolder||null) &&
-        d.name === docName
-      );
-      if(docIndex >= 0){
-        namedDocuments[docIndex].subject = docSubject;
-        namedDocuments[docIndex].content = containerClone.innerHTML;
-      } else {
-        namedDocuments.push({
-          folderName: currentFolder,
-          subFolderName: currentSubFolder || null,
-          name: docName,
-          subject: docSubject,
-          content: containerClone.innerHTML
-        });
-      }
-      saveAllData();
-    }
-    function saveDocumentWithName(){
-      if(!currentFolder){
-        alert("Escolha uma pasta antes de salvar.");
-        return;
-      }
-      let newName;
-      let newSubject;
-      if(currentDocName){
-        newName = prompt("Nome do documento:", currentDocName);
-        if(newName===null) return;
-        if(!newName.trim()){
-          alert("Nome inválido.");
-          return;
-        }
-        newSubject = prompt("Assunto:", currentDocSubject || "");
-        if(newSubject===null) newSubject="";
-      } else {
-        newName = prompt("Nome do documento:");
-        if(!newName) return;
-        newSubject = prompt("Assunto:") || "";
-      }
-      currentDocName    = newName;
-      currentDocSubject = newSubject;
-      saveDocumentNamed(newName, newSubject);
-    }
-    function loadDocumentByName(){
-      if(!currentFolder){
-        alert("Escolha uma pasta antes de carregar documentos.");
-        return;
-      }
-      const docs = namedDocuments.filter(d =>
-        d.folderName === currentFolder &&
-        (d.subFolderName||null) === (currentSubFolder||null)
-      );
-      if(docs.length===0){
-        alert("Não há documentos salvos nesta pasta/subpasta.");
-        return;
-      }
-      let listStr = `Documentos em "${currentFolder}"`;
-      if(currentSubFolder) listStr += ` / "${currentSubFolder}"`;
-      listStr += ":\n\n";
-      docs.forEach((doc, i) => {
-        listStr += `${i+1}. ${doc.name} (Assunto: ${doc.subject||"nenhum"})\n`;
-      });
-      listStr += "\nDigite o número do doc ou clique em Cancelar.";
-      const choice = prompt(listStr);
-      if(choice===null) return;
-      const idx = parseInt(choice,10)-1;
-      if(isNaN(idx)||idx<0||idx>=docs.length){
-        alert("Opção inválida.");
-        return;
-      }
-      const chosen = docs[idx];
-      loadDocumentInEditor(chosen.name, chosen.subject, chosen.folderName, chosen.subFolderName);
+      bottomContainer.appendChild(addButton);
+      bottomContainer.appendChild(saveButton);
+      // Insere o container de botões inferiores logo após o textContainer
+      container.parentNode.insertBefore(bottomContainer, container.nextSibling);
     }
 
-    /* ===================== PROGRESS OVERLAY (SALVANDO) ===================== */
-    function showSavingOverlay(){
-      return new Promise(resolve => {
-        const overlay = document.createElement("div");
-        overlay.classList.add("progress-overlay");
-        const container = document.createElement("div");
-        container.classList.add("progress-container");
-        const progressText = document.createElement("div");
-        progressText.style.marginBottom = "10px";
-        progressText.innerText = "Salvando: 0%";
-
-        const progressBar = document.createElement("div");
-        progressBar.classList.add("progress-bar");
-        const progressFill = document.createElement("div");
-        progressFill.classList.add("progress-fill");
-        progressBar.appendChild(progressFill);
-
-        container.appendChild(progressText);
-        container.appendChild(progressBar);
-        overlay.appendChild(container);
-        document.body.appendChild(overlay);
-
-        let simulated = 0;
-        const int1 = setInterval(() => {
-          if(simulated < 90){
-            simulated += Math.random() * 5;
-            if(simulated > 90) simulated = 90;
-            progressFill.style.width = simulated + "%";
-            progressText.innerText = "Salvando: " + Math.floor(simulated) + "%";
-          }
-        }, 200);
-
-        setTimeout(() => {
-          clearInterval(int1);
-          let int2 = setInterval(() => {
-            simulated += 5;
-            if(simulated >= 100){
-              simulated = 100;
-              progressFill.style.width = "100%";
-              progressText.innerText = "Salvando: 100%";
-              clearInterval(int2);
-              progressText.innerText = "Documento salvo!";
-              setTimeout(() => {
-                document.body.removeChild(overlay);
-                resolve();
-              }, 700);
-            } else {
-              progressFill.style.width = simulated + "%";
-              progressText.innerText = "Salvando: " + Math.floor(simulated) + "%";
-            }
-          }, 100);
-        }, 1500);
-      });
-    }
-
-    /* ===================== MENUS DE CONTEXTO (FOLDERS, SUBFOLDERS, DOCS) ===================== */
+    /* ===================== MENUS DE CONTEXTO ===================== */
     document.addEventListener("click", (e)=>{
       const mF  = document.getElementById("contextMenuFolder");
       const mSF = document.getElementById("contextMenuSubFolder");
       const mD  = document.getElementById("contextMenuDoc");
       const mBg = document.getElementById("contextMenuBackground");
       const mE  = document.getElementById("contextMenu");
+      const mCF = document.getElementById("contextMenuCustomFolder");
       if(mF.style.display==="block") mF.style.display="none";
       if(mSF.style.display==="block") mSF.style.display="none";
       if(mD.style.display==="block") mD.style.display="none";
       if(mBg.style.display==="block") mBg.style.display="none";
       if(mE.style.display==="block") mE.style.display="none";
+      if(mCF.style.display==="block") mCF.style.display="none";
     });
 
-    /* ========== MENU DE CONTEXTO DE PASTA ========== */
     function showContextMenuFolder(x,y,folderName){
       const menuFolder = document.getElementById("contextMenuFolder");
       menuFolder.style.display="block";
@@ -1675,7 +1788,7 @@
           count++;
         }
         arr.push(newName);
-        folderSubfolders[folderName]=arr;
+        folderSubfolders[folderName] = arr;
         copyBuffer.docs.forEach(d=>{
           let docName = d.name;
           let docCount = 1;
@@ -1714,7 +1827,7 @@
           x.name===docName
         );
         while(conflict){
-          docName=copyBuffer.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
+          docName = copyBuffer.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
           docCount++;
           conflict = namedDocuments.find(x=>
             x.folderName===folderName &&
@@ -1760,7 +1873,6 @@
       showFolderScreen();
     }
 
-    /* ========== MENU DE CONTEXTO DE SUBPASTA ========== */
     function showContextMenuSubFolder(x,y,subFolderName){
       const menuSubFolder = document.getElementById("contextMenuSubFolder");
       menuSubFolder.style.display="block";
@@ -1819,7 +1931,7 @@
           x.name===docName
         );
         while(conflict){
-          docName = docName + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
+          docName = copyBuffer.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
           docCount++;
           conflict = namedDocuments.find(x=>
             x.folderName===folderName &&
@@ -1868,7 +1980,6 @@
       showSubFolderScreen(folderName);
     }
 
-    /* ========== MENU DE CONTEXTO DE DOCUMENTO ========== */
     function showContextMenuDoc(x,y,docName){
       const menuDoc = document.getElementById("contextMenuDoc");
       menuDoc.style.display="block";
@@ -1926,7 +2037,6 @@
       if(!newName) return;
       const newSubject = prompt("Novo assunto:", doc.subject||"");
       if(newSubject===null) return;
-
       const conflict = namedDocuments.find(d=>
         d!==doc &&
         d.folderName===currentFolder &&
@@ -1953,7 +2063,6 @@
       showDocumentList(currentFolder, currentSubFolder);
     }
 
-    /* ========== MENU DE CONTEXTO DE FUNDO ========== */
     function showContextMenuBackground(x,y,screenType){
       const menuBg = document.getElementById("contextMenuBackground");
       menuBg.style.display="block";
@@ -2017,187 +2126,42 @@
         }
       }
     });
-    function pasteFolder(){
-      let newName = copyBuffer.name;
-      let count = 1;
-      while(folders.includes(newName)){
-        newName = copyBuffer.name + " (Cópia" + (count>1?" "+count:"") + ")";
-        count++;
-      }
-      folders.push(newName);
-      folderSubfolders[newName] = copyBuffer.subfolders.slice();
-      copyBuffer.docs.forEach(d=>{
-        let docName = d.name;
-        let docCount = 1;
-        let conflict = namedDocuments.find(x=>
-          x.folderName===newName && x.name===docName
-        );
-        while(conflict){
-          docName = d.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
-          docCount++;
-          conflict = namedDocuments.find(x=>
-            x.folderName===newName && x.name===docName
-          );
-        }
-        namedDocuments.push({
-          folderName:newName,
-          subFolderName:d.subFolderName||null,
-          name:docName,
-          subject:d.subject,
-          content:d.content
-        });
-      });
-      alert(`Pasta "${copyBuffer.name}" colada como "${newName}".`);
-      saveAllData();
-      showFolderScreen();
+
+    /* ===================== MENU DE CONTEXTO DO EDITOR ===================== */
+    function showEditorContextMenu(x, y, box){
+      const contextMenu = document.getElementById("contextMenu");
+      contextMenu.style.display = "block";
+      contextMenu.style.left = x + "px";
+      contextMenu.style.top = y + "px";
+      contextMenu.targetBox = box;
     }
-    function pasteSubFolder(){
-      if(!currentFolder){
-        alert("Não há pasta atual selecionada para colar subpasta.");
-        return;
+    document.getElementById("copyBlock").addEventListener("click", function(){
+      const box = document.getElementById("contextMenu").targetBox;
+      navigator.clipboard.writeText(box.innerText);
+      alert("Bloco copiado.");
+      document.getElementById("contextMenu").style.display = "none";
+    });
+    document.getElementById("deleteBlock").addEventListener("click", function(){
+      const box = document.getElementById("contextMenu").targetBox;
+      if(confirm("Excluir bloco?")){
+        box.remove();
       }
-      let subs = folderSubfolders[currentFolder] || [];
-      let newName = copyBuffer.name;
-      let count = 1;
-      while(subs.includes(newName)){
-        newName = copyBuffer.name + " (Cópia" + (count>1?" "+count:"") + ")";
-        count++;
-      }
-      subs.push(newName);
-      folderSubfolders[currentFolder] = subs;
-      copyBuffer.docs.forEach(d=>{
-        let docName = d.name;
-        let docCount = 1;
-        let conflict = namedDocuments.find(x=>
-          x.folderName===currentFolder &&
-          (x.subFolderName||null)===newName &&
-          x.name===docName
-        );
-        while(conflict){
-          docName = d.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
-          docCount++;
-          conflict = namedDocuments.find(x=>
-            x.folderName===currentFolder &&
-            (x.subFolderName||null)===newName &&
-            x.name===docName
-          );
-        }
-        namedDocuments.push({
-          folderName:currentFolder,
-          subFolderName:newName,
-          name:docName,
-          subject:d.subject,
-          content:d.content
-        });
-      });
-      alert(`Subpasta "${copyBuffer.name}" colada como "${newName}" em "${currentFolder}".`);
-      saveAllData();
-      showSubFolderScreen(currentFolder);
-    }
-    function pasteDocument(){
-      if(!currentFolder){
-        alert("Não há pasta atual para colar documento.");
-        return;
-      }
-      let docName = copyBuffer.name;
-      let docCount = 1;
-      let conflict = namedDocuments.find(x=>
-        x.folderName===currentFolder &&
-        (x.subFolderName||null)===(currentSubFolder||null) &&
-        x.name===docName
-      );
-      while(conflict){
-        docName = copyBuffer.name + " (Cópia" + (docCount>1?" "+docCount:"") + ")";
-        docCount++;
-        conflict = namedDocuments.find(x=>
-          x.folderName===currentFolder &&
-          (x.subFolderName||null)===(currentSubFolder||null) &&
-          x.name===docName
-        );
-      }
-      namedDocuments.push({
-        folderName: currentFolder,
-        subFolderName: currentSubFolder||null,
-        name: docName,
-        subject: copyBuffer.subject||"",
-        content: copyBuffer.content
-      });
-      alert(`Documento "${copyBuffer.name}" colado como "${docName}".`);
-      saveAllData();
+      document.getElementById("contextMenu").style.display = "none";
+    });
+    // *** Correção: Centralizar Conteúdo no Editor ***
+    document.getElementById("centerContent").addEventListener("click", function(){
+      const box = document.getElementById("contextMenu").targetBox;
+      // Configura o bloco como flex e centraliza seu conteúdo
+      box.style.display = "flex";
+      box.style.justifyContent = "center";
+      box.style.alignItems = "center";
+      box.style.textAlign = "center";
+      document.getElementById("contextMenu").style.display = "none";
+    });
+
+    /* ===================== EVENTO DO BOTÃO DE VOLTAR NA TELA DE DETALHES DO DOCUMENTO ===================== */
+    document.getElementById("detailLeftArrow").addEventListener("click", () => {
       showDocumentList(currentFolder, currentSubFolder);
-    }
-
-    /* ========== MENU DE CONTEXTO DO EDITOR ========== */
-    function showEditorContextMenu(x,y,box){
-      const contextMenuEditor = document.getElementById("contextMenu");
-      contextMenuEditor.style.display="block";
-      contextMenuEditor.style.left = x+"px";
-      contextMenuEditor.style.top  = y+"px";
-      contextMenuEditor.currentBox = box;
-    }
-    // Opção "Copiar Bloco" – agora o texto copiado incluirá a mensagem padrão
-    const copyBlockBtn = document.getElementById("copyBlock");
-    copyBlockBtn.addEventListener("click", () => {
-      const box = document.getElementById("contextMenu").currentBox;
-      if(box){
-        // Copia com a mensagem padrão seguida do conteúdo do bloco
-        navigator.clipboard.writeText("ME EXPLICA ESSE ASSUNTO DE MODO OBJETIVO, APENAS COM O NECESSÁRIO PARA ENTENDER ESSE TEXTO: " + box.innerText).catch(() => {
-          // Tratamento de erro, se necessário
-        });
-      }
-      document.getElementById("contextMenu").style.display="none";
-    });
-    document.getElementById("deleteBlock").addEventListener("click", ()=>{
-      const box = document.getElementById("contextMenu").currentBox;
-      if(box && box.parentNode){
-        box.parentNode.removeChild(box);
-      }
-      document.getElementById("contextMenu").style.display="none";
-    });
-    document.getElementById("centerImageInsideBlock").addEventListener("click", ()=>{
-      const box = document.getElementById("contextMenu").currentBox;
-      if(!box) return;
-      box.style.height="auto";
-      box.style.overflow="visible";
-      box.style.whiteSpace="normal";
-      box.style.alignItems="center";
-      box.style.justifyContent="center";
-      box.style.padding="10px";
-      box.style.flexDirection="column";
-      const imgs = box.querySelectorAll("img");
-      imgs.forEach(img=>{
-        img.style.display="block";
-        img.style.margin="0 auto";
-        img.style.maxWidth="700px";
-        img.style.height="auto";
-      });
-      const tables = box.querySelectorAll("table");
-      tables.forEach(tbl=>{
-        tbl.style.marginLeft="auto";
-        tbl.style.marginRight="auto";
-        tbl.style.width="auto";
-      });
-      document.getElementById("contextMenu").style.display="none";
-    });
-
-    // Submenus: fonte e cor
-    document.getElementById("contextMenu").querySelectorAll('.submenu ul li[data-font-size]').forEach(li=>{
-      li.addEventListener('click',()=>{
-        const size = li.getAttribute('data-font-size');
-        const box = document.getElementById("contextMenu").currentBox;
-        if(box) box.style.fontSize=size;
-        document.getElementById("contextMenu").style.display="none";
-      });
-    });
-    document.getElementById("contextMenu").querySelectorAll('.submenu ul li[data-color]').forEach(li=>{
-      li.addEventListener('click',()=>{
-        const color = li.getAttribute('data-color');
-        const box = document.getElementById("contextMenu").currentBox;
-        if(box){
-          box.style.backgroundColor=color;
-        }
-        document.getElementById("contextMenu").style.display="none";
-      });
     });
 
   </script>
