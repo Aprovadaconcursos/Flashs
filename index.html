@@ -1343,32 +1343,6 @@ async function loadAllDataLocal() {
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
-// (A) Carregar dados da nuvem (Firestore)
-async function loadAllDataCloud(uid) {
-  try {
-    const docRef = doc(db, "usersData", uid);  // "usersData" é uma coleção arbitrária
-    const snapshot = await getDoc(docRef);
-    if (snapshot.exists()) {
-      return snapshot.data(); // Retorna o objeto salvo (folders, etc.)
-    } else {
-      return {}; // Se não existir doc nenhum, retorna vazio
-    }
-  } catch (error) {
-    console.error("Erro ao carregar do Firestore:", error);
-    return {};
-  }
-}
-
-// (B) Salvar dados na nuvem (Firestore)
-async function saveAllDataCloud(uid, data) {
-  try {
-    const docRef = doc(db, "usersData", uid);
-    await setDoc(docRef, data); // substitui o doc inteiro
-    console.log("Dados salvos na nuvem com sucesso!");
-  } catch (error) {
-    console.error("Erro ao salvar no Firestore:", error);
-  }
-}
 
     let folders          = [];
     let folderSubfolders = {};
@@ -1474,32 +1448,16 @@ async function saveAllDataCloud(uid, data) {
       });
     }
 
-async function loadAllData(uid) {
-  // 1. Carregar do IndexedDB
-  const localData = await loadAllDataLocal();
-
-  // 2. Carregar do Firestore (nuvem)
-  const cloudData = await loadAllDataCloud(uid);
-
-  // 3. Decidir qual dado usar
-  // Exemplo: se houver algo na nuvem (cloudData), usamos ele;
-  // se não houver, ficamos com localData.
-  let finalData = localData;
-  if (Object.keys(cloudData).length > 0) {
-    finalData = cloudData;
-  }
-
-  // 4. Desestruturar finalData nas variáveis do app
-  folders = finalData.folders || [];
-  folderSubfolders = finalData.folderSubfolders || {};
-  namedDocuments = finalData.namedDocuments || [];
-  favoriteFolders = finalData.favoriteFolders || {};
-  favoriteSubfolders = finalData.favoriteSubfolders || {};
-  folderEvents = finalData.folderEvents || {};
-  window.completedSubfolders = finalData.completedSubfolders || {};
-  folderFiles = finalData.folderFiles || {};
-
-  // 5. Renderiza a tela de pastas
+    async function loadAllData() {
+  const data = await loadAllDataLocal();
+  folders = data.folders || [];
+  folderSubfolders = data.folderSubfolders || {};
+  namedDocuments = data.namedDocuments || [];
+  favoriteFolders = data.favoriteFolders || {};
+  favoriteSubfolders = data.favoriteSubfolders || {};
+  folderEvents = data.folderEvents || {};
+  window.completedSubfolders = data.completedSubfolders || {};
+  folderFiles = data.folderFiles || {};
   showFolderScreen();
 }
 async function saveAllData() {
@@ -1514,14 +1472,7 @@ async function saveAllData() {
     completedSubfolders: window.completedSubfolders,
     folderFiles
   };
-
-  // Salva os dados localmente (IndexedDB)
   await saveAllDataLocal(data);
-
-  // Se o usuário estiver logado, salva também na nuvem (Firestore)
-  if (currentUserUid) {
-    await saveAllDataCloud(currentUserUid, data);
-  }
 }
        async function saveCurrentEditorContent(){
       if(!currentDocument || !currentCustomFolderId) return;
