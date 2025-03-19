@@ -6,427 +6,1316 @@
   <title>Sistema com Editor Estilo Excel + Firebase</title>
   <!-- Biblioteca Mammoth.js para conversão de DOCX para HTML -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
   <style>
-    /* (Todo o seu CSS exatamente igual, sem mudanças) */
-    /* ------------------------------------------------ */
+    /* ========================================
+       Normalização e Estilos Globais
+    ========================================*/
     html, body {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    body {
-      padding: 20px;
-      background-color: #f4f4f4;
-      font-family: 'Lato', sans-serif;
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      height: 100vh;
-      position: relative;
-    }
+body {
+  padding: 20px;
+  background-color: #f4f4f4;
+  font-family: 'Lato', sans-serif;
+  display: flex;
+  flex-direction: row; /* Agora os elementos ficarão em linha */
+  align-items: flex-start;
+  height: 100vh;
+  position: relative;
+  /* min-width: 500px; */
+}
     * { box-sizing: inherit; }
-    a { cursor: pointer; }
+* { box-sizing: inherit; }
+
+/* Faz com que todos os links tenham o cursor de mãozinha */
+a {
+  cursor: pointer;
+}
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Lato:wght@300&display=swap');
+    /* ---------- Estilos para o quadrado de conclusão (agora CÍRCULO) ---------- */
     .completion-square {
-      position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      font-size: 12px; color: #555; background-color: transparent; border: 1px solid #ccc; border-radius: 50%;
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #555;
+      background-color: transparent;
+      border: 1px solid #ccc;
+      border-radius: 50%;
       cursor: pointer;
     }
-    .completion-square.completed { background-color: #d0f0c0; }
-    #loginScreen { display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; }
+    .completion-square.completed {
+      background-color: #d0f0c0;
+    }
+    /* ========================================
+       TELA DE LOGIN
+    ========================================*/
+    #loginScreen {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
     .header { display: flex; align-items: center; }
     .logo-container { display: flex; align-items: center; }
     .logo-icon {
-      width: 50px; height: 50px; background-color: #007BFF; border-radius: 50%; display: flex; justify-content: center; align-items: center;
-      margin-right: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 50px; 
+      height: 50px;
+      background-color: #007BFF;
+      border-radius: 50%;
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      margin-right: 10px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .logo-icon::after { content: '\1F310'; font-size: 24px; color: white; }
+    .logo-icon::after { 
+      content: '\1F310'; 
+      font-size: 24px; 
+      color: white; 
+    }
     .logo {
-      font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 48px; letter-spacing: 3px; color: #007BFF;
+      font-family: 'Montserrat', sans-serif; 
+      font-weight: 900;
+      font-size: 48px; 
+      letter-spacing: 3px; 
+      color: #007BFF;
       text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     }
     .slogan {
-      font-family: 'Lato', sans-serif; font-weight: 300; font-size: 18px; color: #666; margin-top: 20px; padding-left: 80px;
+      font-family: 'Lato', sans-serif; 
+      font-weight: 300;
+      font-size: 18px; 
+      color: #666; 
+      margin-top: 20px; 
+      padding-left: 80px;
     }
-    .container {
-      background: #fff; padding: 30px; margin: 20px auto; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      width: 90%; max-width: 400px;
-    }
+.container {
+  background: #fff;
+  padding: 30px;
+  margin: 20px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 90%;
+  max-width: 400px;
+}
     .access-text {
-      font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 20px; color: #333; text-align: center; margin-bottom: 20px;
+      font-family: 'Montserrat', sans-serif; 
+      font-weight: 700;
+      font-size: 20px; 
+      color: #333; 
+      text-align: center; 
+      margin-bottom: 20px;
     }
     .login-form { display: flex; flex-direction: column; }
     .login-form input {
-      font-family: 'Lato', sans-serif; font-size: 16px; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;
+      font-family: 'Lato', sans-serif; 
+      font-size: 16px;
+      padding: 12px; 
+      margin-bottom: 15px;
+      border: 1px solid #ccc; 
+      border-radius: 5px;
     }
     .login-form button {
-      font-family: 'Lato', sans-serif; font-size: 16px; background-color: #007BFF; color: white; border: none;
-      padding: 12px; border-radius: 5px; cursor: pointer;
+      font-family: 'Lato', sans-serif; 
+      font-size: 16px;
+      background-color: #007BFF; 
+      color: white; 
+      border: none;
+      padding: 12px; 
+      border-radius: 5px;
+      cursor: pointer;
     }
     .login-form button:hover { background-color: #0056b3; }
     .register { font-size: 14px; margin-top: 15px; text-align: center; }
     .register a { color: #007BFF; text-decoration: none; }
-    .info-box {
-      position: fixed; top: 180px; right: 50px; font-size: 18px; font-weight: 400; color: #333;
-    }
-    @media (max-width: 1024px) { .info-box { right: 20px; font-size: 16px; } }
-    @media (max-width: 768px) { .info-box { right: 10px; font-size: 14px; } }
-    @media (max-width: 600px) {
-      .info-box {
-        position: relative; top: auto; right: auto; margin: 20px auto; text-align: center;
-      }
-    }
+.info-box {
+  position: fixed;
+  top: 180px;
+  right: 50px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #333;
+}
+
+/* Para telas menores (por exemplo, até 1024px) */
+@media (max-width: 1024px) {
+  .info-box {
+    right: 20px;
+    font-size: 16px;
+  }
+}
+
+/* Para telas ainda menores (até 768px) */
+@media (max-width: 768px) {
+  .info-box {
+    right: 10px;
+    font-size: 14px;
+  }
+}
+
+/* Para telas muito pequenas (até 600px) */
+@media (max-width: 600px) {
+  .info-box {
+    position: relative; /* Remove o fixo */
+    top: auto;
+    right: auto;
+    margin: 20px auto;  /* Centraliza horizontalmente */
+    text-align: center;
+  }
+}
     .info-box div { margin-bottom: 15px; }
     .highlight-text {
-      font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 700; color: #007BFF; margin-top: 30px;
+      font-family: 'Montserrat', sans-serif; 
+      font-size: 20px;
+      font-weight: 700; 
+      color: #007BFF; 
+      margin-top: 30px;
     }
+    /* ========================================
+       TELA DE REGISTRO
+    ========================================*/
     #registerScreen {
-      display: none; text-align: center; padding: 20px; width: 100%; box-sizing: border-box;
+      display: none; 
+      text-align: center; 
+      padding: 20px;
+      width: 100%; 
+      box-sizing: border-box;
     }
+    /* ========================================
+       TELA DE PASTAS
+    ========================================*/
     #folderScreen {
-      display: none; padding: 20px; position: relative; width: 100%; box-sizing: border-box;
+      display: none; 
+      padding: 20px; 
+      position: relative;
+      width: 100%; 
+      box-sizing: border-box;
     }
     .page-title {
-      background-color: #fff; padding: 15px; margin-bottom: 10px; border-bottom: 1px solid #ddd; display: flex;
-      justify-content: center; align-items: center; font-size: 22px; font-weight: bold; border-radius: 8px;
+      background-color: #fff; 
+      padding: 15px; 
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd; 
+      display: flex;
+      justify-content: center; 
+      align-items: center;
+      font-size: 22px; 
+      font-weight: bold; 
+      border-radius: 8px;
     }
     .folder-header {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; position: relative;
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      margin-bottom: 10px;
+      position: relative;
     }
     #folderScreen .folder-header .nav-buttons {
-      position: absolute; left: 50%; transform: translateX(-50%);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
     }
     .nav-buttons {
-      display: flex; justify-content: center; align-items: center; gap: 20px; width: 100%; margin: 10px 0; flex-wrap: wrap;
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      gap: 20px; 
+      width: 100%; 
+      margin: 10px 0; 
+      flex-wrap: wrap;
     }
     .plus-button {
-      border: none; background: #fff; color: #aaa; font-size: 28px; border-radius: 6px; padding: 5px 10px;
-      cursor: pointer; transition: background-color 0.2s;
+      border: none; 
+      background: #fff; 
+      color: #aaa;
+      font-size: 28px; 
+      border-radius: 6px; 
+      padding: 5px 10px;
+      cursor: pointer; 
+      transition: background-color 0.2s;
     }
     .plus-button:hover { background-color: #eee; }
-    .folder-header .plus-button { position: relative; z-index: 10; }
+    .folder-header .plus-button {
+      position: relative;
+      z-index: 10;
+    }
     .nav-button {
-      font-size: 28px; border: none; background: #fff; border-radius: 6px; padding: 5px 10px; cursor: pointer;
-      color: #aaa; transition: background-color 0.2s; min-width: 60px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: 28px; 
+      border: none; 
+      background: #fff;
+      border-radius: 6px; 
+      padding: 5px 10px; 
+      cursor: pointer;
+      color: #aaa; 
+      transition: background-color 0.2s;
+      min-width: 60px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .nav-button:hover { background-color: #eee; color: #777; }
     #folderList {
-      display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; width: 100%;
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 20px;
+      justify-content: center; 
+      margin-top: 20px; 
+      width: 100%;
     }
     .folder-item {
-      flex: 1 1 120px; max-width: 150px; height: auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      background-color: #e0e0e0; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
-      font-size: 16px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative;
-    }
+  flex: 1 1 120px;      /* Permite que os itens se expandam e contraiam */
+  max-width: 150px;       /* Valor máximo ajustável */
+  height: auto;          /* A altura se ajusta automaticamente */
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: flex-start;
+  background-color: #e0e0e0; 
+  border: 1px solid #ddd;
+  border-radius: 8px; 
+  cursor: pointer; 
+  transition: background-color 0.3s;
+  font-size: 16px; 
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+  position: relative;
+}
     .folder-item:hover { background-color: #f5f5f5; }
     .folder-icon { font-size: 48px; margin-top: 10px; }
     .folder-name {
-      margin-top: 5px; padding: 0 5px; font-size: 14px; font-weight: bold;
+      margin-top: 5px; 
+      padding: 0 5px;
+      font-size: 14px; 
+      font-weight: bold;
     }
+    /* ========================================
+       TELA DE SUBPASTAS
+    ========================================*/
     #subFolderScreen {
-      display: none; padding: 20px; position: relative; width: 100%; box-sizing: border-box;
+      display: none; 
+      padding: 20px; 
+      position: relative;
+      width: 100%; 
+      box-sizing: border-box;
     }
     #subFolderList {
-      margin-top: 10px; display: flex; flex-direction: column; gap: 5px;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column; 
+      gap: 5px;
     }
     .subfolder-item {
-      background-color: #e0e0e0; border: 1px solid #ddd; border-radius: 8px; padding: 10px 15px; cursor: pointer;
-      transition: background-color 0.3s; font-size: 16px; font-weight: bold; position: relative; display: flex; align-items: center;
+      background-color: #e0e0e0; 
+      border: 1px solid #ddd;
+      border-radius: 8px; 
+      padding: 10px 15px;
+      cursor: pointer; 
+      transition: background-color 0.3s;
+      font-size: 16px; 
+      font-weight: bold;
+      position: relative;
+      display: flex;
+      align-items: center;
     }
-    .subfolder-item span { margin-left: 0; }
+    .subfolder-item span {
+      margin-left: 0;
+    }
     .subfolder-favorited { background-color: #b0bec5 !important; }
     #subFolderTotalCount {
-      text-align: right; font-size: 14px; color: #555; margin-top: 10px;
+      text-align: right; 
+      font-size: 14px;
+      color: #555; 
+      margin-top: 10px;
     }
+    /* Gráfico de subpastas */
     #subFolderCompletionPercent {
-      position: absolute; top: 90px; right: 20px; width: 100px; height: 100px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: white;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.6); cursor: default;
+      position: absolute;
+      top: 90px;
+      right: 20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+      cursor: default;
     }
+    /* Botão de anexo na Subpasta */
     #btnAttachFileSubfolder {
-      font-size: 20px; margin: 10px 3px; background: #fff; border: none; color: #aaa;
-      border-radius: 6px; padding: 5px 10px; cursor: pointer; transition: background-color 0.2s;
+      font-size: 20px;
+      margin: 10px 3px;
+      background: #fff;
+      border: none;
+      color: #aaa;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
     }
     #btnAttachFileSubfolder:hover { background-color: #eee; }
     #fileInputSubfolder { display: none; }
+    /* Ícone de anexo para itens de subpasta */
     .attachment-icon {
-      font-size: 20px; margin-left: 5px; cursor: pointer;
+      font-size: 20px;
+      margin-left: 5px;
+      cursor: pointer;
     }
+    /* ========================================
+       TELA DE DOCUMENTOS
+    ========================================*/
     #documentListScreen {
-      display: none; padding: 20px; position: relative; width: 100%; box-sizing: border-box;
+      display: none; 
+      padding: 20px; 
+      position: relative;
+      width: 100%; 
+      box-sizing: border-box;
     }
     #documentList {
-      margin-top: 5px; display: flex; flex-direction: column; gap: 10px;
+      margin-top: 5px;
+      display: flex;
+      flex-direction: column; 
+      gap: 10px;
     }
     .doc-item {
-      background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 15px; cursor: pointer;
-      transition: background-color 0.3s; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      position: relative; padding-right: 70px; display: flex; justify-content: space-between; align-items: center;
+      background-color: #ffffff; 
+      border: 1px solid #ddd;
+      border-radius: 8px; 
+      padding: 10px 15px;
+      cursor: pointer; 
+      transition: background-color 0.3s;
+      font-size: 16px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative; 
+      padding-right: 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .doc-favorited { background-color: #b0bec5 !important; }
     .doc-item:hover { background-color: #e0e0e0; }
     .doc-item-title { font-weight: bold; margin-bottom: 5px; }
     .doc-item-subject {
-      font-size: 14px; color: #666; white-space: pre-wrap; margin-left: 20px; position: relative;
+      font-size: 14px; 
+      color: #666;
+      white-space: pre-wrap; 
+      margin-left: 20px;
+      position: relative;
     }
     .doc-subject-bullet {
-      position: absolute; left: -15px; top: 0; color: #666; cursor: pointer; font-weight: bold;
+      position: absolute;
+      left: -15px;
+      top: 0;
+      color: #666;
+      cursor: pointer;
+      font-weight: bold;
     }
     .doc-summary {
-      display: none; margin-top: 5px; padding-left: 20px; font-size: 14px; color: #666;
-      border-left: 2px solid #ccc; position: relative;
+      display: none;
+      margin-top: 5px;
+      padding-left: 20px;
+      font-size: 14px;
+      color: #666;
+      border-left: 2px solid #ccc;
+      position: relative;
     }
     .summary-actions {
-      margin-top: 4px; font-size: 12px; color: #666;
+      margin-top: 4px;
+      font-size: 12px;
+      color: #666;
     }
-    .summary-actions span { margin-right: 8px; cursor: pointer; text-decoration: underline; }
+    .summary-actions span {
+      margin-right: 8px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
     .document-header {
-      display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      margin-bottom: 10px;
     }
     #documentTotalCount {
-      text-align: right; font-size: 14px; color: #555; margin-top: 10px;
+      text-align: right; 
+      font-size: 14px;
+      color: #555; 
+      margin-top: 10px;
     }
+    /* Badge de percentual dos documentos */
     #documentCompletionPercent {
-      font-size: 24px; font-weight: bold; margin-left: 10px; position: relative; cursor: default;
-      display: inline-block; background: rgba(255,200,200,0.3); color: #333; padding: 5px 10px; border-radius: 6px;
+      font-size: 24px;
+      font-weight: bold;
+      margin-left: 10px;
+      position: relative;
+      cursor: default;
+      display: inline-block;
+      background: rgba(255,200,200,0.3);
+      color: #333;
+      padding: 5px 10px;
+      border-radius: 6px;
     }
+    /* Botões para anexo na Documentos */
     #btnAttachFileDoc {
-      font-size: 20px; margin: 10px 3px; background: #fff; border: none; color: #aaa;
-      border-radius: 6px; padding: 5px 10px; cursor: pointer; transition: background-color 0.2s;
+      font-size: 20px;
+      margin: 10px 3px;
+      background: #fff;
+      border: none;
+      color: #aaa;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
     }
     #btnAttachFileDoc:hover { background-color: #eee; }
     #fileInputDoc { display: none; }
+    /* Ícone de anexo para itens de documento */
     .doc-attachment-icon {
-      font-size: 20px; margin-left: 5px; cursor: pointer;
+      font-size: 20px;
+      margin-left: 5px;
+      cursor: pointer;
     }
+    /* ========================================
+       TELA DE DETALHES DO DOCUMENTO / PASTAS CUSTOMIZADAS
+    ========================================*/
     #documentDetailScreen {
-      display: none; position: relative; width: 100%; box-sizing: border-box; margin-top: 0; padding-top: 0;
+      display: none; 
+      position: relative; 
+      width: 100%;
+      box-sizing: border-box; 
+      margin-top: 0; 
+      padding-top: 0;
     }
     #documentDetailScreen .detail-header {
-      display: flex; align-items: center; justify-content: space-between; padding: 0 10px; margin-bottom: 10px;
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      padding: 0 10px; 
+      margin-bottom: 10px;
     }
-    #documentDetailScreen .nav-buttons { display: flex; gap: 20px; }
+    #documentDetailScreen .nav-buttons { 
+      display: flex; 
+      gap: 20px; 
+    }
     #documentDetailScreen .add-custom-folder {
-      display: flex; align-items: center;
+      display: flex; 
+      align-items: center;
     }
     #documentDetailScreen .add-custom-folder button#addCustomFolderBtn {
-      font-size: 24px; padding: 5px;
+      font-size: 24px; 
+      padding: 5px;
     }
+    /* Botão de calendário na tela de Pastas Customizadas */
     #documentDetailScreen .add-custom-folder button.calendar-btn {
       margin-left: 5px;
     }
     #customFoldersContainer {
-      margin-top: 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 0 auto;
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 0 auto;
     }
     .custom-folder-item {
-      flex: 1 1 120px; max-width: 150px; height: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      border: 1px solid #ddd; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      background-color: #e0e0e0; font-size: 16px; text-align: center; transition: background-color 0.3s; position: relative;
-    }
+  flex: 1 1 120px;      /* Permite que os itens se expandam e contraiam */
+  max-width: 150px;       /* Valor máximo ajustável */
+  height: auto;          /* A altura se ajusta automaticamente */
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center;
+  border: 1px solid #ddd; 
+  border-radius: 8px; 
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #e0e0e0;
+  font-size: 16px; 
+  text-align: center; 
+  transition: background-color 0.3s;
+  position: relative;
+}
     .custom-folder-item:hover { background-color: #f5f5f5; }
     .custom-folder-item div:last-child {
-      font-size: 12px; color: #333; margin-top: 4px;
+      font-size: 12px; 
+      color: #333; 
+      margin-top: 4px;
     }
-    .custom-context-menu, .context-menu-folder, .context-menu-subfolder,
-    .context-menu-doc, .context-menu-background {
-      position: absolute; background-color: #ffffff; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      z-index: 9999; display: none; border-radius: 6px;
+    /* ========================================
+       MENUS DE CONTEXTO
+    ========================================*/
+    .custom-context-menu,
+    .context-menu-folder,
+    .context-menu-subfolder,
+    .context-menu-doc,
+    .context-menu-background {
+      position: absolute;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: none;
+      border-radius: 6px;
     }
-    .custom-context-menu ul, .context-menu-folder ul, .context-menu-subfolder ul,
-    .context-menu-doc ul, .context-menu-background ul {
-      list-style: none; margin: 0; padding: 0;
+    .custom-context-menu ul,
+    .context-menu-folder ul,
+    .context-menu-subfolder ul,
+    .context-menu-doc ul,
+    .context-menu-background ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
     }
-    .custom-context-menu li, .context-menu-folder li, .context-menu-subfolder li,
-    .context-menu-doc li, .context-menu-background li {
-      padding: 10px 20px; cursor: pointer; transition: background-color 0.2s;
+    .custom-context-menu li,
+    .context-menu-folder li,
+    .context-menu-subfolder li,
+    .context-menu-doc li,
+    .context-menu-background li {
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
     }
-    .custom-context-menu li:hover, .context-menu-folder li:hover, .context-menu-subfolder li:hover,
-    .context-menu-doc li:hover, .context-menu-background li:hover {
+    .custom-context-menu li:hover,
+    .context-menu-folder li:hover,
+    .context-menu-subfolder li:hover,
+    .context-menu-doc li:hover,
+    .context-menu-background li:hover {
       background-color: #f1f1f1;
     }
     .context-menu-custom-folder {
-      position: absolute; background-color: #ffffff; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      z-index: 9999; display: none; border-radius: 6px;
+      position: absolute;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: none;
+      border-radius: 6px;
     }
     .context-menu-custom-folder ul { list-style: none; margin: 0; padding: 0; }
     .context-menu-custom-folder li { padding: 10px 20px; cursor: pointer; transition: background-color 0.2s; }
     .context-menu-custom-folder li:hover { background-color: #f1f1f1; }
     .submenu { position: relative; }
     .submenu > ul {
-      position: absolute; top: 0; left: 100%; background-color: #ffffff; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      padding: 10px 0; display: none; border-radius: 6px; min-width: 150px; z-index: 1001;
+      position: absolute;
+      top: 0;
+      left: 100%;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 10px 0;
+      display: none;
+      border-radius: 6px;
+      min-width: 150px;
+      z-index: 1001;
     }
     .submenu:hover > ul { display: block; }
     .submenu::after {
-      content: '▶'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-      font-size: 12px; color: #555;
+      content: '▶';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #555;
     }
+    /* ========================================
+       NOVO: MENU DE CONTEXTO PARA ARQUIVOS
+    ========================================*/
     .context-menu-file {
-      position: absolute; background-color: #ffffff; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      z-index: 9999; display: none; border-radius: 6px;
+      position: absolute;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: none;
+      border-radius: 6px;
     }
     .context-menu-file ul { list-style: none; margin: 0; padding: 0; }
     .context-menu-file li { padding: 10px 20px; cursor: pointer; transition: background-color 0.2s; }
     .context-menu-file li:hover { background-color: #f1f1f1; }
+    /* ========================================
+       NOVO: BOTÃO DE CALENDÁRIO (TAMANHO MENOR)
+    ========================================*/
     .calendar-btn {
-      opacity: 0.7; transition: opacity 0.2s; font-size: 20px; padding: 4px 8px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      font-size: 20px;
+      padding: 4px 8px;
     }
     .calendar-btn:hover { opacity: 1; }
+    /* ========================================
+       MODAL (para criação de pasta customizada e calendário)
+    ========================================*/
     .modal {
-      display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
-      overflow: auto; background-color: rgba(0,0,0,0.5);
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
     }
     .modal-content {
-      background-color: #fff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 600px; height: 600px; overflow-y: auto; border-radius: 8px; padding: 20px; text-align: center;
+      background-color: #fff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      overflow-y: auto;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
     }
+    /* Centraliza o conteúdo das células do calendário */
     #calendarModal td {
-      text-align: center !important; vertical-align: middle !important; padding: 8px !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+      padding: 8px !important;
     }
+    /* ========================================
+       (BLOCO IMPORTADO) ESTILOS DO EDITOR
+       - Editor fica oculto por padrão
+    ========================================*/
     #editorSection {
-      display: none; position: relative; width: 100%; min-height: 70vh; margin: 20px auto; padding: 40px 20px 20px;
-      box-sizing: border-box; background-color: #f4f4f4;
+      display: none;
+      position: relative;
+      width: 100%;
+      min-height: 70vh;
+      margin: 20px auto;
+      padding: 40px 20px 20px;
+      box-sizing: border-box;
+      background-color: #f4f4f4;
     }
     #editorTitle {
-      background-color: #fff; padding: 15px; margin-bottom: 10px; border-bottom: 1px solid #ddd;
-      font-size: 22px; font-weight: bold; border-radius: 8px; text-align: center; display: none;
+      background-color: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
     }
     .input-area {
-      background-color: #ffffff; padding: 20px; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: #ffffff;
+      padding: 20px;
+      border-bottom: 1px solid #ddd;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .editable-div {
-      width: 100%; height: 120px; padding: 10px 15px; border: 1px solid #ccc; border-radius: 6px;
-      font-size: 16px; line-height: 1.5; resize: vertical; overflow-y: auto; transition: border-color 0.3s; margin-bottom: 10px;
+      width: 100%;
+      height: 120px;
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      line-height: 1.5;
+      resize: vertical;
+      overflow-y: auto;
+      transition: border-color 0.3s;
+      margin-bottom: 10px;
     }
     .editable-div:focus {
-      outline: none; border-color: #007BFF; box-shadow: 0 0 5px rgba(0,123,255,0.5);
+      outline: none;
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
     }
     .editor-container {
-      flex: 1; padding: 20px 0; display: flex; flex-direction: column; gap: 0; overflow-y: auto; position: relative;
+      flex: 1;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: auto;
+      position: relative;
     }
-    .box {
-      background-color: #f0f0f0; border: 1px solid #ddd; border-radius: 8px; min-height: 45px; position: relative;
-      display: flex; align-items: center; padding: 0.02px 15px; font-size: 16px; transition: background-color 0.3s, height 0.3s, border-color 0.3s;
-      cursor: text; width: 100%; margin-bottom: 0; overflow: visible; white-space: normal; box-sizing: border-box; text-align: left !important;
-      justify-content: flex-start !important;
+    /* ====================================================
+       ESTILO DA CLASSE .box
+       Atualizado para permitir quebra automática de linha.
+    ====================================================*/
+.box {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-height: 45px;  /* Define uma altura mínima para os blocos */
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.02px 15px;
+  font-size: 16px;
+  transition: background-color 0.3s, height 0.3s, border-color 0.3s;
+  cursor: text;
+  width: 100%;
+  margin-bottom: 0;
+  overflow: visible;
+  white-space: normal;
+  box-sizing: border-box;
+  text-align: left !important; 
+  justify-content: flex-start !important;
+}
+.box a {
+  display: block !important;
+  text-align: center !important;
+  width: 100% !important;
+  pointer-events: auto !important;
+}
+.box * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+    .box.selected {
+      border: 2px solid #007BFF;
     }
-    .box a {
-      display: block !important; text-align: center !important; width: 100% !important; pointer-events: auto !important;
+    .box:hover {
+      border-color: #007BFF;
     }
-    .box * { margin-top: 0; margin-bottom: 0; }
-    .box.selected { border: 2px solid #007BFF; }
-    .box:hover { border-color: #007BFF; }
     .box:focus-within {
-      border-color: #007BFF; box-shadow: 0 0 5px rgba(0,123,255,0.3); background-color: #e6f2ff;
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0,123,255,0.3);
+      background-color: #e6f2ff;
     }
     #bottomButtonsContainer {
-      display: flex; justify-content: center; align-items: center; gap: 20px; margin: 10px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin: 10px 0;
     }
     #bottomButtonsContainer div {
-      cursor: pointer; font-size: 24px; padding: 5px 10px; border-radius: 6px; background: #fff; color: #aaa;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
+      cursor: pointer;
+      font-size: 24px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      background: #fff;
+      color: #aaa;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
     }
-    #bottomButtonsContainer div:hover { background-color: #eee; color: #555; }
+    #bottomButtonsContainer div:hover {
+      background-color: #eee;
+      color: #555;
+    }
     .custom-context-menu {
-      position: absolute; background-color: #ffffff; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      z-index: 9999; display: none; border-radius: 6px;
+      position: absolute;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: none;
+      border-radius: 6px;
     }
-    .custom-context-menu ul { list-style: none; margin: 0; padding: 0; }
-    .custom-context-menu li { padding: 10px 20px; cursor: pointer; transition: background-color 0.2s; }
-    .custom-context-menu li:hover { background-color: #f1f1f1; }
+    .custom-context-menu ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .custom-context-menu li {
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .custom-context-menu li:hover {
+      background-color: #f1f1f1;
+    }
     button {
-      margin-right: 10px; padding: 10px 15px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px;
-      background-color: #007BFF; color: #fff;
+      margin-right: 10px;
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: #fff;
     }
-    button:hover { background-color: #0056b3; }
+    button:hover {
+      background-color: #0056b3;
+    }
     #editorNavigation {
-      position: absolute; top: -20px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 20px;
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 20px;
     }
-    .centered-link-container {
-      text-align: center !important; width: 100%; display: block !important; flex: none !important;
-      min-height: 45px; line-height: 45px;
+.centered-link-container {
+  text-align: center !important;
+  width: 100%;
+  display: block !important;
+  flex: none !important;
+  min-height: 45px;      /* Garante que o container não fique menor que 45px */
+  line-height: 45px;      /* Centraliza verticalmente se houver uma única linha */
+}
+    /* ========================================================
+       ESTILOS DO CALENDÁRIO (NOVO, ESTILO WINDOWS)
+    ========================================================*/
+    .modal.calendar-modal {
     }
-    .modal.calendar-modal { }
     .modal.calendar-modal .modal-content {
-      background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px;
-      height: auto; overflow: visible; padding: 20px; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: auto;
+      overflow: visible;
+      padding: 20px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
     }
     #closeCalendarBtn {
-      position: absolute; top: 10px; right: 10px; font-size: 20px; cursor: pointer; background: none; border: none; color: #333;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #333;
     }
     #eventCountdown {
-      margin-bottom: 15px; font-size: 16px; color: #333;
+      margin-bottom: 15px;
+      font-size: 16px;
+      color: #333;
     }
     #calendarHeader {
-      background-color: #0078D7; color: #fff; padding: 10px; border-radius: 6px; font-size: 24px; text-align: center; margin-bottom: 10px;
+      background-color: #0078D7;
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 10px;
     }
-    #calendarNav { text-align: center; margin-bottom: 10px; }
+    #calendarNav {
+      text-align: center;
+      margin-bottom: 10px;
+    }
     #calendarNav button {
-      background-color: transparent; border: none; color: #0078D7; font-size: 16px; padding: 5px 10px; cursor: pointer;
+      background-color: transparent;
+      border: none;
+      color: #0078D7;
+      font-size: 16px;
+      padding: 5px 10px;
+      cursor: pointer;
     }
-    #calendarNav button:hover { text-decoration: underline; }
-    #currentCalendar table { margin: 0 auto; border-collapse: collapse; }
+    #calendarNav button:hover {
+      text-decoration: underline;
+    }
+    #currentCalendar table {
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
     #currentCalendar thead th {
-      background-color: #f3f3f3; padding: 5px 8px; font-weight: bold; border: 1px solid #ddd;
+      background-color: #f3f3f3;
+      padding: 5px 8px;
+      font-weight: bold;
+      border: 1px solid #ddd;
     }
     #currentCalendar tbody td {
-      padding: 5px; border: 1px solid #ddd; cursor: pointer; width: 35px; height: 35px; text-align: center; vertical-align: middle;
+      padding: 5px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      width: 35px;
+      height: 35px;
+      text-align: center;
+      vertical-align: middle;
     }
-    #currentCalendar tbody td:hover { background-color: #eaeaea; }
+    #currentCalendar tbody td:hover {
+      background-color: #eaeaea;
+    }
+    /* ALERTA PISCANDO (SINAL DE PERIGO) - REMOVIDO */
     @keyframes blinkingAlert {
       0%, 100% { box-shadow: 0 0 6px 4px rgba(255, 0, 0, 0.8); }
-      50% { box-shadow: none; }
+      50%      { box-shadow: none; }
     }
-    .blinking-alert { animation: blinkingAlert 1.2s infinite; }
-    .alert-red { background-color: red !important; }
+    .blinking-alert {
+      animation: blinkingAlert 1.2s infinite;
+    }
+    .alert-red {
+      background-color: red !important;
+    }
+    /* Força filhos de .box a alinharem verticalmente se não estiverem em coluna */
     .box:not([style*="flex-direction: column"]) {
-      display: flex !important; height: 45px !important; align-items: center !important; justify-content: flex-start !important;
-      line-height: 45px !important; padding-top: 0 !important; padding-bottom: 0 !important;
+      display: flex !important;
+      height: 45px !important;
+      align-items: center !important; 
+      justify-content: flex-start !important;
+      line-height: 45px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
     }
     .box:not([style*="flex-direction: column"]) * {
-      margin: 0 !important; padding: 0 !important; vertical-align: middle !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      vertical-align: middle !important;
     }
+    /* =========================
+       Estilos para o Modal de Visualização de Arquivos
+       (Modal Fullscreen com botão "×" e botão de download)
+    ========================= */
     .modal-fullscreen {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8);
-      display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
     }
     .modal-fullscreen .modal-content {
-      background-color: #fff; padding: 10px 20px 20px; border-radius: 8px;
-      width: 100%; height: 100%; overflow-y: auto; position: relative;
+      background-color: #fff;
+      padding: 10px 20px 20px;
+      border-radius: 8px;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      position: relative;
     }
     .modal-fullscreen .modal-close-btn {
-      position: absolute; top: 10px; right: 10px; font-size: 24px; color: #000; background: transparent; border: none; cursor: pointer; z-index: 2100;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      color: #000;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 2100;
     }
     .file-title {
-      position: absolute; top: 10px; left: 10px; font-size: 12px; color: #333; text-align: left; max-width: 50%; word-break: break-all;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 12px;
+      color: #333;
+      text-align: left;
+      max-width: 50%;
+      word-break: break-all;
     }
+    /* CUSTOM TOOLTIP (HTML) */
     #customTooltip {
-      position: absolute; background-color: #f9f9f9; color: #000; padding: 8px 12px; border: 1px solid #ccc;
-      border-radius: 6px; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: none; z-index: 2000; white-space: normal;
+      position: absolute;
+      background-color: #f9f9f9;
+      color: #000;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 2000;
+      white-space: normal;
     }
+    /* ================================
+       NOVOS MENUS DE CONTEXTO
+       - Menu de contexto para pastas customizadas
+       - Menu de contexto para arquivos (anexos)
+    ================================ */
     .context-menu-custom-folder {
-      position: absolute; background-color: #ffffff; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      z-index: 9999; display: none; border-radius: 6px;
+      position: absolute;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: none;
+      border-radius: 6px;
     }
     .context-menu-custom-folder ul { list-style: none; margin: 0; padding: 0; }
     .context-menu-custom-folder li { padding: 10px 20px; cursor: pointer; transition: background-color 0.2s; }
     .context-menu-custom-folder li:hover { background-color: #f1f1f1; }
+    /* (Mantém os demais menus já existentes) */
   </style>
 </head>
 <body>
+  <!-- TELA DE LOGIN -->
+<div id="loginScreen" style="display: block;">
+  <div class="header">
+    <div class="logo-container">
+      <div class="logo-icon"></div>
+      <div class="logo">Sistema</div>
+    </div>
+  </div>
+  <div class="slogan">Todas suas informações integradas em um só lugar</div>
+  <div class="container">
+    <div class="access-text">Acesse e aproveite</div>
+    <form class="login-form" onsubmit="return false;">
+      <input type="email" id="emailInput" placeholder="Seu e-mail">
+      <input type="password" id="passwordInput" placeholder="Sua senha">
+      <button id="loginBtn">Entrar</button>
+    </form>
+    <div class="register">Não tem conta? <a href="#" id="goRegisterLink">Cadastrar</a></div>
+  </div>
+  <div class="info-box">
+    <div>📚 Concursos</div>
+    <div>🎓 Faculdade</div>
+    <div>💼 Trabalho</div>
+    <div>📂 Dados pessoais</div>
+    <div class="highlight-text">E muitos mais<br> Tudo em um só lugar. 🎉</div>
+  </div>
+</div>
 
-  <!-- (SEUS ELEMENTOS DE TELA DE LOGIN, REGISTRO, PASTAS, SUBPASTAS ETC.) -->
-  <!-- Conteúdo HTML EXATAMENTE como no seu código (nada alterado) -->
+<!-- TELA DE REGISTRO -->
+<div id="registerScreen" style="display: none; min-height: 100vh; background: #f9f9f9; align-items: center; justify-content: center;">
+  <div class="container" style="max-width: 400px; width: 90%; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #007BFF;">Cadastrar</h2>
+    <input type="email" id="regEmailInput" placeholder="Seu e-mail" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+    <input type="password" id="regPasswordInput" placeholder="Sua senha" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+    <button id="registerBtn" style="width: 100%; padding: 10px; background: #007BFF; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Cadastrar</button>
+    <p style="text-align: center; margin-top: 15px;">
+      Já tem conta? <a href="#" id="goLoginLink" style="color: #007BFF; text-decoration: none;">Fazer login</a>
+    </p>
+  </div>
+</div>
+  <!-- TELA DE PASTAS -->
+  <div id="folderScreen">
+    <div class="page-title" id="folderScreenTitle">Painel inicial</div>
+    <div class="folder-header">
+      <button id="createFolderBtn" class="plus-button">+</button>
+      <div class="nav-buttons">
+        <button class="nav-button" id="folderLeftArrow" title="Voltar (início)">&larr;</button>
+        <button class="nav-button" id="folderRightArrow" title="Avançar">&rarr;</button>
+      </div>
+      <button id="logoutBtn" class="plus-button">Sair</button>
+    </div>
+    <div id="folderList"></div>
+  </div>
+
+  <!-- TELA DE SUBPASTAS -->
+  <div id="subFolderScreen">
+    <div class="page-title" id="subFolderTitle"></div>
+    <div class="nav-buttons">
+      <button class="nav-button" id="subFolderLeftArrow" title="Voltar para Pastas">&larr;</button>
+      <button class="nav-button" id="subFolderRightArrow" title="Não há tela seguinte">&rarr;</button>
+    </div>
+    <button id="btnCreateSubFolder" class="plus-button">+</button>
+    <button id="btnAttachFileSubfolder" class="plus-button" title="Anexar arquivo">📎</button>
+    <button id="calendarBtn" class="plus-button calendar-btn" title="Calendário">📅</button>
+    <input type="file" id="fileInputSubfolder">
+    <span id="subFolderCompletionPercent">0%</span>
+    <div id="subFolderList"></div>
+    <div id="subFolderTotalCount"></div>
+  </div>
+
+  <!-- TELA DE DOCUMENTOS -->
+  <div id="documentListScreen">
+    <div class="page-title"><div id="documentListTitle"></div></div>
+    <div class="nav-buttons">
+      <button class="nav-button" id="docLeftArrow" title="Voltar">&larr;</button>
+      <button class="nav-button" id="docRightArrow" title="Não há avanço">&rarr;</button>
+    </div>
+    <button id="btnCreateDoc" class="plus-button">+</button>
+    <button id="btnAttachFileDoc" class="plus-button" title="Anexar arquivo">📎</button>
+    <button id="calendarDocBtn" class="plus-button calendar-btn" title="Calendário">📅</button>
+    <input type="file" id="fileInputDoc">
+    <span id="documentCompletionPercent" data-tooltip="">0%</span>
+    <div id="createDocumentForm">
+      <label for="docNameInput">Nome do Documento:</label>
+      <input type="text" id="docNameInput" placeholder="Ex: Relatório 2025" />
+      <label for="docSubjectInput">Assunto:</label>
+      <input type="text" id="docSubjectInput" placeholder="Ex: Análise de Custos..." />
+      <button id="createNewDocBtn">Criar</button>
+    </div>
+    <div id="documentList"></div>
+    <div id="documentTotalCount"></div>
+  </div>
+
+  <!-- TELA DE DETALHES DO DOCUMENTO / PASTAS CUSTOMIZADAS -->
+  <div id="documentDetailScreen">
+    <div class="detail-header">
+      <div class="add-custom-folder">
+        <button id="addCustomFolderBtn" class="plus-button" style="font-size: 24px; padding: 5px;">+</button>
+        <!-- Botão de calendário na tela de Pastas Customizadas -->
+        <button id="calendarCustomFolderBtn" class="plus-button calendar-btn" title="Calendário">📅</button>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-button" id="detailLeftArrow" title="Voltar/Pag. Anterior">&larr;</button>
+        <button class="nav-button" id="detailRightArrow" title="Avançar">&rarr;</button>
+      </div>
+    </div>
+    <div id="customFoldersContainer"></div>
+  </div>
+
+  <!-- TELA DO EDITOR UNIFICADO -->
+  <div id="editorSection">
+    <div id="editorNavigation">
+      <button id="editorLeftArrow" class="nav-button" title="Voltar">&larr;</button>
+      <button id="editorRightArrow" class="nav-button" title="Avançar">&rarr;</button>
+    </div>
+    <div id="editorTitle" style="display:none;">Editor</div>
+    <div class="input-area" id="inputArea">
+      <div class="editable-div" id="textInput" contenteditable="true" placeholder="Cole seu texto aqui..."></div>
+      <button id="generateTextBtn">Gerar Texto</button>
+      <button id="closeEditorBtn">Fechar Editor</button>
+    </div>
+    <div id="textContainer" class="editor-container"></div>
+    <div id="bottomButtonsContainer"></div>
+    <!-- MENU DE CONTEXTO DO EDITOR -->
+    <div class="custom-context-menu" id="contextMenu">
+      <ul>
+        <li id="copyBlock">Copiar Bloco</li>
+        <li id="deleteBlock">Excluir Bloco</li>
+        <li id="centerContent">Centralizar Conteúdo</li>
+        <li id="adjustBlockSize">Ajustar ao Tamanho do Texto</li>
+        <li id="attachFileBlock">Anexar Arquivo</li>
+       <li id="insertNewBlock">Inserir Novo Bloco</li>
+       <li id="insertCommentBlock">Inserir Comentário</li>
+        <li class="submenu">Distancia borda
+          <ul>
+            <li class="submenu">Superior
+              <ul>
+                <li id="increaseTopPadding">(+)</li>
+                <li id="decreaseTopPadding">(-)</li>
+              </ul>
+            </li>
+            <li class="submenu">Inferior
+              <ul>
+                <li id="increaseBottomPadding">(+)</li>
+                <li id="decreaseBottomPadding">(-)</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- MENUS DE CONTEXTO PASTAS / SUBPASTAS / DOCS -->
+  <div class="context-menu-folder" id="contextMenuFolder">
+    <ul>
+      <li id="copyFolderItem">Copiar Pasta</li>
+      <li id="pasteIntoFolder" style="display:none;">Colar aqui</li>
+      <li id="editFolderItem">Renomear Pasta</li>
+      <li id="deleteFolderItem">Excluir Pasta</li>
+    </ul>
+  </div>
+  <div class="context-menu-subfolder" id="contextMenuSubFolder">
+    <ul>
+      <li id="copySubFolderItem">Copiar Subpasta</li>
+      <li id="pasteIntoSubFolder" style="display:none;">Colar aqui</li>
+      <li id="editSubFolderItem">Renomear Subpasta</li>
+      <li id="deleteSubFolderItem">Excluir Subpasta</li>
+      <li id="favoriteSubFolderItem">Favoritar</li>
+    </ul>
+  </div>
+  <div class="context-menu-doc" id="contextMenuDoc">
+    <ul>
+      <li id="copyDocItem">Copiar Documento</li>
+      <li id="editDocItem">Renomear Documento</li>
+      <li id="deleteDocItem">Excluir Documento</li>
+      <li id="favoriteDocItem">Favoritar</li>
+    </ul>
+  </div>
+  <div class="context-menu-background" id="contextMenuBackground">
+    <ul>
+      <li id="pasteItem">Colar</li>
+    </ul>
+  </div>
+  <!-- MENU DE CONTEXTO PARA PASTAS CUSTOMIZADAS -->
+  <div class="context-menu-custom-folder" id="contextMenuCustomFolder">
+    <ul>
+      <li id="copyCustomFolderItem">Copiar Pasta</li>
+      <li id="editCustomFolderItem">Renomear Pasta</li>
+      <li id="deleteCustomFolderItem">Excluir Pasta</li>
+    </ul>
+  </div>
+  <div class="context-menu-custom-folder" id="contextMenuCustomFolderBackground">
+    <ul>
+      <li id="pasteCustomFolderItem">Colar pasta</li>
+    </ul>
+  </div>
+  <!-- NOVO: MENU DE CONTEXTO PARA ARQUIVOS -->
+  <div class="context-menu-file" id="contextMenuFile">
+    <ul>
+      <li id="copyFileItem">Copiar Arquivo</li>
+      <li id="renameFileItem">Renomear Arquivo</li>
+      <li id="deleteFileItem">Excluir Arquivo</li>
+      <li id="favoriteFileItem">Favoritar Arquivo</li>
+    </ul>
+  </div>
+
+  <!-- MODAL PARA CRIAÇÃO DE PASTA CUSTOMIZADA -->
+  <div id="customFolderModal" class="modal">
+    <div class="modal-content">
+      <h2>Selecione o Assunto</h2>
+      <div class="options">
+        <button class="option-button" data-type="Teoria">Teoria</button>
+        <button class="option-button" data-type="Questoes">Questões</button>
+        <button class="option-button" data-type="Outros">+</button>
+      </div>
+      <div id="customFolderInputContainer" style="display: none; margin-top: 10px;">
+        <input type="text" id="customFolderInput" placeholder="Digite o nome...">
+      </div>
+      <div style="margin-top: 15px;">
+        <button id="createCustomFolderBtnModal">Criar</button>
+        <button id="cancelCustomFolderBtn" style="margin-left: 10px;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DO CALENDÁRIO (NOVO, ESTILO WINDOWS) -->
+  <div id="calendarModal" class="modal calendar-modal">
+    <div class="modal-content">
+      <button id="closeCalendarBtn">×</button>
+      <h2 style="margin-bottom: 15px;">Calendário de Eventos</h2>
+      <div id="eventCountdown"></div>
+      <div id="currentCalendar"></div>
+    </div>
+  </div>
+
+  <!-- CUSTOM TOOLTIP -->
+  <div id="customTooltip"></div>
 
   <!-- ========================================
        SCRIPT (Firebase + Lógica + Editor)
   ========================================-->
   <script type="module">
-    import { openDB } from 'https://unpkg.com/idb?module';
+import { openDB } from 'https://unpkg.com/idb?module';
+// Cria (ou abre) o banco de dados 'myAppDB' e um object store chamado 'userData'
+const dbPromise = openDB('myAppDB', 1, {
+  upgrade(db) {
+    if (!db.objectStoreNames.contains('userData')) {
+      db.createObjectStore('userData', { keyPath: 'id' });
+    }
+  }
+});
+// Função para salvar os dados
+async function saveAllDataLocal(data) {
+  const db = await dbPromise;
+  // Usaremos a chave fixa 'default' para armazenar os dados
+  await db.put('userData', { id: 'default', ...data });
+}
+
+// Função para carregar os dados
+async function loadAllDataLocal() {
+  const db = await dbPromise;
+  const result = await db.get('userData', 'default');
+  return result || {}; // Se não houver nada salvo, retorna um objeto vazio
+}
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
     import {
       getAuth,
@@ -442,29 +1331,6 @@
       setDoc
     } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
 
-    // ================================
-    // IndexedDB (igual ao seu)
-    // ================================
-    const dbPromise = openDB('myAppDB', 1, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains('userData')) {
-          db.createObjectStore('userData', { keyPath: 'id' });
-        }
-      }
-    });
-    async function saveAllDataLocal(data) {
-      const db = await dbPromise;
-      await db.put('userData', { id: 'default', ...data });
-    }
-    async function loadAllDataLocal() {
-      const db = await dbPromise;
-      const result = await db.get('userData', 'default');
-      return result || {};
-    }
-
-    // ================================
-    // Config do Firebase (igual ao seu)
-    // ================================
     const firebaseConfig = {
       apiKey: "AIzaSyDNLcuknXeyddvqAVtul6RCOMVrlfwJQPo",
       authDomain: "sistema-b8c6c.firebaseapp.com",
@@ -473,13 +1339,37 @@
       messagingSenderId: "661126236594",
       appId: "1:661126236594:web:f18abb296d9ba7cc6ebcab"
     };
+
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
+// (A) Carregar dados da nuvem (Firestore)
+async function loadAllDataCloud(uid) {
+  try {
+    const docRef = doc(db, "usersData", uid);  // "usersData" é uma coleção arbitrária
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+      return snapshot.data(); // Retorna o objeto salvo (folders, etc.)
+    } else {
+      return {}; // Se não existir doc nenhum, retorna vazio
+    }
+  } catch (error) {
+    console.error("Erro ao carregar do Firestore:", error);
+    return {};
+  }
+}
 
-    // ================================
-    // Variáveis globais (iguais às suas)
-    // ================================
+// (B) Salvar dados na nuvem (Firestore)
+async function saveAllDataCloud(uid, data) {
+  try {
+    const docRef = doc(db, "usersData", uid);
+    await setDoc(docRef, data); // substitui o doc inteiro
+    console.log("Dados salvos na nuvem com sucesso!");
+  } catch (error) {
+    console.error("Erro ao salvar no Firestore:", error);
+  }
+}
+
     let folders          = [];
     let folderSubfolders = {};
     let namedDocuments   = [];
@@ -498,7 +1388,9 @@
 
     let favoriteFolders    = {};
     let favoriteSubfolders = {};
-    let folderFiles        = {};
+
+    // Nova estrutura para arquivos anexados na tela de subpastas
+    let folderFiles = {};
 
     let folderPage = 0;
     const foldersPerPage = Number.MAX_SAFE_INTEGER;
@@ -515,119 +1407,13 @@
       "#d5ffe1", "#c0c080", "#ffecd8", "#8080ba", "#c0c0c0"
     ];
 
-    // ================================
-    // Função loadAllData(uid) [NOVO]
-    // ================================
-    async function loadAllData(uid) {
-      // 1) Carrega local
-      const localData = await loadAllDataLocal();
-
-      // 2) Se tivermos uid, busca no Firestore
-      let remoteData = null;
-      if (uid) {
-        const userRef = doc(db, "users", uid);
-        const snap = await getDoc(userRef);
-        if (snap.exists()) {
-          remoteData = snap.data();
-        }
-      }
-
-      // 3) Mescla local com remoto (exemplo: remoto sobrescreve local)
-      let finalData = { ...localData };
-      if (remoteData) {
-        finalData = { ...finalData, ...remoteData };
-      }
-
-      // 4) Atualiza variáveis globais
-      folders                    = finalData.folders || [];
-      folderSubfolders           = finalData.folderSubfolders || {};
-      namedDocuments             = finalData.namedDocuments || [];
-      favoriteFolders            = finalData.favoriteFolders || {};
-      favoriteSubfolders         = finalData.favoriteSubfolders || {};
-      folderEvents               = finalData.folderEvents || {};
-      window.completedSubfolders = finalData.completedSubfolders || {};
-      folderFiles                = finalData.folderFiles || {};
-
-      // 5) Salva novamente local para manter tudo igual
-      await saveAllDataLocal(finalData);
-
-      // 6) Exibe a tela principal
-      showFolderScreen();
-    }
-
-    // ================================
-    // Função saveAllData() [ATUALIZADA]
-    // ================================
-    async function saveAllData() {
-      const data = {
-        folders,
-        folderSubfolders,
-        namedDocuments,
-        favoriteFolders,
-        favoriteSubfolders,
-        folderEvents,
-        completedSubfolders: window.completedSubfolders,
-        folderFiles
-      };
-      // Salva local
-      await saveAllDataLocal(data);
-
-      // Se estiver logado, salva no Firestore também
-      if (currentUserUid) {
-        const userRef = doc(db, "users", currentUserUid);
-        await setDoc(userRef, data, { merge: true });
-      }
-    }
-
-    // ================================
-    // Observa se o usuário logou/deslogou
-    // ================================
-    onAuthStateChanged(auth, async (user) => {
-      if(user){
-        currentUserUid = user.uid;
-        loginScreen.style.display    = "none";
-        registerScreen.style.display = "none";
-
-        // Carrega dados do IndexedDB + Firestore
-        await loadAllData(user.uid);
-
-        // Exibe a tela de pastas
-        document.getElementById("folderScreen").style.display = "block";
-      } else {
-        currentUserUid = null;
-        loginScreen.style.display                 = "block";
-        registerScreen.style.display              = "none";
-        document.getElementById("folderScreen").style.display       = "none";
-        document.getElementById("subFolderScreen").style.display    = "none";
-        document.getElementById("documentListScreen").style.display = "none";
-        document.getElementById("documentDetailScreen").style.display= "none";
-        document.getElementById("editorSection").style.display       = "none";
-      }
-    });
-
-    // ================================
-    // Botão de Logout
-    // ================================
-    const logoutBtn = document.getElementById("logoutBtn") || null;
-    if(logoutBtn){
-      logoutBtn.addEventListener("click", async function(){
-        try {
-          await signOut(auth);
-        } catch (error) {
-          console.error("Erro ao deslogar:", error);
-        }
-      });
-    }
-
-    // ================================
-    // Login e Registro [iguais]
-    // ================================
     const loginScreen    = document.getElementById("loginScreen");
     const registerScreen = document.getElementById("registerScreen");
     const goRegisterLink = document.getElementById("goRegisterLink");
     const goLoginLink    = document.getElementById("goLoginLink");
     const loginBtn       = document.getElementById("loginBtn");
     const registerBtn    = document.getElementById("registerBtn");
+    const logoutBtn      = document.getElementById("logoutBtn") || null;
 
     goRegisterLink.addEventListener("click", (e) => {
       e.preventDefault();
@@ -659,32 +1445,2308 @@
       } catch(err){ alert("Erro ao cadastrar: " + err.message); }
     });
 
-    // ================================
-    // Daqui para baixo, NADA mudou
-    // (todas as suas funções e lógicas)
-    // ================================
-    
-    // ... (TODAS as suas funções EXACTAS: showFolderScreen, showSubFolderScreen, etc.)
-    // ... (SEM alterar nada, apenas usando as novas loadAllData / saveAllData quando for salvar/ler)
+    onAuthStateChanged(auth, async (user) => {
+      if(user){
+        currentUserUid = user.uid;
+        loginScreen.style.display    = "none";
+        registerScreen.style.display = "none";
+        await loadAllData(user.uid);
+        document.getElementById("folderScreen").style.display = "block";
+      } else {
+        currentUserUid = null;
+        loginScreen.style.display                 = "block";
+        registerScreen.style.display              = "none";
+        document.getElementById("folderScreen").style.display       = "none";
+        document.getElementById("subFolderScreen").style.display    = "none";
+        document.getElementById("documentListScreen").style.display = "none";
+        document.getElementById("documentDetailScreen").style.display= "none";
+        document.getElementById("editorSection").style.display       = "none";
+      }
+    });
 
-    // (Copia e cola TODO o restante do seu script
-    //  exatamente como estava, sem mudar nada
-    //  EXCETO por remover as versões antigas de loadAllData() e saveAllData(),
-    //  já que agora temos as novas acima.)
+    if(logoutBtn){
+      logoutBtn.addEventListener("click", async function(){
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error("Erro ao deslogar:", error);
+        }
+      });
+    }
 
-    // >>> DAQUI PRA BAIXO JÁ ESTÁ EM SEU ARQUIVO:
-    // function showFolderScreen() { ... }
-    // function enterFolder(...) { ... }
-    // function parseMultipleEntries(...) { ... }
-    // function showSubFolderScreen(...) { ... }
-    // function showDocumentList(...) { ... }
-    // function createNewDocument(...) { ... }
-    // function updateDocumentCompletionPercent(...) { ... }
-    // function renderCurrentDocumentCustomFolders(...) { ... }
-    // function loadDocumentDetailScreen(...) { ... }
-    // function loadCustomFolderEditor(...) { ... }
-    // ... e assim por diante ...
+async function loadAllData(uid) {
+  // 1. Carregar do IndexedDB
+  const localData = await loadAllDataLocal();
+
+  // 2. Carregar do Firestore (nuvem)
+  const cloudData = await loadAllDataCloud(uid);
+
+  // 3. Decidir qual dado usar
+  // Exemplo: se houver algo na nuvem (cloudData), usamos ele;
+  // se não houver, ficamos com localData.
+  let finalData = localData;
+  if (Object.keys(cloudData).length > 0) {
+    finalData = cloudData;
+  }
+
+  // 4. Desestruturar finalData nas variáveis do app
+  folders = finalData.folders || [];
+  folderSubfolders = finalData.folderSubfolders || {};
+  namedDocuments = finalData.namedDocuments || [];
+  favoriteFolders = finalData.favoriteFolders || {};
+  favoriteSubfolders = finalData.favoriteSubfolders || {};
+  folderEvents = finalData.folderEvents || {};
+  window.completedSubfolders = finalData.completedSubfolders || {};
+  folderFiles = finalData.folderFiles || {};
+
+  // 5. Renderiza a tela de pastas
+  showFolderScreen();
+}
+async function saveAllData() {
+  // Cria um objeto com as variáveis do seu app:
+  const data = {
+    folders,
+    folderSubfolders,
+    namedDocuments,
+    favoriteFolders,
+    favoriteSubfolders,
+    folderEvents,
+    completedSubfolders: window.completedSubfolders,
+    folderFiles
+  };
+
+  // Salva os dados localmente (IndexedDB)
+  await saveAllDataLocal(data);
+
+  // Se o usuário estiver logado, salva também na nuvem (Firestore)
+  if (currentUserUid) {
+    await saveAllDataCloud(currentUserUid, data);
+  }
+}
+       async function saveCurrentEditorContent(){
+      if(!currentDocument || !currentCustomFolderId) return;
+      const folder = currentDocument.customFolders?.find(f => f.id === currentCustomFolderId);
+      if(folder){
+        folder.editorContent = textContainer.innerHTML;
+        try {
+          await saveAllData();
+        } catch(error){
+          alert("Erro ao salvar: " + error.message);
+        }
+      }
+    }
+
+    function showFolderScreen(){
+      const folderScreen = document.getElementById("folderScreen");
+      folderScreen.style.display = "block";
+      document.getElementById("subFolderScreen").style.display    = "none";
+      document.getElementById("documentListScreen").style.display = "none";
+      document.getElementById("documentDetailScreen").style.display= "none";
+      document.getElementById("editorSection").style.display       = "none";
+
+      currentFolder     = null;
+      currentSubFolder  = null;
+      currentDocName    = null;
+      currentDocSubject = null;
+      currentDocument   = null;
+
+      const folderList = document.getElementById("folderList");
+      folderList.innerHTML = "";
+
+      if(folders.length === 0){
+        const msg = document.createElement("div");
+        msg.textContent = "Nenhuma pasta criada ainda.";
+        folderList.appendChild(msg);
+      } else {
+        folders.forEach(folderName =>{
+          const folderItem = document.createElement("div");
+          folderItem.classList.add("folder-item");
+
+          const icon = document.createElement("div");
+          icon.classList.add("folder-icon");
+          icon.textContent = "📂";
+          folderItem.appendChild(icon);
+
+          const nameDiv = document.createElement("div");
+          nameDiv.classList.add("folder-name");
+          nameDiv.textContent = folderName;
+          folderItem.appendChild(nameDiv);
+
+          const countDiv = document.createElement("div");
+          countDiv.classList.add("folder-count");
+          const subCount = folderSubfolders[folderName] ? folderSubfolders[folderName].length : 0;
+          const docCount = namedDocuments.filter(d => d.folderName === folderName && !d.subFolderName).length;
+          const fileCount = folderFiles[folderName] ? folderFiles[folderName].length : 0;
+          countDiv.textContent = `(${subCount + docCount + fileCount})`;
+          countDiv.style.fontSize = "12px";
+          countDiv.style.color    = "#333";
+          countDiv.style.marginTop= "4px";
+          folderItem.appendChild(countDiv);
+
+          const favIcon = document.createElement("span");
+          favIcon.classList.add("favorite-icon");
+          favIcon.style.cursor = "pointer";
+          favIcon.style.position= "absolute";
+          favIcon.style.top   = "5px";
+          favIcon.style.right = "5px";
+          favIcon.textContent = favoriteFolders[folderName] ? "★" : "☆";
+          favIcon.addEventListener("click", (e) => {
+            e.stopPropagation();
+            favoriteFolders[folderName] = !favoriteFolders[folderName];
+            favIcon.textContent = favoriteFolders[folderName] ? "★" : "☆";
+            saveAllData();
+          });
+          folderItem.appendChild(favIcon);
+
+          folderItem.onclick = () => enterFolder(folderName);
+
+          folderItem.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            showContextMenuFolder(e.pageX, e.pageY, folderName);
+          });
+
+          folderList.appendChild(folderItem);
+        });
+      }
+      document.getElementById("folderLeftArrow").disabled  = true;
+      document.getElementById("folderRightArrow").disabled = true;
+    }
+
+    function parseMultipleEntries(name) {
+      const regex = /^(.*?)\s*(\d+)\s*-\s*(.*?)\s*(\d+)$/;
+      const match = name.match(regex);
+      if(!match) {
+        return [name.trim()];
+      }
+      const prefixStart = match[1].trim(); 
+      const startNum    = parseInt(match[2], 10);
+      const prefixEnd   = match[3].trim();
+      const endNum      = parseInt(match[4], 10);
+      if(isNaN(startNum) || isNaN(endNum) || endNum < startNum) {
+        return [name.trim()];
+      }
+      const results = [];
+      for(let i = startNum; i <= endNum; i++){
+        const iStr = String(i).padStart(2, '0');
+        const finalPrefix = (prefixStart === prefixEnd) ? prefixStart : prefixStart;
+        results.push(`${finalPrefix} ${iStr}`);
+      }
+      return results;
+    }
+
+    document.getElementById("createFolderBtn").addEventListener("click", () => {
+      const folderName = prompt("Nome da nova pasta:");
+      if(!folderName) return;
+      const folderNames = parseMultipleEntries(folderName);
+      folderNames.forEach((fName) => {
+        if(!fName) return;
+        if(folders.includes(fName)){
+          console.log(`A pasta "${fName}" já existe e foi ignorada.`);
+          return;
+        }
+        folders.push(fName);
+        if(!folderSubfolders[fName]) { folderSubfolders[fName] = []; }
+        if(!folderEvents[fName])     { folderEvents[fName]     = {}; }
+        if(!folderFiles[fName]) folderFiles[fName] = [];
+      });
+      saveAllData();
+      showFolderScreen();
+    });
+
+    function enterFolder(folderName){
+      currentFolder = folderName;
+      showSubFolderScreen(folderName);
+    }
+
+    const subFolderScreen = document.getElementById("subFolderScreen");
+    const subFolderList   = document.getElementById("subFolderList");
+    const subFolderTitle  = document.getElementById("subFolderTitle");
+
+    document.getElementById("subFolderLeftArrow").addEventListener("click", () => showFolderScreen());
+    document.getElementById("subFolderRightArrow").addEventListener("click", () => alert("Não há tela seguinte."));
+    document.getElementById("btnCreateSubFolder").addEventListener("click", () => {
+      if(!currentFolder) return;
+      createSubFolder(currentFolder);
+    });
+
+    const subFolderCalendarBtn = document.getElementById("calendarBtn");
+    subFolderCalendarBtn.addEventListener("click", () => {
+      if(currentFolder) openCalendar(currentFolder);
+    });
+
+    document.getElementById("btnAttachFileSubfolder").addEventListener("click", () => {
+      document.getElementById("fileInputSubfolder").click();
+    });
+    document.getElementById("fileInputSubfolder").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if(file && currentFolder){
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          if(!folderFiles[currentFolder]) folderFiles[currentFolder] = [];
+          const attachment = {
+            name: file.name,
+            type: file.type,
+            data: ev.target.result,
+            timestamp: Date.now(),
+            favorite: false,
+            ticket: "TICKET-" + Date.now()
+          };
+          folderFiles[currentFolder].push(attachment);
+          saveAllData();
+          alert("Arquivo anexado com sucesso à pasta!");
+          showSubFolderScreen(currentFolder);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+function getAttachmentIcon(file) {
+  if(file.type.includes("pdf")){
+    return "📄";
+  } else if(file.type.includes("msword") || file.type.includes("wordprocessingml.document")){
+    return "📝";
+  } else if(file.type.includes("excel") || file.type.includes("spreadsheetml")){
+    return "📊";
+  } else if(file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")){
+    return "📃";
+  } else if(file.type.startsWith("image/")){
+    return "🖼️";
+  } else if(file.type.startsWith("video/")){
+    return "🎥";
+  } else if(file.type.startsWith("audio/")){
+    return "🎵";
+  } else {
+    return "📎";
+  }
+}
+    function createSubFolder(folderName){
+      const subName = prompt("Nome da subpasta em '"+folderName+"':");
+      if(!subName) return;
+      const subNames = parseMultipleEntries(subName);
+      subNames.forEach((sName) => {
+        if(!folderSubfolders[folderName]) folderSubfolders[folderName] = [];
+        if(folderSubfolders[folderName].some(sub => sub.name === sName)){
+          console.log(`A subpasta "${sName}" já existe em "${folderName}" e foi ignorada.`);
+          return;
+        }
+        folderSubfolders[folderName].push({ name: sName, created: Date.now() });
+      });
+      saveAllData();
+      showSubFolderScreen(folderName);
+    }
+
+    function showSubFolderScreen(folderName){
+      document.getElementById("folderScreen").style.display       = "none";
+      subFolderScreen.style.display                               = "block";
+      document.getElementById("documentListScreen").style.display = "none";
+      document.getElementById("documentDetailScreen").style.display = "none";
+      document.getElementById("editorSection").style.display       = "none";
+
+      currentFolder = folderName;
+      subFolderTitle.textContent = folderName;
+
+      const subs = folderSubfolders[folderName] || [];
+      const files = folderFiles[currentFolder] || [];
+      const items = [];
+      subs.forEach(sub => {
+        items.push({ type: "subfolder", name: sub.name, created: sub.created });
+      });
+      files.forEach(file => {
+        items.push({ type: "file", file: file, created: file.timestamp });
+      });
+      items.sort((a, b) => a.created - b.created);
+
+      subFolderList.innerHTML = "";
+      items.forEach((item, index) => {
+        const formattedIndex = (index + 1).toString().padStart(2, '0');
+        const itemDiv = document.createElement("div");
+        itemDiv.classList.add("subfolder-item");
+        itemDiv.style.position = "relative";
+        if(item.type === "subfolder"){
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = `${formattedIndex}. ${item.name}`;
+          itemDiv.appendChild(nameSpan);
+
+          const docCount = namedDocuments.filter(d => d.folderName === folderName && d.subFolderName === item.name)
+                          .filter(doc => !doc.isAttachment).length;
+          const completionSquare = document.createElement("div");
+          completionSquare.classList.add("completion-square");
+          completionSquare.textContent = `(${docCount})`;
+          if(window.completedSubfolders && window.completedSubfolders[folderName] && window.completedSubfolders[folderName][item.name]){
+            completionSquare.classList.add("completed");
+          }
+          completionSquare.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if(!window.completedSubfolders[folderName]) {
+              window.completedSubfolders[folderName] = {};
+            }
+            window.completedSubfolders[folderName][item.name] = !window.completedSubfolders[folderName][item.name];
+            completionSquare.classList.toggle("completed", window.completedSubfolders[folderName][item.name]);
+            saveAllData();
+            updateSubfolderCompletionPercent();
+          });
+          itemDiv.appendChild(completionSquare);
+
+          itemDiv.onclick = () => showDocumentList(folderName, item.name);
+          itemDiv.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            showContextMenuSubFolder(e.pageX, e.pageY, item.name);
+          });
+        } else if(item.type === "file"){
+          const container = document.createElement("div");
+          container.style.display = "flex";
+          container.style.alignItems = "center";
+          const numElem = document.createElement("span");
+          numElem.textContent = formattedIndex + ". ";
+          container.appendChild(numElem);
+          const iconElem = document.createElement("span");
+          iconElem.classList.add("attachment-icon");
+          iconElem.textContent = getAttachmentIcon(item.file);
+          container.appendChild(iconElem);
+          const nameElem = document.createElement("span");
+          nameElem.innerHTML = `<strong>${item.file.name}</strong>`;
+          container.appendChild(nameElem);
+          itemDiv.appendChild(container);
+          itemDiv.onclick = () => { displayAttachments([item.file]); };
+          itemDiv.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            showContextMenuFile(e.pageX, e.pageY, item.file);
+          });
+        }
+        subFolderList.appendChild(itemDiv);
+      });
+      const docsInSubfolders = namedDocuments.filter(doc => doc.folderName === currentFolder && doc.subFolderName && !doc.isAttachment);
+      const totalDocs = docsInSubfolders.length;
+      document.getElementById("subFolderTotalCount").textContent = "Total documentos: " + totalDocs;
+      updateSubfolderCompletionPercent();
+    }
+
+    function updateSubfolderCompletionPercent(){
+      const docs = namedDocuments.filter(doc => doc.folderName === currentFolder && doc.subFolderName && !doc.isAttachment);
+      const totalDocs = docs.length;
+      const completedDocs = docs.filter(doc => doc.completed).length;
+      const percentElem = document.getElementById("subFolderCompletionPercent");
+      const attachmentsCount = (folderFiles[currentFolder] || []).length;
+      if(totalDocs === 0){
+        percentElem.textContent = "0%";
+        percentElem.style.background = "conic-gradient(#e9ecef 0deg 360deg)";
+        return;
+      }
+      const pct = Math.round((completedDocs/totalDocs)*100);
+      percentElem.textContent = pct + "%";
+      const totalSegments = 20;
+      const segmentAngle = 360 / totalSegments;
+      let filled = Math.floor(pct/5);
+      let partial = pct - filled*5;
+      let parts = [];
+      for(let i=0; i<filled; i++){
+        let start = i*segmentAngle, end = (i+1)*segmentAngle;
+        parts.push(`${pieColors[i]} ${start}deg ${end}deg`);
+      }
+      if(partial > 0 && filled < totalSegments){
+        let start = filled*segmentAngle, filledAngle = (partial/5)*segmentAngle, mid = start+filledAngle;
+        parts.push(`${pieColors[filled]} ${start}deg ${mid}deg`);
+        parts.push(`#e9ecef ${mid}deg ${(filled+1)*segmentAngle}deg`);
+        filled++;
+      }
+      if(filled < totalSegments){
+        let start = filled*segmentAngle;
+        parts.push(`#e9ecef ${start}deg 360deg`);
+      }
+      percentElem.style.background = "conic-gradient(" + parts.join(", ") + ")";
+    }
+
+    const documentListScreen = document.getElementById("documentListScreen");
+    const documentList       = document.getElementById("documentList");
+    const documentListTitle  = document.getElementById("documentListTitle");
+    const btnCreateDoc       = document.getElementById("btnCreateDoc");
+    const docLeftArrow       = document.getElementById("docLeftArrow");
+    const docRightArrow      = document.getElementById("docRightArrow");
+    const createDocumentForm = document.getElementById("createDocumentForm");
+    const docNameInput       = document.getElementById("docNameInput");
+    const docSubjectInput    = document.getElementById("docSubjectInput");
+    const createNewDocBtn    = document.getElementById("createNewDocBtn");
+
+    docLeftArrow.addEventListener("click", () => { showSubFolderScreen(currentFolder); });
+    docRightArrow.addEventListener("click", () => { alert("Não há tela seguinte."); });
+
+    btnCreateDoc.addEventListener("click", () => {
+      createDocumentForm.style.display = (createDocumentForm.style.display === "none") ? "block" : "none";
+      docNameInput.value = "";
+      docSubjectInput.value = "";
+    });
+    createNewDocBtn.addEventListener("click", () => createNewDocument());
+
+    document.getElementById("btnAttachFileDoc").addEventListener("click", () => {
+      document.getElementById("fileInputDoc").click();
+    });
+    document.getElementById("calendarDocBtn").addEventListener("click", () => {
+      if(currentFolder) openCalendar(currentFolder);
+    });
+    document.getElementById("fileInputDoc").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if(file && currentFolder){
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          const newDoc = {
+            folderName: currentFolder,
+            subFolderName: currentSubFolder || null,
+            name: file.name,
+            subject: "",
+            content: "",
+            customFolders: [],
+            favorite: false,
+            completed: false,
+            summary: "",
+            isAttachment: true,
+            type: file.type,
+            fileData: ev.target.result,
+            timestamp: Date.now(),
+            ticket: "TICKET-" + Date.now()
+          };
+          namedDocuments.push(newDoc);
+          saveAllData();
+          alert("Arquivo anexado com sucesso ao documento!");
+          showDocumentList(currentFolder, currentSubFolder);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function showDocumentList(folderName, subFolderName){
+      currentFolder = folderName;
+      currentSubFolder = subFolderName || null;
+      document.getElementById("folderScreen").style.display = "none";
+      document.getElementById("subFolderScreen").style.display = "none";
+      documentListScreen.style.display = "block";
+      document.getElementById("documentDetailScreen").style.display = "none";
+      document.getElementById("editorSection").style.display = "none";
+      documentList.innerHTML = "";
+      createDocumentForm.style.display = "none";
+      documentListTitle.textContent = subFolderName ? folderName + " / " + subFolderName : folderName;
+      const docs = namedDocuments.filter(d =>
+        d.folderName === folderName &&
+        (d.subFolderName || null) === (subFolderName || null)
+      );
+      if(docs.length === 0){
+        const msg = document.createElement("div");
+        msg.textContent = "Não há documentos aqui.";
+        documentList.appendChild(msg);
+      } else {
+        docs.forEach((doc) => {
+          const docItem = document.createElement("div");
+          docItem.classList.add("doc-item");
+          if(doc.favorite) docItem.classList.add("doc-favorited");
+          docItem.style.position = "relative";
+          if(!doc.isAttachment) {
+            const completionSquare = document.createElement("div");
+            completionSquare.classList.add("completion-square");
+            completionSquare.textContent = `(${doc.customFolders ? doc.customFolders.length : 0})`;
+            if(doc.completed) completionSquare.classList.add("completed");
+            completionSquare.addEventListener("click", (e) => {
+              e.stopPropagation();
+              doc.completed = !doc.completed;
+              completionSquare.classList.toggle("completed", doc.completed);
+              saveAllData();
+              updateDocumentCompletionPercent();
+            });
+            docItem.appendChild(completionSquare);
+          }
+          if(doc.isAttachment){
+            const leftDiv = document.createElement("div");
+            leftDiv.style.display = "flex";
+            leftDiv.style.flexDirection = "row";
+            leftDiv.style.alignItems = "center";
+            leftDiv.style.flex = "1";
+            leftDiv.style.marginLeft = "-8px";
+            const iconElem = document.createElement("span");
+            iconElem.classList.add("attachment-icon");
+            iconElem.textContent = getAttachmentIcon({type: doc.type || ""});
+            leftDiv.appendChild(iconElem);
+            const nameElem = document.createElement("span");
+            nameElem.innerHTML = `<strong>${doc.name}</strong>`;
+            leftDiv.appendChild(nameElem);
+            leftDiv.addEventListener("click", (e) => {
+              e.stopPropagation();
+              displayAttachments([{ name: doc.name, type: doc.type || "", data: doc.fileData }]);
+            });
+            docItem.appendChild(leftDiv);
+          }
+          else {
+            const leftDiv = document.createElement("div");
+            leftDiv.style.display = "flex";
+            leftDiv.style.flexDirection = "column";
+            leftDiv.style.flex = "1";
+            const docTitle = document.createElement("div");
+            docTitle.classList.add("doc-item-title");
+            docTitle.textContent = doc.name;
+            const docSub = document.createElement("div");
+            docSub.classList.add("doc-item-subject");
+            if(doc.subject && doc.subject.trim() !== ""){
+              const bulletSpan = document.createElement("span");
+              bulletSpan.classList.add("doc-subject-bullet");
+              bulletSpan.textContent = "»";
+              bulletSpan.style.color = "#666";
+              docSub.appendChild(bulletSpan);
+              const textSubject = document.createElement("span");
+              textSubject.textContent = doc.subject;
+              docSub.appendChild(textSubject);
+              const summaryDiv = document.createElement("div");
+              summaryDiv.classList.add("doc-summary");
+              summaryDiv.textContent = doc.summary || "Nenhum sumário ainda.";
+              const summaryActions = document.createElement("div");
+              summaryActions.classList.add("summary-actions");
+              const editSummaryBtn = document.createElement("span");
+              editSummaryBtn.textContent = "Editar";
+              editSummaryBtn.addEventListener("click", (ev) => {
+                ev.stopPropagation();
+                const novoSum = prompt("Edite o sumário:", doc.summary || "");
+                if(novoSum !== null){
+                  doc.summary = novoSum.trim();
+                  summaryDiv.textContent = doc.summary ? doc.summary : "Nenhum sumário ainda.";
+                  summaryDiv.appendChild(summaryActions);
+                  saveAllData();
+                }
+              });
+              summaryActions.appendChild(editSummaryBtn);
+              const delSummaryBtn = document.createElement("span");
+              delSummaryBtn.textContent = "Excluir";
+              delSummaryBtn.addEventListener("click", (ev) => {
+                ev.stopPropagation();
+                if(confirm("Deseja excluir o sumário?")){
+                  doc.summary = "";
+                  summaryDiv.textContent = "Nenhum sumário ainda.";
+                  summaryDiv.appendChild(summaryActions);
+                  saveAllData();
+                }
+              });
+              summaryActions.appendChild(delSummaryBtn);
+              summaryDiv.appendChild(summaryActions);
+              docSub.appendChild(summaryDiv);
+              bulletSpan.addEventListener("click", (ev) => {
+                ev.stopPropagation();
+                if(!doc.summary || doc.summary.trim() === ""){
+                  const sum = prompt("Digite o sumário para este documento:");
+                  if(sum && sum.trim() !== ""){
+                    doc.summary = sum.trim();
+                    summaryDiv.textContent = doc.summary;
+                    saveAllData();
+                  }
+                }
+                summaryDiv.style.display = (summaryDiv.style.display === "none" || !summaryDiv.style.display)
+                  ? "block" : "none";
+              });
+            } else {
+              const textSubject = document.createElement("span");
+              textSubject.textContent = "";
+              docSub.appendChild(textSubject);
+            }
+            leftDiv.appendChild(docTitle);
+            leftDiv.appendChild(docSub);
+            docItem.appendChild(leftDiv);
+          }
+          docItem.onclick = () => loadDocumentDetailScreen(doc.name, doc.subject, folderName, currentSubFolder);
+          docItem.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            showContextMenuDoc(e.pageX, e.pageY, doc.name);
+          });
+          documentList.appendChild(docItem);
+        });
+      }
+      const nonAttachmentDocs = docs.filter(doc => !doc.isAttachment);
+      document.getElementById("documentTotalCount").textContent = "Total documentos: " + nonAttachmentDocs.length;
+      updateDocumentCompletionPercent();
+    }
+
+    function createNewDocument(){
+      const docName = docNameInput.value.trim();
+      const docSub  = docSubjectInput.value.trim();
+      if(!docName){ alert("Informe um nome para o documento."); return; }
+      const docNames = parseMultipleEntries(docName);
+      docNames.forEach((dName) => {
+        const conflict = namedDocuments.find(d =>
+          d.folderName === currentFolder &&
+          (d.subFolderName || null) === (currentSubFolder || null) &&
+          d.name === dName
+        );
+        if(conflict){
+          console.log(`O documento "${dName}" já existe e foi ignorado.`);
+          return;
+        }
+        namedDocuments.push({
+          folderName   : currentFolder,
+          subFolderName: currentSubFolder || null,
+          name         : dName,
+          subject      : docSub,
+          content      : "",
+          customFolders: [],
+          favorite     : false,
+          completed    : false,
+          summary      : "",
+          isAttachment : false,
+          timestamp    : Date.now()
+        });
+      });
+      saveAllData();
+      docNameInput.value = "";
+      docSubjectInput.value = "";
+      createDocumentForm.style.display = "none";
+      showDocumentList(currentFolder, currentSubFolder);
+    }
+
+    function updateDocumentCompletionPercent(){
+      const docs = namedDocuments.filter(d =>
+        d.folderName === currentFolder &&
+        (d.subFolderName || null) === (currentSubFolder || null)
+      );
+      const nonAttachmentDocs = docs.filter(doc => !doc.isAttachment);
+      const pctElem = document.getElementById("documentCompletionPercent");
+      if(nonAttachmentDocs.length === 0){
+        pctElem.innerHTML = "0%";
+        pctElem.style.background = "rgba(255,200,200,0.3)";
+        return;
+      }
+      const pct = Math.round((nonAttachmentDocs.filter(doc => doc.completed).length/nonAttachmentDocs.length)*100);
+      pctElem.innerHTML = pct + "%";
+      pctElem.style.background = "rgba(255,200,200,0.3)";
+    }
+
+    // Renderiza as pastas customizadas e anexos juntos (na tela de detalhes)
+    function renderCurrentDocumentCustomFolders(){
+      const container = document.getElementById("customFoldersContainer");
+      container.innerHTML = "";
+      // Pastas customizadas
+      if(currentDocument.customFolders && currentDocument.customFolders.length > 0){
+        currentDocument.customFolders.forEach(folder => {
+          const folderDiv = document.createElement("div");
+          folderDiv.classList.add("custom-folder-item");
+          let blockCount = 0;
+          if(folder.editorContent) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = folder.editorContent;
+            blockCount = tempDiv.querySelectorAll(".box").length;
+          }
+          folderDiv.innerHTML = `
+            <div style="font-size:48px;">📁</div>
+            <div>${folder.type}</div>
+            <div style="font-size:12px;color:#333; margin-top:4px;">(${blockCount})</div>
+          `;
+          folderDiv.setAttribute("data-folder-id", folder.id);
+          // Clique normal abre o editor da pasta customizada
+          folderDiv.onclick = () => loadCustomFolderEditor(folder.id);
+          // Clique com botão direito abre o menu de contexto para pastas customizadas
+          folderDiv.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            showContextMenuCustomFolder(e.pageX, e.pageY, folder.id);
+          });
+          container.appendChild(folderDiv);
+        });
+      } else {
+        container.innerHTML = "<div>Nenhuma pasta customizada criada.</div>";
+      }
+// Anexos
+if(currentDocument.attachments && currentDocument.attachments.length > 0){
+  currentDocument.attachments.forEach(att => {
+    const attDiv = document.createElement("div");
+    attDiv.classList.add("custom-folder-item");
     
+    // Define o container com cursor padrão
+    attDiv.style.cursor = "default";
+    
+    // Cria o elemento para o ícone (que terá cursor pointer)
+    const iconDiv = document.createElement("div");
+    iconDiv.style.fontSize = "48px";
+    iconDiv.style.cursor = "pointer";
+    // pointer-events já estão ativos por padrão, mas se necessário:
+    iconDiv.style.pointerEvents = "auto";
+    
+    let icon;
+    if(att.type.includes("pdf")){
+      icon = "📄";
+    } else if(att.type.includes("msword") || att.type.includes("wordprocessingml.document")){
+      icon = "📝";
+    } else if(att.type.includes("excel") || att.type.includes("spreadsheetml")){
+      icon = "📊";
+    } else if(att.type === "text/plain" || att.name.toLowerCase().endsWith(".txt")){
+      icon = "📃";
+    } else if(att.type.startsWith("image/")){
+      icon = "🖼️";
+    } else if(att.type.startsWith("video/")){
+      icon = "🎥";
+    } else if(att.type.startsWith("audio/")){
+      icon = "🎵";
+    } else {
+      icon = "📎";
+    }
+    iconDiv.textContent = icon;
+    
+    // Adiciona o listener de clique apenas no ícone
+    iconDiv.addEventListener("click", (e) => {
+      e.stopPropagation();
+      displayAttachments([att]);
+    });
+    
+    // Cria o elemento para o nome do anexo, desabilitando os pointer events para ele
+    const nameDiv = document.createElement("div");
+    nameDiv.textContent = att.name;
+    nameDiv.style.pointerEvents = "none";
+    
+    // Adiciona os dois elementos ao container
+    attDiv.appendChild(iconDiv);
+    attDiv.appendChild(nameDiv);
+    
+    // Mantém o listener para o menu de contexto no container
+    attDiv.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      showContextMenuFile(e.pageX, e.pageY, att);
+    });
+    
+    container.appendChild(attDiv);
+  });
+}
+}
+    function loadDocumentDetailScreen(docName, docSubject, folderName, subFolderName) {
+      document.getElementById("documentListScreen").style.display = "none";
+      document.getElementById("documentDetailScreen").style.display = "block";
+      document.getElementById("editorSection").style.display = "none";
+  
+      currentDocument = namedDocuments.find(d =>
+        d.folderName === folderName &&
+        (d.subFolderName || null) === (subFolderName || null) &&
+        d.name === docName
+      );
+      if(!currentDocument){ alert("Documento não encontrado."); return; }
+  
+      currentDocName = currentDocument.name;
+      currentDocSubject = currentDocument.subject;
+      renderCurrentDocumentCustomFolders();
+  
+      const headerContainer = document.querySelector("#documentDetailScreen .detail-header .add-custom-folder");
+      if(headerContainer && !document.getElementById("btnAttachCustomFolder")){
+        const attachButton = document.createElement("button");
+        attachButton.id = "btnAttachCustomFolder";
+        attachButton.className = "plus-button";
+        attachButton.style.fontSize = "24px";
+        attachButton.style.padding = "5px";
+        attachButton.textContent = "📎";
+        attachButton.title = "Anexar Arquivo";
+        attachButton.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const fileInput = document.createElement("input");
+          fileInput.type = "file";
+          fileInput.style.display = "none";
+          fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if(file){
+              const reader = new FileReader();
+              reader.onload = function(ev) {
+                const attachment = {
+                  name: file.name,
+                  type: file.type,
+                  data: ev.target.result,
+                  timestamp: Date.now(),
+                  favorite: false,
+                  ticket: "TICKET-" + Date.now()
+                };
+                if(!currentDocument.attachments) currentDocument.attachments = [];
+                currentDocument.attachments.push(attachment);
+                saveAllData();
+                renderCurrentDocumentCustomFolders();
+                alert("Arquivo anexado com sucesso à pasta customizada!");
+              };
+              reader.readAsDataURL(file);
+            }
+          };
+          document.body.appendChild(fileInput);
+          fileInput.click();
+          document.body.removeChild(fileInput);
+        });
+        headerContainer.appendChild(attachButton);
+      }
+    }
+  
+    function loadCustomFolderEditor(folderId){
+      document.getElementById("documentDetailScreen").style.display = "none";
+      document.getElementById("editorSection").style.display = "block";
+      currentCustomFolderId = folderId;
+      const folder = currentDocument.customFolders?.find(f => f.id === folderId);
+      if(!folder){ alert("Pasta customizada não encontrada."); return; }
+      textContainer.innerHTML = folder.editorContent || "";
+      inputArea.style.display = (!folder.editorContent || folder.editorContent.trim() === "") ? "block" : "none";
+  const boxes = textContainer.querySelectorAll('.box');
+  boxes.forEach(box => {
+    initBlockEvents(box);
+    autoCenterElements(box);
+    addDragAndDrop(box);
+    updateBoxDisplay(box);
+    
+    // Reanexar o event listener para exibir o comentário salvo
+    const commentIcon = box.querySelector(".comment-icon");
+    if(commentIcon) {
+      commentIcon.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        let postIt = document.createElement("div");
+        postIt.classList.add("postit-comment");
+        postIt.style.position = "fixed";
+        postIt.style.top = "15%";
+        postIt.style.left = "50%";
+        postIt.style.transform = "translate(-50%, -50%)";
+        postIt.style.backgroundColor = "rgba(255,255,224,0.95)";
+        postIt.style.border = "1px solid #ccc";
+        postIt.style.padding = "10px 15px";
+        postIt.style.fontSize = "14px";
+        postIt.style.borderRadius = "6px";
+        postIt.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+        postIt.style.minWidth = "200px";
+        postIt.style.minHeight = "80px";
+        postIt.style.zIndex = "9999";
+        
+        let closeBtn = document.createElement("div");
+        closeBtn.textContent = "×";
+        closeBtn.style.position = "absolute";
+        closeBtn.style.top = "5px";
+        closeBtn.style.right = "5px";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.style.fontWeight = "bold";
+        closeBtn.style.fontSize = "16px";
+        closeBtn.style.color = "#333";
+        closeBtn.addEventListener("click", () => {
+          document.body.removeChild(postIt);
+        });
+        postIt.appendChild(closeBtn);
+        
+        let commentText = commentIcon.getAttribute("data-comment") || "";
+        let contentDiv = document.createElement("div");
+        contentDiv.style.marginTop = "25px";
+        contentDiv.innerHTML = commentText;
+        postIt.appendChild(contentDiv);
+        
+        document.body.appendChild(postIt);
+      });
+    }
+  });
+      addBottomButtons();
+    }
+  
+    document.getElementById("editorLeftArrow").addEventListener("click", () => {
+      saveCurrentEditorContent();
+      document.getElementById("editorSection").style.display = "none";
+      document.getElementById("documentDetailScreen").style.display = "block";
+      currentCustomFolderId = null;
+    });
+    document.getElementById("editorRightArrow").addEventListener("click", () => {
+      alert("Não há tela seguinte.");
+    });
+  
+    const editorSection   = document.getElementById('editorSection');
+    const inputArea       = document.getElementById('inputArea');
+    const textInput       = document.getElementById('textInput');
+    const textContainer   = document.getElementById('textContainer');
+    const generateTextBtn = document.getElementById('generateTextBtn');
+    const closeEditorBtn  = document.getElementById('closeEditorBtn');
+  
+    const contextMenu     = document.getElementById('contextMenu');
+  
+    let draggedBlock = null;
+  
+    function adjustBlockSize(box) {
+      box.style.whiteSpace = "normal";
+      box.style.height = "auto";
+      box.style.overflow = "visible";
+      box.style.display = "flex";
+      box.style.flexDirection = "column";
+      box.style.alignItems = "flex-start";
+      box.classList.remove("blinking-alert", "alert-red");
+    }
+    document.getElementById("adjustBlockSize").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const box = contextMenu.targetBox;
+      if(box){ adjustBlockSize(box); saveCurrentEditorContent(); }
+      contextMenu.style.display = "none";
+    });
+document.getElementById("attachFileBlock").addEventListener("click", (e) => {
+  e.stopPropagation();
+  // Cria um input de arquivo invisível
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.style.display = "none";
+  fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file && contextMenu.targetBox) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const block = contextMenu.targetBox;
+        block.innerHTML = "";
+        // Armazena os dados do arquivo (nome, tipo e conteúdo Base64)
+        block.dataset.fileData = JSON.stringify({
+          name: file.name,
+          type: file.type,
+          data: ev.target.result
+        });
+        // Define o ícone com base no tipo do arquivo, incluindo ícone específico para Word, Excel e bloco de notas
+        const icon = file.type.includes("pdf") ? "📄" :
+                     (file.type.includes("msword") || file.type.includes("wordprocessingml.document")) ? "📝" :
+                     (file.type.includes("excel") || file.type.includes("spreadsheetml")) ? "📊" :
+                     (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) ? "📃" :
+                     file.type.startsWith("video/") ? "🎥" :
+                     file.type.startsWith("audio/") ? "🎵" :
+                     "📎";
+        const iconDiv = document.createElement("div");
+        iconDiv.style.display = "flex";
+        iconDiv.style.justifyContent = "center";
+        iconDiv.style.alignItems = "center";
+        iconDiv.style.height = "100%";
+        iconDiv.style.width = "100%";
+        iconDiv.style.cursor = "pointer";
+        iconDiv.innerHTML = `${icon}`;
+        // Ao clicar no ícone, abre o modal com o player adequado
+        iconDiv.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const fileData = JSON.parse(block.dataset.fileData);
+          displayAttachments([{ name: file.name, type: file.type, data: fileData.data }]);
+        });
+        block.appendChild(iconDiv);
+        contextMenu.style.display = "none";
+        saveCurrentEditorContent();
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  document.body.appendChild(fileInput);
+  fileInput.click();
+  document.body.removeChild(fileInput);
+});
+function updateBoxDisplay(box) {
+  box.style.display = "flex";
+  box.style.flexDirection = "column";      /* Linhas empilhadas em coluna */
+  box.style.justifyContent = "center";       /* Centraliza verticalmente */
+  box.style.alignItems = "flex-start";       /* Mantém o alinhamento à esquerda */
+  box.style.height = "auto";
+  box.style.overflow = "visible";
+  box.style.whiteSpace = "normal";
+  box.style.boxSizing = "border-box";
+  box.style.paddingTop = "12.5px";             /* Espaço superior */
+  box.style.paddingBottom = "12.5px";          /* Espaço inferior */
+}
+    generateTextBtn.addEventListener('click', processText);
+    closeEditorBtn.addEventListener('click', () => {
+      if(inputArea.style.display !== "none"){
+        inputArea.style.display = "none";
+        addBottomButtons();
+      }
+    });
+  
+    function processText() {
+      inputArea.style.display = "none";
+      const htmlContent = textInput.innerHTML.trim();
+      const temp = document.createElement("div");
+      temp.innerHTML = htmlContent;
+      const childNodes = Array.from(temp.childNodes);
+      childNodes.forEach(node => {
+        if(node.nodeType === Node.ELEMENT_NODE || (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "")){
+          const content = node.outerHTML || node.textContent;
+          const newBox = createEditableBox(content, textContainer);
+          updateBoxDisplay(newBox);
+        }
+      });
+      textInput.innerHTML = "";
+      addBottomButtons();
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  
+    function createEditableBox(content, container) {
+      const box = document.createElement("div");
+      box.classList.add("box");
+      box.setAttribute("contenteditable", "true");
+      box.innerHTML = content;
+      box.setAttribute("data-color-index", "0");
+      capitalizeFirstLetter(box);
+      autoCenterElements(box);
+      initBlockEvents(box);
+      addDragAndDrop(box);
+      updateBoxDisplay(box);
+      container.appendChild(box);
+      return box;
+    }
+  
+function autoCenterElements(box) {
+  // Para imagens: centraliza, limita a 80% da largura e adiciona espaçamento
+  const imgs = box.querySelectorAll("img");
+  imgs.forEach(img => {
+    img.style.display = "block";
+    img.style.margin = "10px auto";
+    img.style.maxWidth = "80%";
+    img.style.height = "auto";
+  });
+
+  // Para tabelas: centraliza e exibe de forma mais ampla
+  const tables = box.querySelectorAll("table");
+  tables.forEach(tbl => {
+    tbl.style.display = "table";
+    tbl.style.margin = "10px auto"; // espaçamento e centralização
+    tbl.style.width = "90%";        // ocupa 90% do bloco
+    tbl.style.maxWidth = "none";    // remove limite de largura
+
+    // Ajusta células
+    tbl.querySelectorAll("td, th").forEach(cell => {
+      cell.style.padding = "8px";
+      cell.style.textAlign = "center";
+      cell.style.fontSize = "10px";
+    });
+  });
+
+  // Para caixas de texto (textarea, div com classe .textbox, etc.)
+  // Ajuste o seletor abaixo conforme a sua necessidade (por exemplo, "textarea" ou ".textbox").
+  const textBoxes = box.querySelectorAll("textarea, .textbox");
+  textBoxes.forEach(txt => {
+    txt.style.display = "block";
+    txt.style.marginLeft = "auto";
+    txt.style.marginRight = "auto";
+    // Caso queira limitar a largura:
+    // txt.style.maxWidth = "80%";
+  });
+}  
+    function initBlockEvents(box) {
+      box.addEventListener("click", function(e){
+        if(e.ctrlKey || e.metaKey){ box.classList.toggle("selected"); e.stopPropagation(); }
+      });
+box.addEventListener("dblclick", function(){
+  // Nova paleta expandida com várias cores.
+  const palette = [
+    "#f0f0f0", // Cinza claro
+    "#00B050", // Verde
+    "#FFC000", // Laranja
+    "#00B0F0", // Azul
+    "#00C0C0", // Turquesa
+    "#F79646", // Laranja suave
+    "#FF00FF", // Magenta
+    "#00FF00", // Verde vibrante
+    "#FFFF00", // Amarelo
+    "#FF69B4", // Rosa
+    "#a9a9a9", // Cinza escuro
+    "#ADD8E6", // Azul claro
+    "#90EE90", // Verde claro
+    "#FFD700", // Dourado
+    "#FFA07A", // Salmão claro
+    "#E6E6FA", // Lavanda
+    "#F5DEB3"  // Trigo
+  ];
+
+  // Verifica se existem blocos selecionados
+  const selectedBoxes = document.querySelectorAll('.box.selected');
+  if(selectedBoxes.length > 0) {
+    selectedBoxes.forEach(b => {
+      let currentIndex = parseInt(b.getAttribute("data-color-index") || 0);
+      currentIndex = (currentIndex + 1) % palette.length;
+      b.setAttribute("data-color-index", currentIndex);
+      b.style.backgroundColor = palette[currentIndex];
+    });
+  } else {
+    // Se nenhum bloco estiver selecionado, atualiza apenas o atual
+    let colorIndex = parseInt(box.getAttribute("data-color-index") || 0);
+    colorIndex = (colorIndex + 1) % palette.length;
+    box.setAttribute("data-color-index", colorIndex);
+    box.style.backgroundColor = palette[colorIndex];
+  }
+});
+box.addEventListener("keydown", function(e) {
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    
+    // Passo 1: Se existir um comentário, desanexe-o temporariamente
+    const commentIcon = box.querySelector('.comment-icon');
+    if(commentIcon) {
+      commentIcon.parentNode.removeChild(commentIcon);
+    }
+    
+    // Passo 2: Extrai o conteúdo após o cursor
+    const range = window.getSelection().getRangeAt(0);
+    const rangeClone = range.cloneRange();
+    rangeClone.selectNodeContents(box);
+    rangeClone.setStart(range.endContainer, range.endOffset);
+    const afterContent = rangeClone.extractContents();
+    
+    // (Opcional) Se houver ícones dentro do conteúdo extraído, removê-los:
+    // afterContent.querySelectorAll('.comment-icon').forEach(icon => icon.remove());
+    
+    // Passo 3: Crie um novo bloco e insira o conteúdo extraído
+    const newBox = createEditableBox("", textContainer);
+    newBox.appendChild(afterContent);
+    textContainer.insertBefore(newBox, box.nextSibling);
+    newBox.focus();
+    autoCenterElements(newBox);
+    updateBoxDisplay(newBox);
+    
+    // Reanexe o comentário de volta no bloco original
+    if(commentIcon) {
+      box.appendChild(commentIcon);
+    }
+  }
+});
+      box.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+        showEditorContextMenu(e.pageX, e.pageY, box);
+      });
+      box.addEventListener("input", function(){
+  // Remova a chamada para capitalizeFirstLetter(box)
+  autoCenterElements(box);
+  updateBoxDisplay(box);
+});
+// Função auxiliar para verificar se um texto é uma URL válida
+function isValidURL(text) {
+  try {
+    new URL(text);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Função auxiliar para verificar se um texto é uma URL válida
+function isValidURL(text) {
+  try {
+    new URL(text);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function autoCenterElements(box) {
+  // Para imagens: centraliza, limita a 80% da largura e adiciona espaçamento
+  const imgs = box.querySelectorAll("img");
+  imgs.forEach(img => {
+    img.style.display = "block";
+    img.style.margin = "10px auto";
+    img.style.maxWidth = "80%";
+    img.style.height = "auto";
+  });
+
+  // Para tabelas: centraliza e exibe de forma mais ampla
+  const tables = box.querySelectorAll("table");
+  tables.forEach(tbl => {
+    tbl.style.display = "table";
+    tbl.style.margin = "10px auto";   // espaçamento e centralização
+    tbl.style.width = "90%";          // ocupa 90% do bloco
+    tbl.style.maxWidth = "none";      // remove limite de largura
+
+    // Ajusta células
+    tbl.querySelectorAll('td, th').forEach(cell => {
+      cell.style.padding = "8px";
+      cell.style.textAlign = "center";
+      cell.style.fontSize = "10px";
+    });
+  });
+}
+      box.addEventListener("blur", () => { 
+  capitalizeFirstLetter(box); 
+  saveCurrentEditorContent(); 
+});
+box.addEventListener("mouseenter", function(e) {
+  let commentDiv = box.querySelector(".comment-overlay");
+  if (commentDiv) {
+    commentDiv.style.display = "block";
+  }
+});
+
+box.addEventListener("mouseleave", function(e) {
+  let commentDiv = box.querySelector(".comment-overlay");
+  if (commentDiv) {
+    commentDiv.style.display = "none";
+  }
+});
+    }
+      function capitalizeFirstLetter(box) {
+      const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT, null, false);
+      let textNode = walker.nextNode();
+      while(textNode) {
+        const txt = textNode.nodeValue;
+        if(txt.trim().length > 0){
+          const first = txt.charAt(0);
+          const upper = first.toUpperCase();
+          if(first !== upper){ textNode.nodeValue = upper + textNode.nodeValue.slice(1); }
+          break;
+        }
+        textNode = walker.nextNode();
+      }
+    }
+  
+function addDragAndDrop(box) {
+  box.setAttribute("draggable", "false");
+  // Não adicione listeners para dragstart/dragend
+}
+    textContainer.addEventListener("dragover", function(e){ e.preventDefault(); });
+    textContainer.addEventListener("drop", function(e){
+      e.preventDefault();
+      if(draggedBlock){
+        let target = e.target.closest(".box");
+        if(target && target !== draggedBlock){
+          const rect = target.getBoundingClientRect();
+          const offset = e.clientY - rect.top;
+          if(offset < rect.height/2) textContainer.insertBefore(draggedBlock, target);
+          else textContainer.insertBefore(draggedBlock, target.nextSibling);
+        } else {
+          textContainer.appendChild(draggedBlock);
+        }
+      }
+    });
+  
+    function addBottomButtons() {
+      const old = document.getElementById("bottomButtonsContainer");
+      if(old) old.innerHTML = "";
+      const bottomContainer = document.getElementById("bottomButtonsContainer");
+      const addButton = document.createElement("div");
+      addButton.textContent = "+";
+      addButton.title = "Adicionar novo bloco";
+      addButton.addEventListener("click", () => { bottomContainer.innerHTML = ""; inputArea.style.display = "block"; textInput.focus(); });
+      const saveButton = document.createElement("div");
+      saveButton.innerHTML = "&#128190;";
+      saveButton.title = "Salvar Conteúdo (em Firestore)";
+      saveButton.addEventListener("click", () => { saveCurrentEditorContent(); });
+      bottomContainer.appendChild(addButton);
+      bottomContainer.appendChild(saveButton);
+    }
+  
+    document.getElementById("copyBlock").addEventListener("click", (e) => {
+      e.stopPropagation();
+      let contentToCopy = "";
+      const selectedBlocks = document.querySelectorAll(".box.selected");
+      if(selectedBlocks.length > 0){
+        selectedBlocks.forEach(box => {
+          const pureText = box.innerText || box.textContent;
+          contentToCopy += pureText + "\n";
+        });
+      } else if(contextMenu.targetBox){
+        const pureText = contextMenu.targetBox.innerText || contextMenu.targetBox.textContent;
+        contentToCopy = pureText;
+      }
+      contentToCopy = "ME EXPLICA DE MODO OBJETIVO:\n\n" + contentToCopy;
+      navigator.clipboard.writeText(contentToCopy)
+        .catch(err => alert("Erro ao copiar: " + err));
+      contextMenu.style.display = "none";
+    });
+  
+    document.getElementById("deleteBlock").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const selectedBlocks = document.querySelectorAll(".box.selected");
+      if(selectedBlocks.length > 0) selectedBlocks.forEach(box => box.remove());
+      else if(contextMenu.targetBox) contextMenu.targetBox.remove();
+      contextMenu.style.display = "none";
+    });
+  document.getElementById("insertNewBlock").addEventListener("click", (e) => {
+  e.stopPropagation();
+  // Se houver um bloco onde o menu foi acionado, insere logo após ele;
+  // caso contrário, adiciona no final do container
+  let newBlock;
+  if (contextMenu.targetBox && contextMenu.targetBox.nextSibling) {
+    newBlock = createEditableBox("", textContainer);
+    textContainer.insertBefore(newBlock, contextMenu.targetBox.nextSibling);
+  } else {
+    newBlock = createEditableBox("", textContainer);
+  }
+  newBlock.focus(); // Foca no novo bloco para edição imediata
+  contextMenu.style.display = "none"; // Fecha o menu de contexto
+  saveCurrentEditorContent(); // Salva o estado atual do editor, se necessário
+});
+    document.getElementById("centerContent").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const selectedBlocks = document.querySelectorAll(".box.selected");
+      if(selectedBlocks.length > 0){
+        selectedBlocks.forEach(box => {
+          box.style.textAlign = "center";
+          box.style.justifyContent = "center";
+          box.style.alignItems = "center";
+        });
+      } else if(contextMenu.targetBox){
+        contextMenu.targetBox.style.textAlign = "center";
+        contextMenu.targetBox.style.justifyContent = "center";
+        contextMenu.targetBox.style.alignItems = "center";
+      }
+      contextMenu.style.display = "none";
+    });
+document.getElementById("insertCommentBlock").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const box = contextMenu.targetBox;
+  if (box) {
+    // Verifica se já existe um ícone de comentário no bloco
+    let commentIcon = box.querySelector(".comment-icon");
+    if (!commentIcon) {
+      commentIcon = document.createElement("div");
+      commentIcon.classList.add("comment-icon");
+      commentIcon.setAttribute("contenteditable", "false");
+
+      commentIcon.style.position = "absolute";
+      commentIcon.style.top = "3px";
+      commentIcon.style.left = "3px";
+      commentIcon.style.width = "15px";
+      commentIcon.style.height = "15px";
+      commentIcon.style.backgroundColor = "#ffeb3b"; // amarelo
+      commentIcon.style.border = "1px solid #ccc";
+      commentIcon.style.borderRadius = "50%";
+      commentIcon.style.cursor = "pointer";
+      commentIcon.style.zIndex = "10";
+      box.appendChild(commentIcon);
+
+      commentIcon.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        // Cria o post-it (modal) para exibir o comentário
+        let postIt = document.createElement("div");
+        postIt.classList.add("postit-comment");
+        postIt.style.position = "fixed";
+        postIt.style.top = "30%"; // Alterado para 30% para evitar ficar colado na margem superior
+        postIt.style.left = "50%";
+        postIt.style.transform = "translate(-50%, -50%)";
+        postIt.style.backgroundColor = "rgba(255,255,224,0.95)";
+        postIt.style.border = "1px solid #ccc";
+        postIt.style.padding = "10px 15px";
+        postIt.style.fontSize = "14px";
+        postIt.style.borderRadius = "6px";
+        postIt.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+        postIt.style.minWidth = "200px";
+        postIt.style.minHeight = "80px";
+        postIt.style.zIndex = "9999";
+        let closeBtn = document.createElement("div");
+        closeBtn.textContent = "×";
+        closeBtn.style.position = "absolute";
+        closeBtn.style.top = "5px";
+        closeBtn.style.right = "5px";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.style.fontWeight = "bold";
+        closeBtn.style.fontSize = "16px";
+        closeBtn.style.color = "#333";
+        closeBtn.addEventListener("click", () => {
+          document.body.removeChild(postIt);
+        });
+        postIt.appendChild(closeBtn);
+        let commentText = commentIcon.getAttribute("data-comment") || "";
+        let contentDiv = document.createElement("div");
+        contentDiv.style.marginTop = "25px";
+        contentDiv.innerHTML = commentText;
+        postIt.appendChild(contentDiv);
+        document.body.appendChild(postIt);
+      });
+    }
+    // Cria um modal para editar/inserir o comentário preservando a formatação original
+    let commentModal = document.createElement("div");
+    commentModal.classList.add("comment-modal");
+    commentModal.style.position = "fixed";
+    commentModal.style.top = "50%";
+    commentModal.style.left = "50%";
+    commentModal.style.transform = "translate(-50%, -50%)";
+    commentModal.style.backgroundColor = "#fff";
+    commentModal.style.border = "1px solid #ccc";
+    commentModal.style.padding = "20px";
+    commentModal.style.zIndex = "10000";
+    commentModal.innerHTML = `
+      <div contenteditable="true" id="commentEditor" style="min-width:300px; min-height:100px; border:1px solid #ddd; padding:10px;">
+        ${commentIcon ? commentIcon.getAttribute("data-comment") || "" : ""}
+      </div>
+      <br>
+      <button id="saveCommentBtn">Salvar</button>
+      <button id="deleteCommentBtn">Excluir</button>
+      <button id="cancelCommentBtn">Cancelar</button>
+    `;
+    document.body.appendChild(commentModal);
+
+    document.getElementById("saveCommentBtn").addEventListener("click", () => {
+      let newComment = document.getElementById("commentEditor").innerHTML;
+      if(newComment.trim() === ""){
+        commentIcon && commentIcon.remove();
+      } else {
+        if(commentIcon) {
+          commentIcon.setAttribute("data-comment", newComment);
+        }
+      }
+      saveCurrentEditorContent();
+      document.body.removeChild(commentModal);
+    });
+    document.getElementById("deleteCommentBtn").addEventListener("click", () => {
+      // Remove a bolinha (ícone de comentário) do bloco, se existir
+      if(commentIcon) {
+        commentIcon.remove();
+      }
+      // Remove o modal (post-it)
+      document.body.removeChild(commentModal);
+    });
+    document.getElementById("cancelCommentBtn").addEventListener("click", () => {
+      document.body.removeChild(commentModal);
+    });
+    document.getElementById("cancelCommentBtn").addEventListener("click", () => {
+      document.body.removeChild(commentModal);
+    });
+  }
+  contextMenu.style.display = "none";
+});
+    function showEditorContextMenu(x, y, box) {
+      contextMenu.style.display = "block";
+      contextMenu.style.left = x + "px";
+      contextMenu.style.top  = y + "px";
+      contextMenu.targetBox  = box;
+    }
+  
+    document.getElementById("increaseTopPadding").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(contextMenu.targetBox){
+        const style = window.getComputedStyle(contextMenu.targetBox);
+        const cur = parseInt(style.paddingTop, 10) || 0;
+        contextMenu.targetBox.style.paddingTop = (cur + 10) + "px";
+      }
+      saveCurrentEditorContent();
+      contextMenu.style.display = "none";
+    });
+    document.getElementById("decreaseTopPadding").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(contextMenu.targetBox){
+        const style = window.getComputedStyle(contextMenu.targetBox);
+        const cur = parseInt(style.paddingTop, 10) || 0;
+        const newVal = cur - 10;
+        contextMenu.targetBox.style.paddingTop = (newVal >= 0 ? newVal : 0) + "px";
+      }
+      saveCurrentEditorContent();
+      contextMenu.style.display = "none";
+    });
+    document.getElementById("increaseBottomPadding").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(contextMenu.targetBox){
+        const style = window.getComputedStyle(contextMenu.targetBox);
+        const cur = parseInt(style.paddingBottom, 10) || 0;
+        contextMenu.targetBox.style.paddingBottom = (cur + 10) + "px";
+      }
+      saveCurrentEditorContent();
+      contextMenu.style.display = "none";
+    });
+    document.getElementById("decreaseBottomPadding").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(contextMenu.targetBox){
+        const style = window.getComputedStyle(contextMenu.targetBox);
+        const cur = parseInt(style.paddingBottom, 10) || 0;
+        const newVal = cur - 10;
+        contextMenu.targetBox.style.paddingBottom = (newVal >= 0 ? newVal : 0) + "px";
+      }
+      saveCurrentEditorContent();
+      contextMenu.style.display = "none";
+    });
+    document.addEventListener("click", (e) => {
+      if(contextMenu.style.display === "block") contextMenu.style.display = "none";
+      const menus = ["contextMenuFolder", "contextMenuSubFolder", "contextMenuDoc", "contextMenuCustomFolder", "contextMenuBackground", "contextMenuFile"];
+      menus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = "none"; });
+      if(!e.target.closest(".box")) clearSelectedBlocks();
+    });
+// Adiciona um listener para abrir links em nova aba, EXCETO o link de cadastro
+document.addEventListener("click", function(e) {
+  const anchor = e.target.closest("a");
+  // Verifica se é o link de cadastro (pode usar o id "goRegisterLink")
+  if (anchor && anchor.href && anchor.id !== "goRegisterLink" && anchor.getAttribute("target") !== "_blank") {
+    e.preventDefault();
+    window.open(anchor.href, "_blank");
+  }
+});
+    function clearSelectedBlocks(){
+      const boxes = document.querySelectorAll(".box.selected");
+      boxes.forEach(box => box.classList.remove("selected"));
+    }
+  
+    function showContextMenuFolder(x, y, folderName){
+      const menu = document.getElementById("contextMenuFolder");
+      menu.style.display = "block";
+      menu.style.left = x + "px";
+      menu.style.top  = y + "px";
+      menu.targetFolderName = folderName;
+      const pasteItem = document.getElementById("pasteIntoFolder");
+      pasteItem.style.display = (copyBuffer && copyBuffer.type === "folder") ? "block" : "none";
+    }
+  
+    document.getElementById("copyFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const folderName = document.getElementById("contextMenuFolder").targetFolderName;
+      const subs = folderSubfolders[folderName] || [];
+      const docs = namedDocuments.filter(d => d.folderName === folderName);
+      copyBuffer = {
+        type: "folder",
+        folderName,
+        subfolders: JSON.parse(JSON.stringify(subs)),
+        docs: JSON.parse(JSON.stringify(docs))
+      };
+      document.getElementById("contextMenuFolder").style.display = "none";
+    });
+    document.getElementById("pasteIntoFolder").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(copyBuffer && copyBuffer.type === "folder"){
+        const newName = prompt("Novo nome para a pasta copiada?", copyBuffer.folderName + " (cópia)");
+        if(!newName) return;
+        if(folders.includes(newName)){
+          alert("Já existe pasta com esse nome.");
+          return;
+        }
+        folders.push(newName);
+        folderSubfolders[newName] = JSON.parse(JSON.stringify(copyBuffer.subfolders));
+        copyBuffer.docs.forEach(doc => {
+          const docCopy = { ...doc };
+          docCopy.folderName = newName;
+          docCopy.name = docCopy.name + " (cópia)";
+          namedDocuments.push(docCopy);
+        });
+        folderEvents[newName] = {};
+        saveAllData();
+        showFolderScreen();
+      }
+      document.getElementById("contextMenuFolder").style.display = "none";
+    });
+    document.getElementById("editFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const folderName = document.getElementById("contextMenuFolder").targetFolderName;
+      const newName = prompt("Renomear pasta:", folderName);
+      if(newName && newName.trim() !== ""){
+        if(newName === folderName) return;
+        if(folders.includes(newName)){
+          alert("Já existe pasta com esse nome.");
+          return;
+        }
+        const idx = folders.indexOf(folderName);
+        if(idx >= 0) folders[idx] = newName;
+        folderSubfolders[newName] = folderSubfolders[folderName];
+        delete folderSubfolders[folderName];
+        namedDocuments.forEach(doc => { if(doc.folderName === folderName) doc.folderName = newName; });
+        if(favoriteFolders[folderName]){
+          favoriteFolders[newName] = favoriteFolders[folderName];
+          delete favoriteFolders[folderName];
+        }
+        folderEvents[newName] = folderEvents[folderName] || {};
+        delete folderEvents[folderName];
+        if(window.completedSubfolders[folderName]){
+          window.completedSubfolders[newName] = window.completedSubfolders[folderName];
+          delete window.completedSubfolders[folderName];
+        }
+        delete folderFiles[newName];
+        if(folderFiles[folderName]){
+          folderFiles[newName] = folderFiles[folderName];
+          delete folderFiles[folderName];
+        }
+        saveAllData();
+        showFolderScreen();
+      }
+      document.getElementById("contextMenuFolder").style.display = "none";
+    });
+    document.getElementById("deleteFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const folderName = document.getElementById("contextMenuFolder").targetFolderName;
+      if(!confirm(`Deseja excluir a pasta "${folderName}" e todo o seu conteúdo?`)) return;
+      folders = folders.filter(f => f !== folderName);
+      delete folderSubfolders[folderName];
+      namedDocuments = namedDocuments.filter(d => d.folderName !== folderName);
+      delete favoriteFolders[folderName];
+      delete folderEvents[folderName];
+      delete window.completedSubfolders[folderName];
+      delete folderFiles[folderName];
+      saveAllData();
+      showFolderScreen();
+      document.getElementById("contextMenuFolder").style.display = "none";
+    });
+  
+    function showContextMenuSubFolder(x, y, subName){
+      const menu = document.getElementById("contextMenuSubFolder");
+      menu.style.display = "block";
+      menu.style.left = x + "px";
+      menu.style.top  = y + "px";
+      menu.targetSubFolderName = subName;
+      const pasteSub = document.getElementById("pasteIntoSubFolder");
+      pasteSub.style.display = (copyBuffer && copyBuffer.type === "subfolder") ? "block" : "none";
+    }
+    document.getElementById("copySubFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const subName = document.getElementById("contextMenuSubFolder").targetSubFolderName;
+      const docs = namedDocuments.filter(d => d.folderName === currentFolder && d.subFolderName === subName);
+      copyBuffer = { type: "subfolder", subName, docs: JSON.parse(JSON.stringify(docs)) };
+      document.getElementById("contextMenuSubFolder").style.display = "none";
+    });
+    document.getElementById("pasteIntoSubFolder").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(copyBuffer && copyBuffer.type === "subfolder"){
+        const newSubName = prompt("Novo nome para a subpasta copiada?", copyBuffer.subName + " (cópia)");
+        if(!newSubName) return;
+        if(!folderSubfolders[currentFolder]) folderSubfolders[currentFolder] = [];
+        if(folderSubfolders[currentFolder].some(sub => sub.name === newSubName)){
+          alert("Já existe subpasta com esse nome.");
+          return;
+        }
+        folderSubfolders[currentFolder].push({ name: newSubName, created: Date.now() });
+        copyBuffer.docs.forEach(doc => {
+          const docCopy = { ...doc };
+          docCopy.subFolderName = newSubName;
+          docCopy.name = docCopy.name + " (cópia)";
+          namedDocuments.push(docCopy);
+        });
+        saveAllData();
+        showSubFolderScreen(currentFolder);
+      }
+      document.getElementById("contextMenuSubFolder").style.display = "none";
+    });
+    document.getElementById("editSubFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const oldName = document.getElementById("contextMenuSubFolder").targetSubFolderName;
+      const newName = prompt("Renomear subpasta:", oldName);
+      if(newName && newName.trim() !== ""){
+        if(newName === oldName) return;
+        if(folderSubfolders[currentFolder].some(sub => sub.name === newName)){
+          alert("Já existe subpasta com esse nome.");
+          return;
+        }
+        let arr = folderSubfolders[currentFolder];
+        const idx = arr.findIndex(sub => sub.name === oldName);
+        if(idx >= 0) { arr[idx].name = newName; }
+        namedDocuments.forEach(doc => { if(doc.folderName === currentFolder && doc.subFolderName === oldName) doc.subFolderName = newName; });
+        if(favoriteSubfolders[currentFolder]){
+          let favArr = favoriteSubfolders[currentFolder];
+          if(favArr.includes(oldName)){
+            favArr = favArr.filter(s => s !== oldName);
+            favArr.push(newName);
+            favoriteSubfolders[currentFolder] = favArr;
+          }
+        }
+        if(window.completedSubfolders[currentFolder] && window.completedSubfolders[currentFolder][oldName]){
+          window.completedSubfolders[currentFolder][newName] = true;
+          delete window.completedSubfolders[currentFolder][oldName];
+        }
+        saveAllData();
+        showSubFolderScreen(currentFolder);
+      }
+      document.getElementById("contextMenuSubFolder").style.display = "none";
+    });
+    document.getElementById("deleteSubFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const subName = document.getElementById("contextMenuSubFolder").targetSubFolderName;
+      if(!confirm(`Deseja excluir a subpasta "${subName}" e todo seu conteúdo?`)) return;
+      folderSubfolders[currentFolder] = folderSubfolders[currentFolder].filter(sub => sub.name !== subName);
+      namedDocuments = namedDocuments.filter(d => !(d.folderName === currentFolder && d.subFolderName === subName));
+      if(favoriteSubfolders[currentFolder]){
+        favoriteSubfolders[currentFolder] = favoriteSubfolders[currentFolder].filter(s => s !== subName);
+      }
+      if(window.completedSubfolders[currentFolder] && window.completedSubfolders[currentFolder][subName]){
+        delete window.completedSubfolders[currentFolder][subName];
+      }
+      saveAllData();
+      showSubFolderScreen(currentFolder);
+      document.getElementById("contextMenuSubFolder").style.display = "none";
+    });
+    document.getElementById("favoriteSubFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const subName = document.getElementById("contextMenuSubFolder").targetSubFolderName;
+      if(!favoriteSubfolders[currentFolder]) favoriteSubfolders[currentFolder] = [];
+      let arr = favoriteSubfolders[currentFolder];
+      if(arr.includes(subName)) { arr = arr.filter(s => s !== subName); }
+      else { arr.push(subName); }
+      favoriteSubfolders[currentFolder] = arr;
+      saveAllData();
+      showSubFolderScreen(currentFolder);
+      document.getElementById("contextMenuSubFolder").style.display = "none";
+    });
+  
+    function showContextMenuDoc(x, y, docName){
+      const menu = document.getElementById("contextMenuDoc");
+      menu.style.display = "block";
+      menu.style.left = x + "px";
+      menu.style.top  = y + "px";
+      menu.targetDocName = docName;
+    }
+    document.getElementById("copyDocItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const docName = document.getElementById("contextMenuDoc").targetDocName;
+      const doc = namedDocuments.find(d =>
+        d.folderName === currentFolder &&
+        (d.subFolderName || null) === (currentSubFolder || null) &&
+        d.name === docName
+      );
+      if(doc){
+        copyBuffer = { type: "doc", doc: JSON.parse(JSON.stringify(doc)) };
+      }
+      document.getElementById("contextMenuDoc").style.display = "none";
+    });
+    document.getElementById("editDocItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const docName = document.getElementById("contextMenuDoc").targetDocName;
+      const doc = namedDocuments.find(d =>
+        d.folderName === currentFolder &&
+        (d.subFolderName || null) === (currentSubFolder || null) &&
+        d.name === docName
+      );
+      if(doc){
+        const newName = prompt("Renomear Documento (nome):", doc.name);
+        if(newName && newName.trim() !== "" && newName !== doc.name){
+          const conflict = namedDocuments.find(d =>
+            d.folderName === currentFolder &&
+            (d.subFolderName || null) === (currentSubFolder || null) &&
+            d.name === newName
+          );
+          if(conflict) { alert("Já existe documento com esse nome nesta pasta/subpasta."); }
+          else { doc.name = newName; }
+        }
+        const newSubject = prompt("Alterar Assunto:", doc.subject || "");
+        if(newSubject !== null) { doc.subject = newSubject; }
+        saveAllData();
+        showDocumentList(currentFolder, currentSubFolder);
+      }
+      document.getElementById("contextMenuDoc").style.display = "none";
+    });
+    document.getElementById("deleteDocItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const docName = document.getElementById("contextMenuDoc").targetDocName;
+      if(!confirm(`Deseja excluir o documento "${docName}"?`)) return;
+      namedDocuments = namedDocuments.filter(d =>
+        !(d.folderName === currentFolder &&
+          (d.subFolderName || null) === (currentSubFolder || null) &&
+          d.name === docName)
+      );
+      saveAllData();
+      showDocumentList(currentFolder, currentSubFolder);
+      document.getElementById("contextMenuDoc").style.display = "none";
+    });
+    document.getElementById("favoriteDocItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const docName = document.getElementById("contextMenuDoc").targetDocName;
+      const doc = namedDocuments.find(d =>
+        d.folderName === currentFolder &&
+        (d.subFolderName || null) === (currentSubFolder || null) &&
+        d.name === docName
+      );
+      if(doc){ doc.favorite = !doc.favorite; saveAllData(); showDocumentList(currentFolder, currentSubFolder); }
+      document.getElementById("contextMenuDoc").style.display = "none";
+    });
+  
+    const contextMenuBackground = document.getElementById("contextMenuBackground");
+    document.getElementById("documentListScreen").addEventListener("contextmenu", (e) => {
+      const targetDocItem = e.target.closest(".doc-item");
+      if(!targetDocItem && copyBuffer && copyBuffer.type === "doc"){
+        e.preventDefault();
+        contextMenuBackground.style.display = "block";
+        contextMenuBackground.style.left = e.pageX + "px";
+        contextMenuBackground.style.top = e.pageY + "px";
+      }
+    });
+    document.getElementById("pasteItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(copyBuffer && copyBuffer.type === "doc"){
+        const newDocName = prompt("Novo nome para o documento copiado?", copyBuffer.doc.name + " (cópia)");
+        if(!newDocName) return;
+        const conflict = namedDocuments.find(d =>
+          d.folderName === currentFolder &&
+          (d.subFolderName || null) === (currentSubFolder || null) &&
+          d.name === newDocName
+        );
+        if(conflict){ alert("Já existe doc com esse nome nesta pasta/subpasta."); return; }
+        const docCopy = JSON.parse(JSON.stringify(copyBuffer.doc));
+        docCopy.name = newDocName;
+        docCopy.folderName = currentFolder;
+        docCopy.subFolderName = currentSubFolder || null;
+        namedDocuments.push(docCopy);
+        saveAllData();
+        showDocumentList(currentFolder, currentSubFolder);
+      }
+      contextMenuBackground.style.display = "none";
+    });
+  
+    const detailLeftArrow = document.getElementById("detailLeftArrow");
+    detailLeftArrow.addEventListener("click", () => {
+      document.getElementById("documentDetailScreen").style.display = "none";
+      document.getElementById("documentListScreen").style.display    = "block";
+    });
+    const detailRightArrow = document.getElementById("detailRightArrow");
+    detailRightArrow.addEventListener("click", () => { alert("Não há tela seguinte."); });
+  
+    function showTooltip(element, text, position) {
+      const tooltip = document.getElementById("customTooltip");
+      tooltip.innerHTML = text;
+      tooltip.style.display = "block";
+      setTimeout(() => {
+        const rect = element.getBoundingClientRect();
+        if(position === 'left'){
+          tooltip.style.left = (rect.left - tooltip.offsetWidth - 10) + "px";
+          tooltip.style.top  = rect.top + "px";
+        } else if(position === 'right'){
+          tooltip.style.left = (rect.right + 10) + "px";
+          tooltip.style.top  = rect.top + "px";
+        }
+      }, 0);
+    }
+    function hideTooltip() {
+      document.getElementById("customTooltip").style.display = "none";
+    }
+
+    const subFolderChart = document.getElementById("subFolderCompletionPercent");
+    if(subFolderChart) {
+      subFolderChart.addEventListener("mouseenter", function() {
+        const subs = folderSubfolders[currentFolder] || [];
+        const totalSubs = subs.length;
+        let completedSubs = 0;
+        if(window.completedSubfolders && window.completedSubfolders[currentFolder]){
+          for(const sub of subs){
+            if(window.completedSubfolders[currentFolder][sub.name]) completedSubs++;
+          }
+        }
+        const docs = namedDocuments.filter(doc => 
+          doc.folderName === currentFolder && 
+          doc.subFolderName && 
+          !doc.isAttachment
+        );
+        const totalDocs = docs.length;
+        const completedDocs = docs.filter(d => d.completed).length;
+        const attachmentsCount = (folderFiles[currentFolder] || []).length;
+        const tooltipText = `<b>Subpasta</b><br>${completedSubs} de ${totalSubs}` +
+                            `<br><br><b>Documentos</b><br>${completedDocs} de ${totalDocs}` +
+                            `<br><br><b>Anexos</b><br>${attachmentsCount}`;
+        showTooltip(subFolderChart, tooltipText, 'left');
+      });
+      subFolderChart.addEventListener("mouseleave", hideTooltip);
+    }
+
+    const docChart = document.getElementById("documentCompletionPercent");
+    if(docChart) {
+      docChart.addEventListener("mouseenter", function() {
+        const docs = namedDocuments.filter(d =>
+          d.folderName === currentFolder && (d.subFolderName || null) === (currentSubFolder || null)
+        );
+        const totalDocs = docs.filter(doc => !doc.isAttachment).length;
+        const completedDocs = docs.filter(doc => doc.completed && !doc.isAttachment).length;
+        const attachmentsCount = docs.filter(doc => doc.isAttachment).length;
+        const tooltipText = `<b>Documentos</b><br>${completedDocs} de ${totalDocs}` +
+                            `<br><br><b>Anexos</b><br>${attachmentsCount}`;
+        showTooltip(docChart, tooltipText, 'right');
+      });
+      docChart.addEventListener("mouseleave", hideTooltip);
+    }
+  
+    const calendarModal = document.getElementById("calendarModal");
+    const currentCalendarDiv = document.getElementById("currentCalendar");
+    const eventInfoDiv = document.getElementById("eventCountdown");
+    const closeCalendarBtn = document.getElementById("closeCalendarBtn");
+    closeCalendarBtn.addEventListener("click", () => {
+      calendarModal.style.display = "none";
+    });
+  
+    function openCalendar(folderName) {
+      calendarModal.style.display = "block";
+      if(currentCalendarMonth === null || currentCalendarYear === null){
+        const now = new Date();
+        currentCalendarMonth = now.getMonth();
+        currentCalendarYear  = now.getFullYear();
+      }
+      renderCalendar(folderName);
+    }
+  
+    function renderCalendar(folderName) {
+  currentCalendarDiv.innerHTML = "";
+  const header = document.createElement("div");
+  header.id = "calendarHeader";
+  const monthNames = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+  header.textContent = monthNames[currentCalendarMonth] + " " + currentCalendarYear;
+  currentCalendarDiv.appendChild(header);
+
+  const navDiv = document.createElement("div");
+  navDiv.id = "calendarNav";
+  const prevBtn = document.createElement("button");
+  prevBtn.innerHTML = "&laquo; Mês Anterior";
+  prevBtn.addEventListener("click", () => {
+    currentCalendarMonth--;
+    if (currentCalendarMonth < 0) { 
+      currentCalendarMonth = 11; 
+      currentCalendarYear--; 
+    }
+    renderCalendar(folderName);
+  });
+  const nextBtn = document.createElement("button");
+  nextBtn.innerHTML = "Próximo Mês &raquo;";
+  nextBtn.addEventListener("click", () => {
+    currentCalendarMonth++;
+    if (currentCalendarMonth > 11) { 
+      currentCalendarMonth = 0; 
+      currentCalendarYear++; 
+    }
+    renderCalendar(folderName);
+  });
+  navDiv.appendChild(prevBtn);
+  navDiv.appendChild(nextBtn);
+  currentCalendarDiv.appendChild(navDiv);
+
+  updateEventCountdown(folderName);
+
+  const firstDay = new Date(currentCalendarYear, currentCalendarMonth, 1).getDay();
+  const daysInMonth = new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate();
+  let prevMonth, prevYear;
+  if (currentCalendarMonth === 0) {
+    prevMonth = 11;
+    prevYear = currentCalendarYear - 1;
+  } else {
+    prevMonth = currentCalendarMonth - 1;
+    prevYear = currentCalendarYear;
+  }
+  const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) {
+    cells.push({ day: daysInPrevMonth - firstDay + 1 + i, faded: true });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, faded: false });
+  }
+  let nextMonthDay = 1;
+  while (cells.length < 42) {
+    cells.push({ day: nextMonthDay++, faded: true });
+  }
+
+  const now = new Date();
+  const todayFormatted = now.getFullYear() + "-" +
+    String(now.getMonth() + 1).padStart(2, "0") + "-" +
+    String(now.getDate()).padStart(2, "0");
+
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].forEach(day => {
+    const th = document.createElement("th");
+    th.textContent = day;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  for (let i = 0; i < 6; i++) {
+    const row = document.createElement("tr");
+    for (let j = 0; j < 7; j++) {
+      const cellIndex = i * 7 + j;
+      const cellData = cells[cellIndex];
+      const td = document.createElement("td");
+      td.textContent = cellData.day;
+      if (cellData.faded) {
+        td.style.color = "#aaa";
+        td.style.opacity = "0.6";
+      } else {
+        const yyyy = currentCalendarYear,
+              mm = currentCalendarMonth + 1,
+              dd = cellData.day;
+        const dateKey = `${yyyy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+        if (dateKey === todayFormatted) {
+          td.style.backgroundColor = "#2196F3";
+          td.style.border = "2px solid #1565C0";
+        } else if (folderEvents[folderName] && folderEvents[folderName][dateKey]) {
+          td.style.backgroundColor = "#cffccf";
+        }
+        td.addEventListener("click", () => {
+          const existing = (folderEvents[folderName] && folderEvents[folderName][dateKey]) || "";
+          const evDesc = prompt(`Evento para ${dateKey}:`, existing);
+          if (evDesc === null) return;
+          if (evDesc.trim() === "") {
+            if (folderEvents[folderName]) { 
+              delete folderEvents[folderName][dateKey]; 
+            }
+            alert("Evento excluído.");
+          } else {
+            if (!folderEvents[folderName]) { 
+              folderEvents[folderName] = {}; 
+            }
+            folderEvents[folderName][dateKey] = evDesc.trim();
+            alert("Evento salvo.");
+          }
+          saveAllData();
+          renderCalendar(folderName);
+        });
+      }
+      row.appendChild(td);
+    }
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+  currentCalendarDiv.appendChild(table);
+}
+  
+    function updateEventCountdown(folderName) {
+      const countdownDiv = document.getElementById("eventCountdown");
+      countdownDiv.innerHTML = "";
+      const today = new Date();
+      let nearestEvent = null;
+      let nearestDiff = Infinity;
+      for(let key in folderEvents[folderName]){
+        const parts = key.split("-");
+        const eventDate = new Date(parts[0], parts[1]-1, parts[2]);
+        const diff = (eventDate - today) / (1000*60*60*24);
+        if(diff >= 0 && diff < nearestDiff){
+          nearestDiff = diff;
+          nearestEvent = { key, description: folderEvents[folderName][key], eventDate };
+        }
+      }
+      if(nearestEvent){
+        const daysLeft = Math.ceil(nearestDiff)+1;
+        const d = String(nearestEvent.eventDate.getDate()).padStart(2,'0');
+        const m = String(nearestEvent.eventDate.getMonth()+1).padStart(2,'0');
+        const y = nearestEvent.eventDate.getFullYear();
+        countdownDiv.innerHTML = `<strong>Faltam ${daysLeft} dia(s) para o evento: ${nearestEvent.description}</strong><br><span>${d}/${m}/${y}</span><br><button id="editEventBtn" title="Editar">&#9998;</button><button id="deleteEventBtn" title="Excluir">&#128465;</button>`;
+        document.getElementById("editEventBtn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          const newDesc = prompt("Editar o evento:", nearestEvent.description);
+          if(newDesc !== null){
+            if(newDesc.trim() === ""){ delete folderEvents[folderName][nearestEvent.key]; alert("Evento excluído."); }
+            else { folderEvents[folderName][nearestEvent.key] = newDesc.trim(); alert("Evento alterado."); }
+            saveAllData();
+            renderCalendar(folderName);
+          }
+        });
+        document.getElementById("deleteEventBtn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          if(confirm("Deseja excluir este evento?")){
+            delete folderEvents[folderName][nearestEvent.key];
+            alert("Evento excluído.");
+            saveAllData();
+            renderCalendar(folderName);
+          }
+        });
+      } else {
+        countdownDiv.textContent = "Nenhum evento registrado.";
+      }
+    }
+  
+function displayAttachments(attachments) {
+  attachments.forEach((file) => {
+    // Seleciona a URL do arquivo
+    const fileUrl = file.data || file.fileData;
+    const fileName = file.name && file.name.trim() !== "" ? file.name : "download";
+    
+    if (!fileUrl) {
+      alert("Dados do arquivo não disponíveis para download.");
+      return;
+    }
+    
+    if (confirm("Foi detectado o arquivo '" + fileName + "'. Deseja baixar o arquivo?")) {
+      // Se for vídeo ou áudio, usamos XMLHttpRequest para mostrar o progresso
+      if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", fileUrl, true);
+        xhr.responseType = "blob";
+        
+        // Cria um pop-up de progresso
+        const progressPopup = document.createElement("div");
+        progressPopup.style.position = "fixed";
+        progressPopup.style.top = "50%";
+        progressPopup.style.left = "50%";
+        progressPopup.style.transform = "translate(-50%, -50%)";
+        progressPopup.style.padding = "20px";
+        progressPopup.style.backgroundColor = "#fff";
+        progressPopup.style.border = "1px solid #ccc";
+        progressPopup.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+        progressPopup.style.zIndex = "3000";
+        progressPopup.innerHTML = "Baixando: 0%";
+        document.body.appendChild(progressPopup);
+        
+        xhr.onprogress = function(event) {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            progressPopup.innerHTML = "Baixando: " + percentComplete + "%";
+          }
+        };
+        
+        xhr.onload = function() {
+          document.body.removeChild(progressPopup);
+          if (xhr.status === 200) {
+            const blob = xhr.response;
+            const blobUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = fileName;
+            a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              window.URL.revokeObjectURL(blobUrl);
+              document.body.removeChild(a);
+            }, 100);
+          } else {
+            alert("Erro no download: " + xhr.status);
+          }
+        };
+        
+        xhr.onerror = function() {
+          document.body.removeChild(progressPopup);
+          alert("Erro ao baixar o arquivo.");
+        };
+        
+        xhr.send();
+      } else {
+        // Para os demais tipos, usa o método simples
+        const a = document.createElement("a");
+        a.href = fileUrl;
+        a.download = fileName;
+        a.target = "_blank";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+        }, 100);
+      }
+    }
+  });
+}
+   function showContextMenuFile(x, y, file) {
+      const menu = document.getElementById("contextMenuFile");
+      menu.style.display = "block";
+      menu.style.left = x + "px";
+      menu.style.top = y + "px";
+      menu.targetFile = file;
+    }
+  
+    // ATUALIZAÇÃO NOS EVENT LISTENERS DOS ARQUIVOS (ANEXOS) PARA MANTER A TELA DE PASTAS CUSTOMIZADAS
+    document.getElementById("renameFileItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById("contextMenuFile");
+      const file = menu.targetFile;
+      if(file) {
+        const newName = prompt("Renomear arquivo:", file.name);
+        if(newName && newName.trim() !== ""){
+          file.name = newName.trim();
+          saveAllData();
+          // Se o arquivo for um anexo na tela de pastas customizadas, permanece nela
+          if(currentDocument && currentDocument.attachments && currentDocument.attachments.includes(file)){
+            renderCurrentDocumentCustomFolders();
+          } else {
+            showSubFolderScreen(currentFolder);
+          }
+        }
+      }
+      menu.style.display = "none";
+    });
+  
+    document.getElementById("deleteFileItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById("contextMenuFile");
+      const file = menu.targetFile;
+      if(file && currentFolder) {
+        if(confirm(`Deseja excluir o arquivo "${file.name}"?`)){
+          // Se o arquivo for um anexo da tela de pastas customizadas, removemos dele e renderizamos a tela de custom folders
+          if(currentDocument && currentDocument.attachments && currentDocument.attachments.includes(file)){
+            currentDocument.attachments = currentDocument.attachments.filter(f => f !== file);
+            renderCurrentDocumentCustomFolders();
+          } else if(folderFiles[currentFolder]){
+            folderFiles[currentFolder] = folderFiles[currentFolder].filter(f => f !== file);
+            showSubFolderScreen(currentFolder);
+          }
+          saveAllData();
+        }
+      }
+      menu.style.display = "none";
+    });
+  
+    document.getElementById("favoriteFileItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById("contextMenuFile");
+      const file = menu.targetFile;
+      if(file){
+        file.favorite = !file.favorite;
+        saveAllData();
+        // Se o arquivo for um anexo da tela de pastas customizadas, renderiza os anexos
+        if(currentDocument && currentDocument.attachments && currentDocument.attachments.includes(file)){
+          renderCurrentDocumentCustomFolders();
+        } else {
+          showSubFolderScreen(currentFolder);
+        }
+      }
+      menu.style.display = "none";
+    });
+  
+    document.getElementById("calendarDocBtn").addEventListener("click", () => { if(currentFolder) openCalendar(currentFolder); });
+    document.getElementById("calendarCustomFolderBtn").addEventListener("click", () => { if(currentFolder) openCalendar(currentFolder); });
+  
+    document.getElementById("addCustomFolderBtn").addEventListener("click", () => {
+      document.getElementById("customFolderModal").style.display = "block";
+    });
+  
+    const optionButtons = document.querySelectorAll("#customFolderModal .option-button");
+    optionButtons.forEach(button => {
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        optionButtons.forEach(btn => btn.classList.remove("selected"));
+        button.classList.add("selected");
+        const inputContainer = document.getElementById("customFolderInputContainer");
+        inputContainer.style.display = (button.getAttribute("data-type") === "Outros") ? "block" : "none";
+      });
+    });
+    document.getElementById("createCustomFolderBtnModal").addEventListener("click", (e) => {
+      e.stopPropagation();
+      let folderType = "";
+      const inputContainer = document.getElementById("customFolderInputContainer");
+      if(inputContainer.style.display === "block"){
+        folderType = document.getElementById("customFolderInput").value.trim();
+      } else {
+        const sel = document.querySelector("#customFolderModal .option-button.selected");
+        if(sel) folderType = sel.getAttribute("data-type");
+      }
+      if(!folderType){ alert("Por favor, selecione ou insira um tipo para a pasta customizada."); return; }
+      const newFolder = { id: "cf_" + Date.now(), type: folderType, editorContent: "" };
+      if(!currentDocument.customFolders) currentDocument.customFolders = [];
+      currentDocument.customFolders.push(newFolder);
+      saveAllData();
+      renderCurrentDocumentCustomFolders();
+      document.getElementById("customFolderModal").style.display = "none";
+    });
+    document.getElementById("cancelCustomFolderBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.getElementById("customFolderModal").style.display = "none";
+    });
+  
+    /* ===============================
+       NOVOS MENUS DE CONTEXTO PARA PASTAS CUSTOMIZADAS
+    =============================== */
+    function showContextMenuCustomFolder(x, y, folderId){
+      const menu = document.getElementById("contextMenuCustomFolder");
+      menu.style.display = "block";
+      menu.style.left = x + "px";
+      menu.style.top = y + "px";
+      menu.targetFolderId = folderId;
+    }
+    document.getElementById("copyCustomFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById("contextMenuCustomFolder");
+      const folderId = menu.targetFolderId;
+      const folder = currentDocument.customFolders.find(f => f.id === folderId);
+      if(folder){
+        const newFolder = Object.assign({}, folder, {
+          id: "cf_" + Date.now(),
+          type: folder.type + " (cópia)",
+          editorContent: folder.editorContent || ""
+        });
+        currentDocument.customFolders.push(newFolder);
+        saveAllData();
+        renderCurrentDocumentCustomFolders();
+      }
+      menu.style.display = "none";
+    });
+    document.getElementById("editCustomFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById("contextMenuCustomFolder");
+      const folderId = menu.targetFolderId;
+      const folder = currentDocument.customFolders.find(f => f.id === folderId);
+      if(folder){
+        const newType = prompt("Renomear pasta customizada:", folder.type);
+        if(newType && newType.trim() !== ""){
+          folder.type = newType.trim();
+          saveAllData();
+          renderCurrentDocumentCustomFolders();
+        }
+      }
+      menu.style.display = "none";
+    });
+    document.getElementById("deleteCustomFolderItem").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById("contextMenuCustomFolder");
+      const folderId = menu.targetFolderId;
+      if(confirm("Deseja excluir a pasta customizada e todo seu conteúdo?")){
+        currentDocument.customFolders = currentDocument.customFolders.filter(f => f.id !== folderId);
+        saveAllData();
+        renderCurrentDocumentCustomFolders();
+      }
+      menu.style.display = "none";
+    });
+    /* ===============================
+       FIM DOS MENUS DE CONTEXTO PARA PASTAS CUSTOMIZADAS
+    =============================== */
   </script>
 </body>
-</html>
+</html>  
