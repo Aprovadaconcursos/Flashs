@@ -1294,7 +1294,7 @@ a {
        SCRIPT (Firebase + Lógica + Editor)
   ========================================-->
   <script type="module">
-import { openDB } from 'https://unpkg.com/idb?module';
+import { openDB } from 'https://unpkg.com/idb@6.1.5?module';
 // Cria (ou abre) o banco de dados 'myAppDB' e um object store chamado 'userData'
 const dbPromise = openDB('myAppDB', 1, {
   upgrade(db) {
